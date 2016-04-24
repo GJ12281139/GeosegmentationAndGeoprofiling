@@ -18,4 +18,12 @@ public class GeoMath {
         Coordinate p2Lng = new DegreeCoordinate(lng2);
         return EarthCalc.getVincentyDistance(new Point(p1Lat, p1Lng), new Point(p2Lat, p2Lng));
     }
+
+    public static Point getPoint(double lat, double lng) {
+        return new Point(new DegreeCoordinate(lat), new DegreeCoordinate(lng));
+    }
+
+    public static Point getPoint(Point lat, double lng) {
+        return new Point(new DegreeCoordinate(lat.getLatitude()), new DegreeCoordinate(lng));
+    }
 }

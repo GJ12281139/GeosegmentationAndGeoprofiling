@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.ifmo.pashaac.common.GeoMath;
+import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.coverage.CoverageModel;
 
 import javax.annotation.Nullable;
@@ -21,11 +22,7 @@ public class BoundingBoxService {
 
     private static final Logger LOG = Logger.getLogger(BoundingBoxService.class);
 
-    @Value("${max.boundingbox.diagonal}")
-    private double maxBoundingboxDiagonal;
-
     @Value("${min.radar.search.result}")
-//    @ReloadableProperty("min.radar.search.result")
     private double minRadarSearchResult;
 
     private final GeoApiContext context;
@@ -69,7 +66,7 @@ public class BoundingBoxService {
                     "southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + "), " +
                     "northeast (lat = " + box.northeast.lat + ", lng = " + box.northeast.lng + ")");
             double distance = GeoMath.distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.northeast.lng);
-            return distance > maxBoundingboxDiagonal ? null : box;
+            return distance > Properties.getMaxBoundingBoxDiagonal() ? null : box;
         } catch (Exception e) {
             LOG.error("Error getting boundingbox by region = " + region + " and country = " + country);
             return null;

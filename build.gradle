@@ -39,8 +39,7 @@ dependencies {
     compile('javax.servlet:jstl:1.2')
     compile('org.apache.tomcat.embed:tomcat-embed-jasper')
     compile files('lib/geocalc-0.5.1.jar') // https://github.com/grumlimited/geocalc.git
-//    compile files('lib/ReloadablePropertiesAnnotation-0.0.2-SNAPSHOT.jar') // https://github.com/jamesmorgan/ReloadablePropertiesAnnotation.git
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
+    compile('com.google.code.findbugs:jsr305:3.0.0')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
