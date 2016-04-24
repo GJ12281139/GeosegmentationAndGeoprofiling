@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling.iml" filepath="$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling_main.iml" filepath="$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling_main.iml" group="GeosegmentationAndGeoprofiling" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling_test.iml" filepath="$PROJECT_DIR$/.idea/modules/GeosegmentationAndGeoprofiling_test.iml" group="GeosegmentationAndGeoprofiling" />
+      <module fileurl="file://$PROJECT_DIR$/src/main/webapp.iml" filepath="$PROJECT_DIR$/src/main/webapp.iml" />
+    </modules>
+  </component>
+</project>
