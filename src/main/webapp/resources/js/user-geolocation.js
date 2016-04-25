@@ -1,42 +1,4 @@
 
-function addMarker(position, icon, title, map) {
-    new google.maps.Marker({
-        position: position,
-        map: map,
-        icon: icon,
-        // animation: google.maps.Animation.NONE,
-        clickable: true,
-        title: title
-    });
-}
-
-function addCircle(position, radius) {
-    new google.maps.Circle({
-        center: position,
-        strokeColor: '#585858',
-        strokeOpacity: 0.4,
-        fillOpacity: 0.1,
-        map: map,
-        radius: radius
-    });
-    
-}
-
-function addRectangle(north, south, east, west, map) {
-    new google.maps.Rectangle({
-        strokeColor: '##1C1C1C',
-        strokeOpacity: 0.8,
-        fillOpacity: 0,
-        map: map,
-        bounds: {
-            north: north,
-            south: south,
-            east: east,
-            west: west
-        }
-    });
-}
-
 function tryingGetUserGeolocationAndRedirect() {
     // Try HTML5 geolocation.
     if (navigator.geolocation) {

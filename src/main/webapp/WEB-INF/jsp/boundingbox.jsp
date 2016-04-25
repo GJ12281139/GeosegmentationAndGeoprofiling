@@ -34,8 +34,10 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" charset="utf-8">
 
     <spring:url value="/resources/js/user-geolocation.js" var="userGeolocationJs"/>
+    <spring:url value="/resources/js/map-utils.js" var="mapUtilsJs"/>
     <spring:url value="/resources/css/boundingbox.css" var="boundingboxCss"/>
     <script src="${userGeolocationJs}"></script>
+    <script src="${mapUtilsJs}"></script>
     <link href="${boundingboxCss}" rel="stylesheet"/>
 </head>
 <body>
@@ -44,7 +46,7 @@
     <fmt:message key="icon.azure.48" var="azureIc"/>
     <fmt:message key="icon.pink.32" var="pinkIc"/>
     <fmt:message key="map.zoom" var="mapZoom"/>
-    <fmt:message key="marker.clickable" var="markerClickable"/>
+    <fmt:message key="marker.clickable" var="clickable"/>
 </fmt:bundle>
 <c:choose>
     <%--@elvariable id="error" type="java"--%>
@@ -69,7 +71,7 @@
 
                 map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-                addMarker(userPos, ${azureIc}, "You are here", map);
+                addMarker(userPos, ${azureIc}, "You are here", map, ${clickable});
                 <c:forEach var="marker" items="${model.markers}" varStatus="loop">
                     var markerPos = {lat: ${marker.lat}, lng: ${marker.lng}};
                     addMarker(markerPos, ${pinkIc}, 'Marker #' + ${loop.index}, map);
