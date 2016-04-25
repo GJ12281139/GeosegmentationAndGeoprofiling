@@ -11,6 +11,8 @@ import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.coverage.CoverageModel;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -129,20 +131,22 @@ public class BoundingBoxService {
 
     @Nullable
     private String getComponentTypeLongName(GeocodingResult geocodingResult, AddressComponentType componentType) {
+        Optional<AddressComponent> component = Arrays.stream(geocodingResult.addressComponents)
+                .filter(address -> Arrays.stream(address.types)
+                        .anyMatch(type -> type == componentType))
+                .findAny();
 
-        for (AddressComponent addressComponent : geocodingResult.addressComponents) {
-            for (AddressComponentType addressComponentType : addressComponent.types) {
-                if (addressComponentType == componentType) {
-                    return addressComponent.longName;
-                }
-            }
-//            Optional<AddressComponentType> first = Arrays.stream(addressComponent.types).filter(e -> e == componentType).findFirst();
-//            AddressComponentType addressComponentType = first.get();
+        return component.isPresent() ? component.get().longName : null;
 
-
-//            return first.isPresent() ? first.get() : null;
-        }
-        return null;
+//        for (AddressComponent addressComponent : geocodingResult.addressComponents) {
+//            for (AddressComponentType addressComponentType : addressComponent.types) {
+//                if (addressComponentType == componentType) {
+//                    return addressComponent.longName;
+//                }
+//            }
+//            Arrays.stream(addressComponent.types).filter(type -> type == componentType).findFirst()
+//        }
+//        return null;
     }
 
 }

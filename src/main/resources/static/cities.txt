@@ -1,20 +1,20 @@
-http://localhost:8080/boundingbox/lat/59.958543899999995/lng/30.4049756  - Санкт-Петербург
-http://localhost:8080/boundingbox/lat/43.595982/lng/39.736800            - Сочи
-http://localhost:8080/boundingbox/lat/68.939534/lng/33.108448            - Мурманск
-http://localhost:8080/boundingbox/lat/55.716224/lng/37.665431            - Москва (интересное поведение)
-http://localhost:8080/boundingbox/lat/56.828092/lng/60.591070            - Екатеринбург
-http://localhost:8080/boundingbox/lat/54.983842/lng/82.976847            - Новосибирск
-http://localhost:8080/boundingbox/lat/52.308381/lng/104.297364           - Иркутск
-http://localhost:8080/boundingbox/lat/43.209164/lng/132.017977           - Владивосток
-http://localhost:8080/boundingbox/lat/53.013077/lng/158.703047           - Петропавловск-Камчатский
+http://localhost:8080/boundingbox?lat=59.958543899999995&lng=30.4049756  - Санкт-Петербург
+http://localhost:8080/boundingbox?lat=43.595982&lng=39.736800            - Сочи
+http://localhost:8080/boundingbox?lat=68.939534&lng=33.108448            - Мурманск
+http://localhost:8080/boundingbox?lat=55.716224&lng=37.665431            - Москва (интересное поведение)
+http://localhost:8080/boundingbox?lat=56.828092&lng=60.591070            - Екатеринбург
+http://localhost:8080/boundingbox?lat=54.983842&lng=82.976847            - Новосибирск
+http://localhost:8080/boundingbox?lat=52.308381&lng=104.297364           - Иркутск
+http://localhost:8080/boundingbox?lat=43.209164&lng=132.017977           - Владивосток
+http://localhost:8080/boundingbox?lat=53.013077&lng=158.703047           - Петропавловск-Камчатский
 
-http://localhost:8080/boundingbox/lat/22.312265/lng/114.188924           - Гонконг (Китай)
-http://localhost:8080/boundingbox/lat/-33.886716/lng/151.210788          - Сидней (Плохо, адреса некоторых точек не содержат названия города)
-http://localhost:8080/boundingbox/lat/37.749807/lng/-122.459231          - Сан-Франциско (Интересно)
-http://localhost:8080/boundingbox/lat/40.692817/lng/-73.90387            - Нью-Йорк
-http://localhost:8080/boundingbox/lat/51.509331/lng/-0.151044            - Лондон
-http://localhost:8080/boundingbox/lat/41.895165/lng/12.485178            - Рим
-http://localhost:8080/boundingbox/lat/38.731823/lng/-9.122440            - Лиссабон
-http://localhost:8080/boundingbox/lat/-22.907377/lng/-43.576747          - Рио-Де-Жанейро
-http://localhost:8080/boundingbox/lat/-54.822003/lng/-68.337480          - Ушая (Аргентина)
+http://localhost:8080/boundingbox?lat=22.312265&lng=114.188924           - Гонконг (Китай)
+http://localhost:8080/boundingbox?lat=-33.886716&lng=151.210788          - Сидней (Плохо, адреса некоторых точек не содержат названия города)
+http://localhost:8080/boundingbox?lat=37.749807&lng=-122.459231          - Сан-Франциско (Интересно)
+http://localhost:8080/boundingbox?lat=40.692817&lng=-73.90387            - Нью-Йорк
+http://localhost:8080/boundingbox?lat=51.509331&lng=-0.151044            - Лондон
+http://localhost:8080/boundingbox?lat=41.895165&lng=12.485178            - Рим
+http://localhost:8080/boundingbox?lat=38.731823&lng=-9.122440            - Лиссабон
+http://localhost:8080/boundingbox?lat=-22.907377&lng=-43.576747          - Рио-Де-Жанейро
+http://localhost:8080/boundingbox?lat=-54.822003&lng=-68.337480          - Ушая (Аргентина)
 
