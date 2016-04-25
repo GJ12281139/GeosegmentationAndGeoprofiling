@@ -137,16 +137,6 @@ public class BoundingBoxService {
                 .findAny();
 
         return component.isPresent() ? component.get().longName : null;
-
-//        for (AddressComponent addressComponent : geocodingResult.addressComponents) {
-//            for (AddressComponentType addressComponentType : addressComponent.types) {
-//                if (addressComponentType == componentType) {
-//                    return addressComponent.longName;
-//                }
-//            }
-//            Arrays.stream(addressComponent.types).filter(type -> type == componentType).findFirst()
-//        }
-//        return null;
     }
 
 }
