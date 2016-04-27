@@ -14,7 +14,7 @@ function tryingGetUserGeolocationAndRedirect() {
 }
 
 function handleGeolocationError(browserHasGeolocation) {
-    var msg = 'Add your geolocation (example: ?lat=59.9574527&lng=30.3057543) to URL by hands.';
+    var msg = 'Add your geolocation (example like ?lat=59.9574527&lng=30.3057543) to URL by hands.';
     alert(browserHasGeolocation ? 'Error: The Geolocation service failed. ' + msg
         : 'Error: Your browser does not support geolocation. ' + msg);
 }

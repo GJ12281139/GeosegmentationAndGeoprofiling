@@ -3,10 +3,7 @@ package ru.ifmo.pashaac.coverage;
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
 import ru.ifmo.pashaac.common.BoundingBox;
-import ru.ifmo.pashaac.common.Marker;
-
-import java.util.ArrayList;
-import java.util.List;
+import ru.ifmo.pashaac.common.Place;
 
 /**
  * Created by Pavel Asadchiy
@@ -14,57 +11,53 @@ import java.util.List;
  */
 public class CoverageModel {
 
-    private final Marker userGeolocation;
-    private final BoundingBox boundingbox;
-    private final List<Marker> markers;
-    private final String message;
+    private final Place user;
+    private final BoundingBox box;
+    private final String error;
 
-    public CoverageModel(String message) {
-        this(null, null, null, message);
+    private CoverageModel(Place user, BoundingBox box, String error) {
+        this.user = user;
+        this.box = box;
+        this.error = error;
     }
 
-    public CoverageModel(Bounds bounds) {
-        this(new LatLng((bounds.northeast.lat + bounds.southwest.lat) / 2, (bounds.northeast.lng + bounds.southwest.lng) / 2), bounds);
+    public CoverageModel(Place user, BoundingBox box) {
+        this(user, box, null);
     }
 
-    public CoverageModel(LatLng userGeolocation, Bounds boundingbox) {
-        this(userGeolocation, boundingbox, new ArrayList<>());
+    public CoverageModel(LatLng user, BoundingBox box) {
+        this(new Place.Builder().setLat(user.lat).setLng(user.lng).build(), box, null);
     }
 
-    public CoverageModel(LatLng userGeolocation, Bounds boundingbox, List<Marker> markers) {
-        this(new Marker(userGeolocation), new BoundingBox(boundingbox), markers, null);
+    public CoverageModel(String error) {
+        this(null, null, error);
     }
 
-    public CoverageModel(Marker userGeolocation, BoundingBox boundingbox, List<Marker> markers, String message) {
-        this.userGeolocation = userGeolocation;
-        this.boundingbox = boundingbox;
-        this.markers = markers;
-        this.message = message;
+    public Place getUser() {
+        return user;
     }
 
-    public Marker getUserGeolocation() {
-        return userGeolocation;
+    public BoundingBox getBox() {
+        return box;
     }
 
-    public BoundingBox getBoundingbox() {
-        return boundingbox;
+    public Bounds getBounds() {
+        Bounds bounds = new Bounds();
+        bounds.southwest = box.getSouthwest().getLatLng();
+        bounds.northeast = box.getNortheast().getLatLng();
+        return bounds;
     }
 
-    public List<Marker> getMarkers() {
-        return markers;
-    }
-
-    public String getMessage() {
-        return message;
+    public String getError() {
+        return error;
     }
 
     @Override
     public String toString() {
         return "CoverageModel{" +
-                "userGeolocation=" + userGeolocation +
-                ", boundingbox=" + boundingbox +
-                ", markers=" + markers +
-                ", message='" + message + '\'' +
+                "user=" + user +
+                ", box=" + box +
+                ", error='" + error + '\'' +
                 '}';
     }
 }

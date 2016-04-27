@@ -1,16 +1,18 @@
-package ru.ifmo.pashaac.boundingbox;
+package ru.ifmo.pashaac.map;
 
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.*;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.coverage.CoverageModel;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -24,14 +26,14 @@ public class BoundingBoxService {
 
     private static final Logger LOG = Logger.getLogger(BoundingBoxService.class);
 
-    @Value("${min.radar.search.result}")
-    private double minRadarSearchResult;
+    @Autowired
+    private final MapService mapService;
 
     private final GeoApiContext context;
 
-    public BoundingBoxService() {
+    public BoundingBoxService(MapService mapService) {
         if (System.getenv("GOOGLE_API_KEY") == null) {
-            throw new IllegalStateException("set key for environment variable GOOGLE_API_KEY");
+            throw new IllegalStateException("Not found environment variable GOOGLE_API_KEY with key");
         }
         context = new GeoApiContext()
                 .setApiKey(System.getenv("GOOGLE_API_KEY"))
@@ -39,17 +41,9 @@ public class BoundingBoxService {
                 .setConnectTimeout(1, TimeUnit.SECONDS)
                 .setReadTimeout(1, TimeUnit.SECONDS)
                 .setWriteTimeout(1, TimeUnit.SECONDS);
+        this.mapService = mapService;
     }
 
-    @Nullable
-    public GeocodingResult[] getAddressByCoordinates(LatLng userGeolocation) {
-        try {
-            return GeocodingApi.newRequest(context).latlng(userGeolocation).await();
-        } catch (Exception e) {
-            LOG.error("Error getting address by coordinates (reverse geocoding)");
-            return null;
-        }
-    }
 
     /**
      * Get boundingbox around region of the country with Google geocoding API help
@@ -58,63 +52,48 @@ public class BoundingBoxService {
      * @param country user geolocation country
      * @return boundingbox around region of the country
      */
-    @Nullable
-    public Bounds getRegionBoundingbox(String region, String country) {
+    @NotNull
+    public CoverageModel getBoundingBoxModel(String region, String country) {
         try {
-            String address = region + (country != null ? ", " + country : "");
+            String address = region + (country != null ? " " + country : "");
             GeocodingResult[] boundingboxes = GeocodingApi.newRequest(context).address(address).await();
             final Bounds box = boundingboxes[0].geometry.bounds;
             LOG.info("Boundingbox " +
                     "southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + "), " +
                     "northeast (lat = " + box.northeast.lat + ", lng = " + box.northeast.lng + ")");
             double distance = GeoMath.distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.northeast.lng);
-            return distance > Properties.getMaxBoundingBoxDiagonal() ? null : box;
+            return distance > Properties.getMaxBoundingBoxDiagonal()
+                    ? new CoverageModel("Service can't get region map by region = " + region + ", country = " + country)
+                    : new CoverageModel(GeoMath.getBoundCenter(box), new BoundingBox(box));
         } catch (Exception e) {
-            LOG.error("Error getting boundingbox by region = " + region + " and country = " + country);
-            return null;
+            LOG.error("Error getting boundingbox around region = " + region + " and country = " + country);
+            return new CoverageModel("Service can't get region map by region = " + region + ", country = " + country);
         }
     }
 
     /**
-     * Возвращает класс-обертку, в которой будет содержаться boundingbox региона, который соответствует координатам.
+     * CoverageModel - wrapper with boundingbox around coordinates and user location (without places)
      *
-     * @param lat широта
-     * @param lng долгота
-     * @return boundingbox региона, который соответствует координатам.
+     * @param lat latitude
+     * @param lng longitude
+     * @return CoverageModel with boundingbox around coordinates and user location (without places)
      */
-    public CoverageModel getBoundingBox(Double lat, Double lng) {
-        final LatLng userGeolocation = new LatLng(lat, lng);
+    @NotNull
+    public CoverageModel getBoundingBoxModel(Double lat, Double lng) {
+        final LatLng user = new LatLng(lat, lng);
 
-        GeocodingResult[] userAddresses = getAddressByCoordinates(userGeolocation);
+        GeocodingResult[] userAddresses = mapService.getAddressByCoordinates(user);
         if (userAddresses == null) {
             return new CoverageModel("Service can't get address by coordinates (latitude = " + lat + ", longitude = " + lng + ")");
         }
-        final String region = getRegionByGeocoding(userAddresses); // should be city in most cases
+        final String region = getRegionByGeocoding(userAddresses);
         final String country = getCountryByGeocoding(userAddresses);
         LOG.info("Boundingbox for region = " + region + ", country = " + country);
         if (region == null || country == null) {
             return new CoverageModel("Service can't determine region by coordinates (latitude = " + lat + ", longitude = " + lng + ")");
         }
-        Bounds box = getRegionBoundingbox(region, country);
-        if (box == null) {
-            return new CoverageModel("Service can't get region boundingbox by coordinates (latitude = " + lat + ", longitude = " + lng + ")");
-        }
-        return new CoverageModel(userGeolocation, box);
-    }
-
-    /**
-     * Возвращает класс-обертку, в которой будет содержаться boundingbox
-     *
-     * @param region  города или одназначная небольшая область
-     * @param country страна
-     * @return boundingbox региона, который соответствует координатам.
-     */
-    public CoverageModel getBoundingBox(String region, String country) {
-        Bounds box = getRegionBoundingbox(region, country);
-        if (box == null) {
-            return new CoverageModel("Service can't get region boundingbox by region = " + region + ", country = " + country);
-        }
-        return new CoverageModel(box);
+        CoverageModel boxModel = getBoundingBoxModel(region, country);
+        return boxModel.getError() != null ? boxModel : new CoverageModel(user, boxModel.getBox());
     }
 
     @Nullable

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * BoundingBox with places inside it
  * Need to parse data on client JSP side
  *
  * Created by Pavel Asadchiy
@@ -14,46 +15,48 @@ import java.util.List;
  */
 public class BoundingBox {
 
-    private final Marker northeast;
-    private final Marker southwest;
-    private List<Marker> markers;
+    private final Place southwest;
+    private final Place northeast;
+    private final List<Place> places;
 
-    public BoundingBox(Marker northeast, Marker southwest) {
-        this.northeast = northeast;
+    public BoundingBox(Place southwest, Place northeast, List<Place> places) {
         this.southwest = southwest;
-        this.markers = new ArrayList<>();
+        this.northeast = northeast;
+        this.places = places;
     }
 
-    public BoundingBox(Bounds bounds) {
-        this(new Marker(bounds.northeast), new Marker(bounds.southwest));
+    public BoundingBox(LatLng southwest, LatLng northeast) {
+        this(new Place.Builder().setLat(southwest.lat).setLng(southwest.lng).build(),
+                new Place.Builder().setLat(northeast.lat).setLng(northeast.lng).build(), new ArrayList<>());
     }
 
-    public Marker getNortheast() {
-        return northeast;
+    public BoundingBox(LatLng southwest, LatLng northeast, List<Place> places) {
+        this(new Place.Builder().setLat(southwest.lat).setLng(southwest.lng).build(),
+                new Place.Builder().setLat(northeast.lat).setLng(northeast.lng).build(), places);
     }
 
-    public Marker getSouthwest() {
+    public BoundingBox(Bounds box) {
+        this(box.southwest, box.northeast);
+    }
+
+    public Place getSouthwest() {
         return southwest;
     }
 
-    public List<Marker> getMarkers() {
-        return markers;
+    public Place getNortheast() {
+        return northeast;
     }
 
-    public Bounds getBounds() {
-        Bounds bounds = new Bounds();
-        bounds.northeast = new LatLng(northeast.getLat(), northeast.getLng());
-        bounds.southwest = new LatLng(southwest.getLat(), southwest.getLng());
-        return bounds;
+    public List<Place> getPlaces() {
+        return places;
     }
 
     @Override
     public String toString() {
         return "BoundingBox{" +
-                "northeast=" + northeast +
-                ", southwest=" + southwest +
-                ", markers=" + markers +
+                "southwest=" + southwest +
+                ", northeast=" + northeast +
+                ", places=" + places +
                 '}';
     }
-
 }
