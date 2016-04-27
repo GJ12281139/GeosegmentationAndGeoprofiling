@@ -105,7 +105,7 @@ public class CoverageAlgorithms {
         LOG.info("Dynamic uniform distribution with geodesic calculation");
 
         List<Place> places = placesSearch(model.getBounds(), placeType);
-        if (places == null) {
+        if (places.isEmpty()) {
             return new CoverageModel("Can't get places in " + model + " with radar search help");
         }
         places.add(model.getUser());
@@ -116,50 +116,59 @@ public class CoverageAlgorithms {
     private List<Place> placesSearch(Bounds box, PlaceType placeType) {
         List<Place> places = new ArrayList<>();
         LatLng center = GeoMath.getBoundCenter(box);
-        int maxRadius = (int) Math.ceil(GeoMath.getHalfDiagonal(box));
-        int searchRadius = (int) Properties.getMarkerRadius();
-
-        while (true) {
+        int rightRad = (int) Math.ceil(GeoMath.getHalfDiagonal(box));
+        int leftRad = (int) Properties.getMarkerRadius();
+        while (leftRad < rightRad) {
             try {
-                PlacesSearchResponse response = PlacesApi.radarSearchQuery(context, center, searchRadius).type(placeType).await();
-
-                if (Properties.getMinRadarSearchPlaces() < response.results.length
-                        && response.results.length < Properties.getMaxRadarSearchPlaces() || searchRadius == maxRadius) {
-                    // search center
-                    places.add(new Place.Builder().setLat(center.lat).setLng(center.lng).setRad(searchRadius).setIcon(Properties.getIconSearch48()).build());
-                    // places in search radius
-                    for (PlacesSearchResult result : response.results) {
-                        places.add(new Place.Builder()
-                                .setLatLng(result.geometry.location)
-                                .setPlaceId(result.placeId)
-                                .setPlaceName(result.name)
-                                .setAddress(result.formattedAddress)
-                                .setIcon(Properties.getIconGreen32())
-                                .setPlaceType(placeType.toString()).build());
-                    }
-                    return places; // OK or couldn't get more
+                int midRad;
+                if (Math.abs(leftRad - rightRad) < Properties.getRadarSearchRadiusEps()) {
+                    midRad = rightRad;
+                    leftRad = rightRad;
+                } else {
+                    midRad = (leftRad + rightRad) / 2;
                 }
-                if (response.results.length >= Properties.getMaxRadarSearchPlaces()) {
-                    searchRadius = 3 * searchRadius / 4; // stupid, but control max border
+                PlacesSearchResponse response = PlacesApi.radarSearchQuery(context, center, midRad).type(placeType).await();
+                LOG.info("leftRad " + leftRad + " rightRad " + rightRad + " midRad " + midRad);
+                if (midRad < rightRad && response.results.length > Properties.getMaxRadarSearchPlaces()) {
+                    rightRad = midRad - 1;
                     continue;
                 }
-                if (maxRadius < searchRadius + Properties.getRadarSearchRadiusEps()) {
-                    searchRadius = maxRadius;
+                if (midRad < rightRad && response.results.length < Properties.getMinRadarSearchPlaces()) {
+                    leftRad = midRad + 1;
                     continue;
                 }
 
-                // main binary search algorithm
-                searchRadius *= 2;
-                while (searchRadius > maxRadius + Properties.getRadarSearchRadiusEps()) {
-                    searchRadius = 3 * searchRadius / 4;
+                // add center
+                places.add(new Place.Builder().setLat(center.lat).setLng(center.lng).setRad(midRad).setIcon(Properties.getIconSearch48()).build());
+                // add searched places in radius
+                for (PlacesSearchResult result : response.results) {
+                    places.add(new Place.Builder()
+                            .setLatLng(result.geometry.location)
+                            .setPlaceId(result.placeId)
+                            .setPlaceName(result.name)
+                            .setAddress(result.formattedAddress)
+                            .setIcon(Properties.getIconGreen32())
+                            .setPlaceType(placeType.toString()).build());
                 }
-                if (searchRadius > maxRadius - Properties.getRadarSearchRadiusEps()) {
-                    searchRadius = maxRadius;
+                if (midRad == rightRad) {
+                    break;
                 }
+                List<Place> leftDown = placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType);
+                List<Place> leftUp = placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType);
+                List<Place> rightDown = placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType);
+                List<Place> rightUp = placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType);
+
+                places.addAll(leftDown);
+                places.addAll(leftUp);
+                places.addAll(rightDown);
+                places.addAll(rightUp);
+                break;
             } catch (Exception e) {
                 LOG.error("Radar search error " + e.getMessage());
-                return null;
+                return new ArrayList<>();
             }
         }
+        return places;
     }
+
 }

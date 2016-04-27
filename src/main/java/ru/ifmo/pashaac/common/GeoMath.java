@@ -40,7 +40,7 @@ public class GeoMath {
 
     public static Bounds getLeftUpBoundingBox(LatLng center, Bounds box) {
         Bounds bounds = new Bounds();
-        bounds.southwest = new LatLng(center.lat, bounds.southwest.lng);
+        bounds.southwest = new LatLng(center.lat, box.southwest.lng);
         bounds.northeast = new LatLng(box.northeast.lat, center.lng);
         return bounds;
     }
