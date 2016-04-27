@@ -22,12 +22,7 @@ public class BoundingBox {
     public BoundingBox(Place southwest, Place northeast, List<Place> places) {
         this.southwest = southwest;
         this.northeast = northeast;
-        this.places = places;
-    }
-
-    public BoundingBox(LatLng southwest, LatLng northeast) {
-        this(new Place.Builder().setLat(southwest.lat).setLng(southwest.lng).build(),
-                new Place.Builder().setLat(northeast.lat).setLng(northeast.lng).build(), new ArrayList<>());
+        this.places = places == null ? new ArrayList<>() : places;
     }
 
     public BoundingBox(LatLng southwest, LatLng northeast, List<Place> places) {
@@ -35,8 +30,12 @@ public class BoundingBox {
                 new Place.Builder().setLat(northeast.lat).setLng(northeast.lng).build(), places);
     }
 
+    public BoundingBox(Bounds box, List<Place> places) {
+        this(box.southwest, box.northeast, places);
+    }
+
     public BoundingBox(Bounds box) {
-        this(box.southwest, box.northeast);
+        this(box.southwest, box.northeast, null);
     }
 
     public Place getSouthwest() {

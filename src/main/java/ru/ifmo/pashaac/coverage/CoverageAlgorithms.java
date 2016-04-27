@@ -1,7 +1,8 @@
 package ru.ifmo.pashaac.coverage;
 
 import com.google.maps.GeoApiContext;
-import com.google.maps.model.Bounds;
+import com.google.maps.PlacesApi;
+import com.google.maps.model.*;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ public class CoverageAlgorithms {
      * @param box - bounding box вокруг города
      * @return список маркеров на карте, согласно виду распределения
      */
+    @Deprecated
     @SuppressWarnings("unused")
     public CoverageModel getStaticSimpleMarkersDistribution(Bounds box) {
         LOG.info("Static uniform distribution with simple (without geodesic) calculation...");
@@ -53,7 +55,7 @@ public class CoverageAlgorithms {
                 places.add(new Place.Builder().setLat(lat).setLng(lng).setRad(Properties.getMarkerRadius()).build());
             }
         }
-        return new CoverageModel(GeoMath.getBoundCenter(box), new BoundingBox(box.southwest, box.northeast, places));
+        return new CoverageModel(GeoMath.getBoundCenter(box), new BoundingBox(box, places));
     }
 
     /**
@@ -63,6 +65,8 @@ public class CoverageAlgorithms {
      * @param model - модель состояния (интересует только bounding box вокруг города)
      * @return список маркеров на карте, согласно виду распределения
      */
+    @Deprecated
+    @SuppressWarnings("unused")
     public CoverageModel getStaticUniformGeodesicMarkersDistribution(CoverageModel model) {
         LOG.info("Static uniform distribution with geodesic calculation...");
         Bounds bounds = model.getBounds();
@@ -97,38 +101,45 @@ public class CoverageAlgorithms {
         return new CoverageModel(model.getUser(), new BoundingBox(model.getBox().getSouthwest(), model.getBox().getNortheast(), places));
     }
 
-    /*private static LatLng center;
-    private static int searchRadius;
     public CoverageModel getDynamicTreeGeodesicMarkersDistribution(CoverageModel model, PlaceType placeType) {
         LOG.info("Dynamic uniform distribution with geodesic calculation");
-        List<Place> places = new ArrayList<>();
-        PlacesSearchResponse response = getValidSearch(model.getBoundingbox().getBounds(), placeType);
-        CoverageModel.Builder builder = new CoverageModel.Builder().setBoundingbox(model.getBoundingbox());
-        if (response == null) {
-            return builder.build();
+
+        List<Place> places = placesSearch(model.getBounds(), placeType);
+        if (places == null) {
+            return new CoverageModel("Can't get places in " + model + " with radar search help");
         }
-        for (PlacesSearchResult result : response.results) {
-            places.add(new Place(result.geometry.location));
-        }
-        places.add(new Place(center.lat, center.lng, searchRadius));
-        return builder.setPlaces(places).build();
+        places.add(model.getUser());
+        return new CoverageModel(model.getUser(), new BoundingBox(model.getBounds(), places));
     }
 
-    @Nullable
-    private PlacesSearchResponse getValidSearch(Bounds box, PlaceType placeType) {
 
-        center = GeoMath.getBoundCenter(box);
+    private List<Place> placesSearch(Bounds box, PlaceType placeType) {
+        List<Place> places = new ArrayList<>();
+        LatLng center = GeoMath.getBoundCenter(box);
         int maxRadius = (int) Math.ceil(GeoMath.getHalfDiagonal(box));
-        searchRadius = (int) Properties.getMarkerRadius();
+        int searchRadius = (int) Properties.getMarkerRadius();
 
         while (true) {
             try {
                 PlacesSearchResponse response = PlacesApi.radarSearchQuery(context, center, searchRadius).type(placeType).await();
 
-                if (Properties.getMinRadarSearch() < response.results.length && response.results.length < Properties.getMaxRadarSearch() || searchRadius == maxRadius) {
-                    return response; // OK or couldn't get more
+                if (Properties.getMinRadarSearchPlaces() < response.results.length
+                        && response.results.length < Properties.getMaxRadarSearchPlaces() || searchRadius == maxRadius) {
+                    // search center
+                    places.add(new Place.Builder().setLat(center.lat).setLng(center.lng).setRad(searchRadius).setIcon(Properties.getIconSearch48()).build());
+                    // places in search radius
+                    for (PlacesSearchResult result : response.results) {
+                        places.add(new Place.Builder()
+                                .setLatLng(result.geometry.location)
+                                .setPlaceId(result.placeId)
+                                .setPlaceName(result.name)
+                                .setAddress(result.formattedAddress)
+                                .setIcon(Properties.getIconGreen32())
+                                .setPlaceType(placeType.toString()).build());
+                    }
+                    return places; // OK or couldn't get more
                 }
-                if (response.results.length >= Properties.getMaxRadarSearch()) {
+                if (response.results.length >= Properties.getMaxRadarSearchPlaces()) {
                     searchRadius = 3 * searchRadius / 4; // stupid, but control max border
                     continue;
                 }
@@ -137,6 +148,7 @@ public class CoverageAlgorithms {
                     continue;
                 }
 
+                // main binary search algorithm
                 searchRadius *= 2;
                 while (searchRadius > maxRadius + Properties.getRadarSearchRadiusEps()) {
                     searchRadius = 3 * searchRadius / 4;
@@ -149,5 +161,5 @@ public class CoverageAlgorithms {
                 return null;
             }
         }
-    }*/
+    }
 }

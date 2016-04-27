@@ -1,11 +1,19 @@
 
-function addMarker(position, icon, title, map, clickable) {
-    new google.maps.Marker({
+function addMarker(position, icon, name, placeId, address, map) {
+    var marker = new google.maps.Marker({
         position: position,
+        title: name,
         icon: icon,
-        title: title,
-        map: map,
-        clickable: clickable
+        map: map
+    });
+    var content = '<h1>' + name + '</h1>' +
+        '<p> placeId: ' + placeId + '</p>' +
+        '<p> address: ' + address + '</p>';
+    var infowindow = new google.maps.InfoWindow({
+        content: content
+    });
+    marker.addListener('click', function() {
+        infowindow.open(map, marker);
     });
 }
 

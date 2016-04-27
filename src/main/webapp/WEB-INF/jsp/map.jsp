@@ -43,10 +43,10 @@
                 };
                 map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-                addMarker(userPos, "${model.user.icon}", 'You are here', map, <%=clickable%>);
+                addMarker(userPos, "${model.user.icon}", "${model.user.placeName}", "${model.user.placeId}", "${model.user.address}", map);
                 <c:forEach var="marker" items="${model.box.places}" varStatus="loop">
                     var markerPos = {lat: ${marker.lat}, lng: ${marker.lng}};
-                    addMarker(markerPos, "${marker.icon}", 'Place #' + ${loop.index}, map);
+                    addMarker(markerPos, "${marker.icon}", "${marker.placeName}", "${marker.placeId}", "${marker.address}", map);
                     addCircle(markerPos, ${marker.rad});
                 </c:forEach>
 

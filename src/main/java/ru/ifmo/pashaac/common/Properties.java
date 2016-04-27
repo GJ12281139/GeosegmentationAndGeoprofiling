@@ -83,6 +83,15 @@ public class Properties implements Runnable {
         return properties.get("icon.place.pink.32");
     }
 
+    public static String getIconGreen48() {
+        return properties.get("icon.place.green.48");
+    }
+
+    public static String getIconGreen32() {
+        return properties.get("icon.place.green.32");
+    }
+
+
     public static String getIconSearch48() {
         return properties.get("icon.search.48");
     }

@@ -1,5 +1,6 @@
 package ru.ifmo.pashaac.map;
 
+import com.google.maps.model.PlaceType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -67,8 +68,8 @@ public class MapController {
         if (coverage == null || !coverage) {
             return model;
         }
-//      CoverageModel distributionModel = algorithms.getDynamicTreeGeodesicMarkersDistribution(model, PlaceType.PARK);
-        CoverageModel distributionModel = algorithms.getStaticUniformGeodesicMarkersDistribution(model);
+        CoverageModel distributionModel = algorithms.getDynamicTreeGeodesicMarkersDistribution(model, PlaceType.PARK);
+//        CoverageModel distributionModel = algorithms.getStaticUniformGeodesicMarkersDistribution(model);
         LOG.info("Distribution model for client is " + distributionModel);
         return distributionModel;
     }

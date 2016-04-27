@@ -9,7 +9,7 @@ public class GeosegmentationAndGeoprofilingApplication {
 
 	public static void main(String[] args) {
         SpringApplication.run(GeosegmentationAndGeoprofilingApplication.class, args);
-        Thread properties = new Thread(new Properties(), "Properties monitor");
+        Thread properties = new Thread(new Properties(), "Properties app");
         properties.start();
 	}
 }
