@@ -68,19 +68,19 @@ public class Properties implements Runnable {
     }
 
     public static String getIconAzure48() {
-        return properties.get("icon.azure.48");
+        return properties.get("icon.place.azure.48");
     }
 
     public static String getIconAzure32() {
-        return properties.get("icon.azure.32");
+        return properties.get("icon.place.azure.32");
     }
 
     public static String getIconPink48() {
-        return properties.get("icon.pink.48");
+        return properties.get("icon.place.pink.48");
     }
 
     public static String getIconPink32() {
-        return properties.get("icon.pink.32");
+        return properties.get("icon.place.pink.32");
     }
 
     public static String getIconSearch48() {
@@ -89,6 +89,22 @@ public class Properties implements Runnable {
 
     public static String getIconSearch32() {
         return properties.get("icon.search.32");
+    }
+
+    public static String getIconUser48() {
+        return properties.get("icon.user.here.48");
+    }
+
+    public static String getIconUser32() {
+        return properties.get("icon.user.here.32");
+    }
+
+    public static int getMapZoom() {
+        return Integer.parseInt(properties.get("map.zoom"));
+    }
+
+    public static boolean isMarkerClickable() {
+        return Boolean.parseBoolean(properties.get("marker.clickable"));
     }
 
 }

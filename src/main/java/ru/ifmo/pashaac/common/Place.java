@@ -127,6 +127,12 @@ public class Place {
             return this;
         }
 
+        public Builder setLatLng(LatLng latLng) {
+            this.lat = latLng.lat;
+            this.lng = latLng.lng;
+            return this;
+        }
+
         public Place build() {
             return new Place(lat, lng, rad, icon, placeId, placeName, placeType, address);
         }

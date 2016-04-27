@@ -90,6 +90,7 @@ public class CoverageAlgorithms {
                 places.add(new Place.Builder()
                         .setLat(tmp.getLatitude())
                         .setLng(tmp.getLongitude())
+                        .setIcon(Properties.getIconSearch48())
                         .setRad(Properties.getMarkerRadius()).build());
             }
         }

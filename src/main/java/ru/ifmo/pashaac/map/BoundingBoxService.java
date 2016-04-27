@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
+import ru.ifmo.pashaac.common.Place;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.coverage.CoverageModel;
 
@@ -64,7 +65,7 @@ public class BoundingBoxService {
             double distance = GeoMath.distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.northeast.lng);
             return distance > Properties.getMaxBoundingBoxDiagonal()
                     ? new CoverageModel("Service can't get region map by region = " + region + ", country = " + country)
-                    : new CoverageModel(GeoMath.getBoundCenter(box), new BoundingBox(box));
+                    : new CoverageModel(new Place.Builder().setLatLng(GeoMath.getBoundCenter(box)).setIcon(Properties.getIconUser48()).build(), new BoundingBox(box));
         } catch (Exception e) {
             LOG.error("Error getting boundingbox around region = " + region + " and country = " + country);
             return new CoverageModel("Service can't get region map by region = " + region + ", country = " + country);
@@ -80,9 +81,8 @@ public class BoundingBoxService {
      */
     @NotNull
     public CoverageModel getBoundingBoxModel(Double lat, Double lng) {
-        final LatLng user = new LatLng(lat, lng);
-
-        GeocodingResult[] userAddresses = mapService.getAddressByCoordinates(user);
+        Place user = new Place.Builder().setLat(lat).setLng(lng).setIcon(Properties.getIconUser48()).build();
+        GeocodingResult[] userAddresses = mapService.getAddressByCoordinates(user.getLatLng());
         if (userAddresses == null) {
             return new CoverageModel("Service can't get address by coordinates (latitude = " + lat + ", longitude = " + lng + ")");
         }
