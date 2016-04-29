@@ -75,6 +75,21 @@ public class Place {
         return address;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Place place = (Place) o;
+
+        return placeId != null && placeId.equals(place.placeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return placeId != null ? placeId.hashCode() : 0;
+    }
+
     public static class Builder {
 
         private double lat;

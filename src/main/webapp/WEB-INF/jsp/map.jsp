@@ -24,10 +24,6 @@
     </c:when>
     <%--@elvariable id="model" type="java"--%>
     <c:when test="${not empty model}">
-        <%
-            boolean clickable = Properties.isMarkerClickable();
-            int zoom = Properties.getMapZoom();
-        %>
         <%--@elvariable id="key" type="java"--%>
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=${key}&callback=mapInitialization"></script>
@@ -37,7 +33,7 @@
                 var userPos = {lat: ${model.user.lat}, lng: ${model.user.lng}};
                 var mapOptions = {
                     center: userPos,
-                    zoom: <%=zoom%>,
+                    zoom: <%=Properties.getMapZoom()%>,
                     scaleControl: true,
                     mapTypeControl: false
                 };
@@ -50,7 +46,9 @@
                     addCircle(markerPos, ${marker.rad});
                 </c:forEach>
 
-                addRectangle(${model.box.northeast.lat}, ${model.box.southwest.lat}, ${model.box.northeast.lng}, ${model.box.southwest.lng}, map);
+                <c:if test="${not empty box}">
+                    addRectangle(${model.box.northeast.lat}, ${model.box.southwest.lat}, ${model.box.northeast.lng}, ${model.box.southwest.lng}, map);
+                </c:if>
             }
         </script>
     </c:when>

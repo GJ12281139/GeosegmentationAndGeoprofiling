@@ -37,39 +37,43 @@ public class MapController {
                                     @RequestParam(value = "lng", required = false) Double lng,
                                     @RequestParam(value = "city", required = false) String city,
                                     @RequestParam(value = "country", required = false) String country,
-                                    @RequestParam(value = "boundingbox", required = false) Boolean boundingbox,
-                                    @RequestParam(value = "coverage", required = false) Boolean coverage) {
+                                    @RequestParam(value = "box", required = false) Boolean boundingbox,
+                                    @RequestParam(value = "cover", required = false) Boolean coverage,
+                                    @RequestParam(value = "pType", required = false) String placeType) {
 
         if (lat != null && lng != null) {
             LOG.info("Map with coordinates lat = " + lat + ", lng = " + lng);
-            return buildModelAndView(service.getBoundingBoxModel(lat, lng), coverage, boundingbox);
+            return buildModelAndView(service.getBoundingBoxModel(lat, lng), coverage, boundingbox, placeType);
         }
         if (city != null) {
             LOG.info("Map with coordinates city = " + city + ", country = " + country);
-            return buildModelAndView(service.getBoundingBoxModel(city, country), coverage, boundingbox);
+            return buildModelAndView(service.getBoundingBoxModel(city, country), coverage, boundingbox, placeType);
         }
         LOG.info("No input data for map initialization, trying get user geolocation from browser...");
         return new ModelAndView("map");
     }
 
-    private ModelAndView buildModelAndView(CoverageModel model, Boolean coverage, Boolean boundingbox) {
+    private ModelAndView buildModelAndView(CoverageModel model, Boolean coverage, Boolean boundingbox, String placeTypeStr) {
         ModelAndView view = new ModelAndView("map");
         if (model.getError() != null) {
             view.addObject("error", model.getError());
             return view;
         }
         view.addObject("key", System.getenv("GOOGLE_API_KEY"));
-        view.addObject("model", flagsHandler(model, coverage, boundingbox));
+        PlaceType placeType = placeTypeStr != null ? PlaceType.valueOf(placeTypeStr.toUpperCase()) : PlaceType.PARK;
+        view.addObject("model", flagsHandler(model, coverage, placeType));
+        if (boundingbox != null && boundingbox) {
+            view.addObject("box", true);
+        }
         return view;
     }
 
-    private CoverageModel flagsHandler(CoverageModel model, Boolean coverage, Boolean boundingbox) {
+    private CoverageModel flagsHandler(CoverageModel model, Boolean coverage, PlaceType placeType) {
         // ignore boundingbox flag, in future remove box around region
         if (coverage == null || !coverage) {
             return model;
         }
-        CoverageModel distributionModel = algorithms.getDynamicTreeGeodesicMarkersDistribution(model, PlaceType.PARK);
-//        CoverageModel distributionModel = algorithms.getStaticUniformGeodesicMarkersDistribution(model);
+        CoverageModel distributionModel = algorithms.getDynamicTreeGeodesicMarkersDistribution(model, placeType);
         LOG.info("Distribution model for client is " + distributionModel);
         return distributionModel;
     }

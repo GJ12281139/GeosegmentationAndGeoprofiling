@@ -13,7 +13,9 @@ import ru.ifmo.pashaac.common.Place;
 import ru.ifmo.pashaac.common.Properties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -109,6 +111,7 @@ public class CoverageAlgorithms {
             return new CoverageModel("Can't get places in " + model + " with radar search help");
         }
         places.add(model.getUser());
+        LOG.info("Places with search markers and user : " + places.size());
         return new CoverageModel(model.getUser(), new BoundingBox(model.getBounds(), places));
     }
 
@@ -128,7 +131,6 @@ public class CoverageAlgorithms {
                     midRad = (leftRad + rightRad) / 2;
                 }
                 PlacesSearchResponse response = PlacesApi.radarSearchQuery(context, center, midRad).type(placeType).await();
-                LOG.info("leftRad " + leftRad + " rightRad " + rightRad + " midRad " + midRad);
                 if (midRad < rightRad && response.results.length > Properties.getMaxRadarSearchPlaces()) {
                     rightRad = midRad - 1;
                     continue;
@@ -153,15 +155,22 @@ public class CoverageAlgorithms {
                 if (midRad == rightRad) {
                     break;
                 }
-                List<Place> leftDown = placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType);
-                List<Place> leftUp = placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType);
-                List<Place> rightDown = placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType);
-                List<Place> rightUp = placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType);
 
-                places.addAll(leftDown);
-                places.addAll(leftUp);
-                places.addAll(rightDown);
-                places.addAll(rightUp);
+                Set<Place> unique = new HashSet<>();
+                unique.addAll(placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType));
+                unique.addAll(placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType));
+                unique.addAll(placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType));
+                unique.addAll(placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType));
+                places.addAll(unique);
+//                List<Place> leftDown = placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType);
+//                List<Place> leftUp = placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType);
+//                List<Place> rightDown = placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType);
+//                List<Place> rightUp = placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType);
+//
+//                places.addAll(leftDown);
+//                places.addAll(leftUp);
+//                places.addAll(rightDown);
+//                places.addAll(rightUp);
                 break;
             } catch (Exception e) {
                 LOG.error("Radar search error " + e.getMessage());

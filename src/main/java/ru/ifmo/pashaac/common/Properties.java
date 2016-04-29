@@ -19,7 +19,7 @@ public class Properties implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(Properties.class);
     private static final String PATH = "src/main/resources/application.properties";
-    private static final int THREAD_SLEEP = 10_000;
+    private static final int THREAD_SLEEP = 30_000;
 
     private static Map<String, String> properties = new HashMap<>();
 
