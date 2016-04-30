@@ -40,7 +40,8 @@ dependencies {
     compile('org.apache.tomcat.embed:tomcat-embed-jasper')
     compile files('lib/geocalc-0.5.1.jar') // https://github.com/grumlimited/geocalc.git
     compile('com.google.code.findbugs:jsr305:3.0.0')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('org.springframework.data:spring-data-mongodb:1.9.1.RELEASE')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 

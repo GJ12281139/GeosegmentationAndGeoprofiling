@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: org.springframework:spring-test:4.3.0.BUILD-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.0.BUILD-SNAPSHOT/9d9fa7170b01f1b4be8ea12dbd0cbb383afada84/spring-test-4.3.0.BUILD-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.0.BUILD-SNAPSHOT/c428c9bf8174b560dd101b0fb34ba0bd088515e7/spring-test-4.3.0.BUILD-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.0.BUILD-SNAPSHOT/b663ea77bccc302bf29661da0f5bc7fb42e9d543/spring-test-4.3.0.BUILD-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.0.BUILD-SNAPSHOT/bdf01219ed42e8ae7372b71494f41a1872e77dce/spring-test-4.3.0.BUILD-SNAPSHOT-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

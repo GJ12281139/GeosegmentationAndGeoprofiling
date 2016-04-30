@@ -1,22 +1,22 @@
 package ru.ifmo.pashaac.coverage;
 
-import com.google.maps.GeoApiContext;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.*;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.ifmo.pashaac.common.BoundingBox;
+import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.common.GeoMath;
-import ru.ifmo.pashaac.common.Place;
 import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.wrapper.BoundingBox;
+import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.wrapper.Place;
+import ru.ifmo.pashaac.map.MapController;
+import ru.ifmo.pashaac.map.MapService;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 /**
  * Created by Pavel Asadchiy
@@ -27,99 +27,106 @@ public class CoverageAlgorithms {
 
     private static final Logger LOG = Logger.getLogger(CoverageAlgorithms.class);
 
-    private final GeoApiContext context;
+    @Autowired
+    private final MapService mapService;
 
-    public CoverageAlgorithms() {
-        if (System.getenv("GOOGLE_API_KEY") == null) {
-            throw new IllegalStateException("Set key for environment variable GOOGLE_API_KEY");
-        }
-        context = new GeoApiContext()
-                .setApiKey(System.getenv("GOOGLE_API_KEY"))
-                .setQueryRateLimit(3)
-                .setConnectTimeout(1, TimeUnit.SECONDS)
-                .setReadTimeout(1, TimeUnit.SECONDS)
-                .setWriteTimeout(1, TimeUnit.SECONDS);
+    private int placeSearcherCall;
+    private int radarSearchCall;
+
+    public CoverageAlgorithms(MapService mapService) {
+        this.mapService = mapService;
     }
 
     /**
      * Линейное распределение с использованием обычного сложения/вычитания широт/долгот
      *
-     * @param box - bounding box вокруг города
-     * @return список маркеров на карте, согласно виду распределения
+     * @param boundingBox around region of the country or coordinates
      */
     @Deprecated
     @SuppressWarnings("unused")
-    public CoverageModel getStaticSimpleMarkersDistribution(Bounds box) {
+    public void staticSimpleMarkersDistribution(BoundingBox boundingBox, ModelAndView view) {
         LOG.info("Static uniform distribution with simple (without geodesic) calculation...");
-        List<Place> places = new ArrayList<>();
-        for (double lat = box.southwest.lat; lat <= box.northeast.lat; lat += 0.02) {
-            for (double lng = box.southwest.lng; lng <= box.northeast.lng; lng += 0.03) {
-                places.add(new Place.Builder().setLat(lat).setLng(lng).setRad(Properties.getMarkerRadius()).build());
+        List<Searcher> searchers = new ArrayList<>();
+        double startLat = boundingBox.getSouthwest().getLat();
+        double finishLat = boundingBox.getNortheast().getLat();
+        double startLng = boundingBox.getSouthwest().getLng();
+        double finishLng = boundingBox.getNortheast().getLng();
+        for (double lat = startLat; lat <= finishLat; lat += 0.02) {
+            for (double lng = startLng; lng <= finishLng; lng += 0.03) {
+                searchers.add(new Searcher(lat, lng, Properties.getMarkerRadius(), Properties.getIconSearch32()));
             }
         }
-        return new CoverageModel(GeoMath.getBoundCenter(box), new BoundingBox(box, places));
+        view.addObject(MapController.VIEW_SEARCHERS, searchers);
     }
 
     /**
      * Линейное распределение с использованием геодезического пересчета расстояния между координатами и
      * нахождения точек в определенном направлении на заданном расстоянии.
      *
-     * @param model - модель состояния (интересует только bounding box вокруг города)
-     * @return список маркеров на карте, согласно виду распределения
+     * @param boundingBox around region of the country or coordinates
      */
-    @Deprecated
     @SuppressWarnings("unused")
-    public CoverageModel getStaticUniformGeodesicMarkersDistribution(CoverageModel model) {
+    public void staticUniformGeodesicMarkersDistribution(BoundingBox boundingBox, ModelAndView view) {
         LOG.info("Static uniform distribution with geodesic calculation...");
-        Bounds bounds = model.getBounds();
-        List<Place> places = new ArrayList<>();
-        Point southwestPoint = GeoMath.getPoint(bounds.southwest.lat, bounds.southwest.lng);
-        Point northwestPoint = GeoMath.getPoint(bounds.northeast.lat, bounds.southwest.lng);
+        Bounds bounds = boundingBox.getBounds();
+        List<Searcher> searchers = new ArrayList<>();
+        List<BoundingBox> boundingBoxes = new ArrayList<>();
+        boundingBoxes.add(boundingBox);
+        Point southwestPoint = GeoMath.point(bounds.southwest.lat, bounds.southwest.lng);
+        Point northwestPoint = GeoMath.point(bounds.northeast.lat, bounds.southwest.lng);
 
         double distanceLat = EarthCalc.getVincentyDistance(southwestPoint, northwestPoint);
-        int countLat = (int) Math.ceil(distanceLat / Properties.getMarkerStep());
-        double distanceLatNeighbor = distanceLat / countLat;
-        for (int i = 0; i < countLat + 1; i++) {
-            Point startLat = EarthCalc.pointRadialDistance(southwestPoint, 0, distanceLatNeighbor * i);
-            if (startLat.getLatitude() > bounds.northeast.lat) {
+        double neighborLatDistance = GeoMath.neighborDistance(southwestPoint, northwestPoint);
+        for (int i = 0; neighborLatDistance * (i - 1) < distanceLat; i++) {
+            Point startLat = EarthCalc.pointRadialDistance(southwestPoint, 0, neighborLatDistance * i);
+            if (startLat.getLatitude() > northwestPoint.getLatitude()) {
                 startLat = northwestPoint;
             }
-            Point finishLng = GeoMath.getPoint(startLat, bounds.northeast.lng);
+            Point finishLng = GeoMath.point(startLat, bounds.northeast.lng);
             double distanceLng = EarthCalc.getVincentyDistance(startLat, finishLng);
-            int countLng = (int) Math.ceil(distanceLng / Properties.getMarkerStep());
-            double distanceLngNeighbor = distanceLng / countLng;
-            for (int j = 0; j < countLng + 1; j++) {
-                Point tmp = EarthCalc.pointRadialDistance(startLat, 90, distanceLngNeighbor * j);
+            double neighborLngDistance = GeoMath.neighborDistance(startLat, finishLng);
+            for (int j = 0; neighborLngDistance * (j - 1) < distanceLng; j++) {
+                Point tmp = EarthCalc.pointRadialDistance(startLat, 90, neighborLngDistance * j);
                 if (tmp.getLongitude() > finishLng.getLongitude()) {
                     tmp = finishLng;
                 }
-                places.add(new Place.Builder()
-                        .setLat(tmp.getLatitude())
-                        .setLng(tmp.getLongitude())
-                        .setIcon(Properties.getIconSearch48())
-                        .setRad(Properties.getMarkerRadius()).build());
+                searchers.add(new Searcher(tmp.getLatitude(), tmp.getLongitude(), Properties.getMarkerRadius(), Properties.getIconSearch32()));
             }
         }
-        return new CoverageModel(model.getUser(), new BoundingBox(model.getBox().getSouthwest(), model.getBox().getNortheast(), places));
+        view.addObject(MapController.VIEW_BOUNDING_BOXES, boundingBoxes);
+        view.addObject(MapController.VIEW_SEARCHERS, searchers);
     }
 
-    public CoverageModel getDynamicTreeGeodesicMarkersDistribution(CoverageModel model, PlaceType placeType) {
-        LOG.info("Dynamic uniform distribution with geodesic calculation");
+    public void dynamicTreeGeodesicMarkersDistribution(BoundingBox boundingBox, ModelAndView view, PlaceType placeType) {
+        LOG.info("Dynamic distribution with Quadtree inside boundingboxes and geodesic calculation...");
 
-        List<Place> places = placesSearch(model.getBounds(), placeType);
+        List<Searcher> searchers = new ArrayList<>();
+        List<BoundingBox> boundingBoxes = new ArrayList<>();
+        boundingBoxes.add(boundingBox);
+        Set<Place> places = new HashSet<>();
+        placeSearcherCall = 0;
+        radarSearchCall = 0;
+        placesSearcher(boundingBox, placeType, boundingBoxes, searchers, places);
+        LOG.info("Radar search call be " + radarSearchCall + " times");
+        LOG.info("Places search call be " + placeSearcherCall + " times");
         if (places.isEmpty()) {
-            return new CoverageModel("Can't get places in " + model + " with radar search help");
+            LOG.error("Can't get places in with radar search help");
         }
-        places.add(model.getUser());
-        LOG.info("Places with search markers and user : " + places.size());
-        return new CoverageModel(model.getUser(), new BoundingBox(model.getBounds(), places));
+        LOG.info("Places " + places.size() + ", searchers " + searchers.size() + ", boundingboxes " + boundingBoxes.size());
+        view.addObject(MapController.VIEW_BOUNDING_BOXES, boundingBoxes);
+        view.addObject(MapController.VIEW_SEARCHERS, searchers);
+        view.addObject(MapController.VIEW_PLACES, places);
     }
 
 
-    private List<Place> placesSearch(Bounds box, PlaceType placeType) {
-        List<Place> places = new ArrayList<>();
-        LatLng center = GeoMath.getBoundCenter(box);
-        int rightRad = (int) Math.ceil(GeoMath.getHalfDiagonal(box));
+    private void placesSearcher(BoundingBox bBox,
+                                PlaceType placeType,
+                                List<BoundingBox> boundingBoxes,
+                                List<Searcher> searchers,
+                                Set<Place> places) {
+        ++placeSearcherCall;
+        LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
+        int rightRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
         int leftRad = (int) Properties.getMarkerRadius();
         while (leftRad < rightRad) {
             try {
@@ -130,7 +137,8 @@ public class CoverageAlgorithms {
                 } else {
                     midRad = (leftRad + rightRad) / 2;
                 }
-                PlacesSearchResponse response = PlacesApi.radarSearchQuery(context, center, midRad).type(placeType).await();
+                ++radarSearchCall;
+                PlacesSearchResponse response = PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, midRad).type(placeType).await();
                 if (midRad < rightRad && response.results.length > Properties.getMaxRadarSearchPlaces()) {
                     rightRad = midRad - 1;
                     continue;
@@ -140,44 +148,42 @@ public class CoverageAlgorithms {
                     continue;
                 }
 
-                // add center
-                places.add(new Place.Builder().setLat(center.lat).setLng(center.lng).setRad(midRad).setIcon(Properties.getIconSearch48()).build());
-                // add searched places in radius
+                // add marker boxCenter
+                searchers.add(new Searcher(boxCenter.lat, boxCenter.lng, midRad, Properties.getIconSearch48()));
+                // add searched places in midRad
                 for (PlacesSearchResult result : response.results) {
-                    places.add(new Place.Builder()
-                            .setLatLng(result.geometry.location)
-                            .setPlaceId(result.placeId)
-                            .setPlaceName(result.name)
-                            .setAddress(result.formattedAddress)
-                            .setIcon(Properties.getIconGreen32())
-                            .setPlaceType(placeType.toString()).build());
+                    places.add(new Place(result.placeId, bBox.getRegion(), bBox.getCountry(),
+                            new Searcher(result.geometry.location.lat, result.geometry.location.lng, 0, Properties.getIconGreen32())));
                 }
                 if (midRad == rightRad) {
                     break;
                 }
 
-                Set<Place> unique = new HashSet<>();
-                unique.addAll(placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType));
-                unique.addAll(placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType));
-                unique.addAll(placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType));
-                unique.addAll(placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType));
-                places.addAll(unique);
-//                List<Place> leftDown = placesSearch(GeoMath.getLeftDownBoundingBox(center, box), placeType);
-//                List<Place> leftUp = placesSearch(GeoMath.getLeftUpBoundingBox(center, box), placeType);
-//                List<Place> rightDown = placesSearch(GeoMath.getRightDownBoundingBox(center, box), placeType);
-//                List<Place> rightUp = placesSearch(GeoMath.getRightUpBoundingBox(center, box), placeType);
-//
-//                places.addAll(leftDown);
-//                places.addAll(leftUp);
-//                places.addAll(rightDown);
-//                places.addAll(rightUp);
+                Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
+                Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());
+                Bounds rightDownBounds = GeoMath.rightDownBoundingBox(boxCenter, bBox.getBounds());
+                Bounds rightUpBounds = GeoMath.rightUpBoundingBox(boxCenter, bBox.getBounds());
+
+                BoundingBox leftDownBBox = new BoundingBox(leftDownBounds, bBox.getRegion(), bBox.getCountry());
+                BoundingBox leftUpBBox = new BoundingBox(leftUpBounds, bBox.getRegion(), bBox.getCountry());
+                BoundingBox rightDownBBox = new BoundingBox(rightDownBounds, bBox.getRegion(), bBox.getCountry());
+                BoundingBox rightUpBBox = new BoundingBox(rightUpBounds, bBox.getRegion(), bBox.getCountry());
+
+                boundingBoxes.add(leftDownBBox);
+                boundingBoxes.add(leftUpBBox);
+                boundingBoxes.add(rightDownBBox);
+                boundingBoxes.add(rightUpBBox);
+
+                placesSearcher(leftDownBBox, placeType, boundingBoxes, searchers, places);
+                placesSearcher(leftUpBBox, placeType, boundingBoxes, searchers, places);
+                placesSearcher(rightDownBBox, placeType, boundingBoxes, searchers, places);
+                placesSearcher(rightUpBBox, placeType, boundingBoxes, searchers, places);
+
                 break;
             } catch (Exception e) {
                 LOG.error("Radar search error " + e.getMessage());
-                return new ArrayList<>();
             }
         }
-        return places;
     }
 
 }

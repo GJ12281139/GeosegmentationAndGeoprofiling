@@ -3,11 +3,15 @@
     <words>
       <w>asadchiy</w>
       <w>boundingboxes</w>
+      <w>dbname</w>
+      <w>geocodings</w>
       <w>geoprofiling</w>
       <w>geosegmentation</w>
       <w>ifmo</w>
       <w>infowindow</w>
       <w>pashaac</w>
+      <w>quadtree</w>
+      <w>substr</w>
       <w>usergeolocation</w>
     </words>
   </dictionary>

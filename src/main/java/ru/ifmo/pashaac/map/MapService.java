@@ -33,6 +33,10 @@ public class MapService {
                 .setWriteTimeout(1, TimeUnit.SECONDS);
     }
 
+    public GeoApiContext getGoogleContext() {
+        return context;
+    }
+
     @Nullable
     public GeocodingResult[] getAddressByCoordinates(LatLng user) {
         try {

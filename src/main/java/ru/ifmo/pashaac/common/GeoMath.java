@@ -21,48 +21,51 @@ public class GeoMath {
         return EarthCalc.getVincentyDistance(new Point(p1Lat, p1Lng), new Point(p2Lat, p2Lng));
     }
 
-    public static Point getPoint(double lat, double lng) {
+    public static double neighborDistance(Point start, Point finish) {
+        double distanceLat = EarthCalc.getVincentyDistance(start, finish);
+        int countLat = (int) Math.ceil(distanceLat / Properties.getMarkerStep());
+        return distanceLat / countLat;
+    }
+
+    public static Point point(double lat, double lng) {
         return new Point(new DegreeCoordinate(lat), new DegreeCoordinate(lng));
     }
 
-    public static Point getPoint(Point lat, double lng) {
+    public static Point point(Point lat, double lng) {
         return new Point(new DegreeCoordinate(lat.getLatitude()), new DegreeCoordinate(lng));
     }
 
-    public static double getHalfDiagonal(Bounds box) {
-        LatLng center = getBoundCenter(box);
+    public static double halfDiagonal(Bounds box) {
+        LatLng center = boundsCenter(box);
         return distance(center.lat, center.lng, box.northeast.lat, box.northeast.lng);
     }
 
-    public static LatLng getBoundCenter(Bounds box) {
-        return new LatLng((box.northeast.lat + box.southwest.lat) / 2, (box.northeast.lng + box.southwest.lng) / 2);
+    public static LatLng boundsCenter(Bounds box) {
+        double latCenter = (box.northeast.lat + box.southwest.lat) / 2;
+        double lngCenter = (box.northeast.lng + box.southwest.lng) / 2;
+        return new LatLng(latCenter, lngCenter);
     }
 
-    public static Bounds getLeftUpBoundingBox(LatLng center, Bounds box) {
-        Bounds bounds = new Bounds();
-        bounds.southwest = new LatLng(center.lat, box.southwest.lng);
-        bounds.northeast = new LatLng(box.northeast.lat, center.lng);
-        return bounds;
+    public static Bounds leftUpBoundingBox(LatLng center, Bounds box) {
+        return bounds(center.lat, box.southwest.lng, box.northeast.lat, center.lng);
     }
 
-    public static Bounds getLeftDownBoundingBox(LatLng center, Bounds box) {
-        Bounds bounds = new Bounds();
-        bounds.southwest = new LatLng(box.southwest.lat, box.southwest.lng);
-        bounds.northeast = new LatLng(center.lat, center.lng);
-        return bounds;
+    public static Bounds leftDownBoundingBox(LatLng center, Bounds box) {
+        return bounds(box.southwest.lat, box.southwest.lng, center.lat, center.lng);
     }
 
-    public static Bounds getRightUpBoundingBox(LatLng center, Bounds box) {
-        Bounds bounds = new Bounds();
-        bounds.southwest = new LatLng(center.lat, center.lng);
-        bounds.northeast = new LatLng(box.northeast.lat, box.northeast.lng);
-        return bounds;
+    public static Bounds rightUpBoundingBox(LatLng center, Bounds box) {
+        return bounds(center.lat, center.lng, box.northeast.lat, box.northeast.lng);
     }
 
-    public static Bounds getRightDownBoundingBox(LatLng center, Bounds box) {
+    public static Bounds rightDownBoundingBox(LatLng center, Bounds box) {
+        return bounds(box.southwest.lat, center.lng, center.lat, box.northeast.lng);
+    }
+
+    private static Bounds bounds(double swLat, double swLng, double neLat, double neLng) {
         Bounds bounds = new Bounds();
-        bounds.southwest = new LatLng(box.southwest.lat, center.lng);
-        bounds.northeast = new LatLng(center.lat, box.northeast.lng);
+        bounds.southwest = new LatLng(swLat, swLng);
+        bounds.northeast = new LatLng(neLat, neLng);
         return bounds;
     }
 

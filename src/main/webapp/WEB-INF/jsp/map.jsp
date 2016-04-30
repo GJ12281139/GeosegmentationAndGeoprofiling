@@ -18,19 +18,16 @@
 <body>
 <div id="map"></div>
 <c:choose>
-    <%--@elvariable id="error" type="java"--%>
     <c:when test="${not empty error}">
-        <h1>${error.error}</h1>
+        <h1>${error}</h1>
     </c:when>
-    <%--@elvariable id="model" type="java"--%>
-    <c:when test="${not empty model}">
-        <%--@elvariable id="key" type="java"--%>
+    <c:when test="${not empty user}">
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=${key}&callback=mapInitialization"></script>
         <script>
             var map;
             function mapInitialization() {
-                var userPos = {lat: ${model.user.lat}, lng: ${model.user.lng}};
+                var userPos = {lat: ${user.lat}, lng: ${user.lng}};
                 var mapOptions = {
                     center: userPos,
                     zoom: <%=Properties.getMapZoom()%>,
@@ -39,16 +36,29 @@
                 };
                 map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-                addMarker(userPos, "${model.user.icon}", "${model.user.placeName}", "${model.user.placeId}", "${model.user.address}", map);
-                <c:forEach var="marker" items="${model.box.places}" varStatus="loop">
-                    var markerPos = {lat: ${marker.lat}, lng: ${marker.lng}};
-                    addMarker(markerPos, "${marker.icon}", "${marker.placeName}", "${marker.placeId}", "${marker.address}", map);
-                    addCircle(markerPos, ${marker.rad});
-                </c:forEach>
+                addMarker(userPos, "${user.icon}", "You are here", "", "", map);
 
-                <c:if test="${not empty box}">
-                    addRectangle(${model.box.northeast.lat}, ${model.box.southwest.lat}, ${model.box.northeast.lng}, ${model.box.southwest.lng}, map);
+                <c:if test="${not empty boxes}">
+                    <c:forEach var="box" items="${boxes}" varStatus="loop">
+                        addRectangle(${box.northeast.lat}, ${box.southwest.lat}, ${box.northeast.lng}, ${box.southwest.lng}, map);
+                    </c:forEach>
                 </c:if>
+
+                <c:if test="${not empty searchers}">
+                    <c:forEach var="searcher" items="${searchers}" varStatus="loop">
+                        var pos = {lat: ${searcher.lat}, lng: ${searcher.lng}};
+                        addMarker(pos, "${searcher.icon}", "Search radius: ${searcher.rad}", "", "", map);
+                        addCircle(pos, ${searcher.rad});
+                    </c:forEach>
+                </c:if>
+
+                <c:if test="${not empty places}">
+                    <c:forEach var="place" items="${places}" varStatus="loop">
+                        pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
+                        addMarker(pos, "${place.searcher.icon}", "${place.region} | ${place.country}", "", "", map);
+                    </c:forEach>
+                </c:if>
+
             }
         </script>
     </c:when>
