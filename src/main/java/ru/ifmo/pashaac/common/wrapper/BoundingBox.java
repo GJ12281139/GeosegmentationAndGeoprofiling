@@ -28,6 +28,10 @@ public class BoundingBox {
         this(box.southwest, box.northeast, region, country);
     }
 
+    public BoundingBox() {
+        this(null, null, null);
+    }
+
     public Searcher getSouthwest() {
         return southwest;
     }

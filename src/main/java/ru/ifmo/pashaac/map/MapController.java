@@ -14,6 +14,7 @@ import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.wrapper.BoundingBox;
 import ru.ifmo.pashaac.common.wrapper.Searcher;
 import ru.ifmo.pashaac.coverage.CoverageAlgorithms;
+import ru.ifmo.pashaac.mongo.AdditionalDAO;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -54,11 +55,12 @@ public class MapController {
                                     @RequestParam(value = "country", required = false) String country,
                                     @RequestParam(value = "box", required = false) Boolean isBox,
                                     @RequestParam(value = "cover", required = false) Boolean isCover,
-                                    @RequestParam(value = "pType", required = false) String placeType) {
+                                    @RequestParam(value = "placeType", required = false) String placeType) {
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
         if (lat != null && lng != null) {
             LOG.info("Map with coordinates lat = " + lat + ", lng = " + lng);
             view.addObject(VIEW_USER, new Searcher(lat, lng, 0, Properties.getIconUser48()));
+            AdditionalDAO.insert(lat, lng); // add user record
             buildModelAndView(view, service.getBoundingBox(lat, lng), isCover, isBox, placeType);
         } else if (city != null) {
             LOG.info("Map with region = " + city + ", country = " + country);
@@ -87,7 +89,7 @@ public class MapController {
         view.addObject(VIEW_KEY, System.getenv("GOOGLE_API_KEY"));
         PlaceType placeType = placeTypeStr == null ? null : PlaceType.valueOf(placeTypeStr.toUpperCase());
         if (placeType != null) {
-            algorithms.dynamicTreeGeodesicMarkersDistribution(boundingBox, view, placeType);
+            algorithms.dynamicQuadTreeGeodesicMarkersDistribution(boundingBox, view, placeType);
         } else {
             algorithms.staticUniformGeodesicMarkersDistribution(boundingBox, view);
         }

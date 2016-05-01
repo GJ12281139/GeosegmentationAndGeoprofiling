@@ -44,8 +44,12 @@ public class Place {
         this.searcher = searcher;
     }
 
-    public Place(String id, String region, String country, Searcher searcher) {
-        this(id, null, null, null, null, null, region, country, searcher);
+    public Place(String id, String placeType, String region, String country, Searcher searcher) {
+        this(id, null, placeType, null, null, null, region, country, searcher);
+    }
+
+    public Place() {
+        this(null, null, null, null, null);
     }
 
     @Override

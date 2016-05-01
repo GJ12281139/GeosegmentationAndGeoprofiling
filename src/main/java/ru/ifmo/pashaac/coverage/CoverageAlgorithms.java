@@ -11,12 +11,17 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.wrapper.BoundingBox;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
 import ru.ifmo.pashaac.common.wrapper.Place;
+import ru.ifmo.pashaac.common.wrapper.Searcher;
 import ru.ifmo.pashaac.map.MapController;
 import ru.ifmo.pashaac.map.MapService;
+import ru.ifmo.pashaac.mongo.AdditionalDAO;
+import ru.ifmo.pashaac.mongo.PlaceDAO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Pavel Asadchiy
@@ -97,7 +102,7 @@ public class CoverageAlgorithms {
         view.addObject(MapController.VIEW_SEARCHERS, searchers);
     }
 
-    public void dynamicTreeGeodesicMarkersDistribution(BoundingBox boundingBox, ModelAndView view, PlaceType placeType) {
+    public void dynamicQuadTreeGeodesicMarkersDistribution(BoundingBox boundingBox, ModelAndView view, PlaceType placeType) {
         LOG.info("Dynamic distribution with Quadtree inside boundingboxes and geodesic calculation...");
 
         List<Searcher> searchers = new ArrayList<>();
@@ -107,12 +112,16 @@ public class CoverageAlgorithms {
         placeSearcherCall = 0;
         radarSearchCall = 0;
         placesSearcher(boundingBox, placeType, boundingBoxes, searchers, places);
-        LOG.info("Radar search call be " + radarSearchCall + " times");
-        LOG.info("Places search call be " + placeSearcherCall + " times");
+        LOG.info("Radar search called " + radarSearchCall + " times");
+        LOG.info("Places search called " + placeSearcherCall + " times");
         if (places.isEmpty()) {
             LOG.error("Can't get places in with radar search help");
         }
         LOG.info("Places " + places.size() + ", searchers " + searchers.size() + ", boundingboxes " + boundingBoxes.size());
+        PlaceDAO.insert(places);
+        AdditionalDAO.insertBoundingBoxes(boundingBoxes, boundingBox.getRegion(), boundingBox.getCountry(), placeType.toString());
+        AdditionalDAO.insertSearchers(searchers, boundingBox.getRegion(), boundingBox.getCountry(), placeType.toString());
+        LOG.info("Places/Searchers/Boundingboxes inserted in Mongo database");
         view.addObject(MapController.VIEW_BOUNDING_BOXES, boundingBoxes);
         view.addObject(MapController.VIEW_SEARCHERS, searchers);
         view.addObject(MapController.VIEW_PLACES, places);
@@ -152,7 +161,7 @@ public class CoverageAlgorithms {
                 searchers.add(new Searcher(boxCenter.lat, boxCenter.lng, midRad, Properties.getIconSearch48()));
                 // add searched places in midRad
                 for (PlacesSearchResult result : response.results) {
-                    places.add(new Place(result.placeId, bBox.getRegion(), bBox.getCountry(),
+                    places.add(new Place(result.placeId, placeType.toString(), bBox.getRegion(), bBox.getCountry(),
                             new Searcher(result.geometry.location.lat, result.geometry.location.lng, 0, Properties.getIconGreen32())));
                 }
                 if (midRad == rightRad) {

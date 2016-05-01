@@ -24,6 +24,10 @@ public class Searcher {
         this(lat, lng, 0, null);
     }
 
+    public Searcher() {
+        this(0, 0);
+    }
+
     public double getLat() {
         return lat;
     }
