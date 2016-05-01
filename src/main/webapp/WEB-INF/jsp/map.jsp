@@ -55,7 +55,7 @@
                 <c:if test="${not empty places}">
                     <c:forEach var="place" items="${places}" varStatus="loop">
                         pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
-                        addMarker(pos, "${place.searcher.icon}", "${place.region} | ${place.country}", "", "", map);
+                        addMarker(pos, "${place.searcher.icon}", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>
                 </c:if>
 

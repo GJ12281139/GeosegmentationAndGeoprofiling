@@ -13,8 +13,9 @@ import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.wrapper.BoundingBox;
 import ru.ifmo.pashaac.common.wrapper.Searcher;
-import ru.ifmo.pashaac.coverage.CoverageAlgorithms;
+import ru.ifmo.pashaac.coverage.Algorithms;
 import ru.ifmo.pashaac.mongo.AdditionalDAO;
+import ru.ifmo.pashaac.mongo.PlaceDAO;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -38,13 +39,18 @@ public class MapController {
     private static final Logger LOG = Logger.getLogger(BoundingBoxService.class);
 
     @Autowired
-    private final BoundingBoxService service;
+    private final BoundingBoxService boundingBoxService;
 
     @Autowired
-    private final CoverageAlgorithms algorithms;
+    private final MapService mapService;
 
-    public MapController(BoundingBoxService service, CoverageAlgorithms algorithms) {
-        this.service = service;
+    @Autowired
+    private final Algorithms algorithms;
+
+    public MapController(BoundingBoxService boundingBoxService,
+                         MapService mapService, Algorithms algorithms) {
+        this.boundingBoxService = boundingBoxService;
+        this.mapService = mapService;
         this.algorithms = algorithms;
     }
 
@@ -61,10 +67,10 @@ public class MapController {
             LOG.info("Map with coordinates lat = " + lat + ", lng = " + lng);
             view.addObject(VIEW_USER, new Searcher(lat, lng, 0, Properties.getIconUser48()));
             AdditionalDAO.insert(lat, lng); // add user record
-            buildModelAndView(view, service.getBoundingBox(lat, lng), isCover, isBox, placeType);
+            buildModelAndView(view, boundingBoxService.getBoundingBox(lat, lng), isCover, isBox, placeType);
         } else if (city != null) {
             LOG.info("Map with region = " + city + ", country = " + country);
-            buildModelAndView(view, service.getBoundingBox(city, country), isCover, isBox, placeType);
+            buildModelAndView(view, boundingBoxService.getBoundingBox(city, country), isCover, isBox, placeType);
         } else {
             LOG.info("No input data for map initialization, trying to get user geolocation from browser...");
         }
@@ -89,16 +95,23 @@ public class MapController {
         view.addObject(VIEW_KEY, System.getenv("GOOGLE_API_KEY"));
         PlaceType placeType = placeTypeStr == null ? null : PlaceType.valueOf(placeTypeStr.toUpperCase());
         if (placeType != null) {
-            algorithms.dynamicQuadTreeGeodesicMarkersDistribution(boundingBox, view, placeType);
+            if (!PlaceDAO.contains(boundingBox, placeType)) {
+                algorithms.dynamicQuadTreeGeodesicMarkersDistribution(boundingBox, placeType);
+                PlaceDAO.updatePlacesInfo(boundingBox, placeType, mapService.getGoogleContext());
+            }
+            view.addObject(VIEW_BOUNDING_BOXES, AdditionalDAO.getBoundingboxes(boundingBox, placeType));
+            view.addObject(VIEW_SEARCHERS, AdditionalDAO.getSearchers(boundingBox, placeType));
+            view.addObject(VIEW_PLACES, PlaceDAO.getPlaces(boundingBox, placeType));
         } else {
             algorithms.staticUniformGeodesicMarkersDistribution(boundingBox, view);
         }
-        if (isBox == null || !isBox) {
+        if (isBox == null   || !isBox) {
             view.getModel().remove(VIEW_BOUNDING_BOXES);
         }
         if (isCover == null || !isCover) {
             view.getModel().remove(VIEW_SEARCHERS);
         }
     }
+
 
 }

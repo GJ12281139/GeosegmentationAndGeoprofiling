@@ -28,9 +28,9 @@ import java.util.Set;
  * 21.04.16 23:40.
  */
 @Service
-public class CoverageAlgorithms {
+public class Algorithms {
 
-    private static final Logger LOG = Logger.getLogger(CoverageAlgorithms.class);
+    private static final Logger LOG = Logger.getLogger(Algorithms.class);
 
     @Autowired
     private final MapService mapService;
@@ -38,7 +38,7 @@ public class CoverageAlgorithms {
     private int placeSearcherCall;
     private int radarSearchCall;
 
-    public CoverageAlgorithms(MapService mapService) {
+    public Algorithms(MapService mapService) {
         this.mapService = mapService;
     }
 
@@ -102,7 +102,7 @@ public class CoverageAlgorithms {
         view.addObject(MapController.VIEW_SEARCHERS, searchers);
     }
 
-    public void dynamicQuadTreeGeodesicMarkersDistribution(BoundingBox boundingBox, ModelAndView view, PlaceType placeType) {
+    public void dynamicQuadTreeGeodesicMarkersDistribution(BoundingBox boundingBox, PlaceType placeType) {
         LOG.info("Dynamic distribution with Quadtree inside boundingboxes and geodesic calculation...");
 
         List<Searcher> searchers = new ArrayList<>();
@@ -111,7 +111,7 @@ public class CoverageAlgorithms {
         Set<Place> places = new HashSet<>();
         placeSearcherCall = 0;
         radarSearchCall = 0;
-        placesSearcher(boundingBox, placeType, boundingBoxes, searchers, places);
+        QuadtreePlacesSearcher(boundingBox, placeType, boundingBoxes, searchers, places);
         LOG.info("Radar search called " + radarSearchCall + " times");
         LOG.info("Places search called " + placeSearcherCall + " times");
         if (places.isEmpty()) {
@@ -119,20 +119,16 @@ public class CoverageAlgorithms {
         }
         LOG.info("Places " + places.size() + ", searchers " + searchers.size() + ", boundingboxes " + boundingBoxes.size());
         PlaceDAO.insert(places);
-        AdditionalDAO.insertBoundingBoxes(boundingBoxes, boundingBox.getRegion(), boundingBox.getCountry(), placeType.toString());
-        AdditionalDAO.insertSearchers(searchers, boundingBox.getRegion(), boundingBox.getCountry(), placeType.toString());
+        AdditionalDAO.insertBoundingBoxes(boundingBoxes, boundingBox, placeType);
+        AdditionalDAO.insertSearchers(searchers, boundingBox, placeType);
         LOG.info("Places/Searchers/Boundingboxes inserted in Mongo database");
-        view.addObject(MapController.VIEW_BOUNDING_BOXES, boundingBoxes);
-        view.addObject(MapController.VIEW_SEARCHERS, searchers);
-        view.addObject(MapController.VIEW_PLACES, places);
     }
 
-
-    private void placesSearcher(BoundingBox bBox,
-                                PlaceType placeType,
-                                List<BoundingBox> boundingBoxes,
-                                List<Searcher> searchers,
-                                Set<Place> places) {
+    private void QuadtreePlacesSearcher(BoundingBox bBox,
+                                        PlaceType placeType,
+                                        List<BoundingBox> boundingBoxes,
+                                        List<Searcher> searchers,
+                                        Set<Place> places) {
         ++placeSearcherCall;
         LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
         int rightRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
@@ -147,7 +143,7 @@ public class CoverageAlgorithms {
                     midRad = (leftRad + rightRad) / 2;
                 }
                 ++radarSearchCall;
-                PlacesSearchResponse response = PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, midRad).type(placeType).await();
+                PlacesSearchResponse response = PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, midRad).language("en").type(placeType).await();
                 if (midRad < rightRad && response.results.length > Properties.getMaxRadarSearchPlaces()) {
                     rightRad = midRad - 1;
                     continue;
@@ -183,14 +179,15 @@ public class CoverageAlgorithms {
                 boundingBoxes.add(rightDownBBox);
                 boundingBoxes.add(rightUpBBox);
 
-                placesSearcher(leftDownBBox, placeType, boundingBoxes, searchers, places);
-                placesSearcher(leftUpBBox, placeType, boundingBoxes, searchers, places);
-                placesSearcher(rightDownBBox, placeType, boundingBoxes, searchers, places);
-                placesSearcher(rightUpBBox, placeType, boundingBoxes, searchers, places);
+                QuadtreePlacesSearcher(leftDownBBox, placeType, boundingBoxes, searchers, places);
+                QuadtreePlacesSearcher(leftUpBBox, placeType, boundingBoxes, searchers, places);
+                QuadtreePlacesSearcher(rightDownBBox, placeType, boundingBoxes, searchers, places);
+                QuadtreePlacesSearcher(rightUpBBox, placeType, boundingBoxes, searchers, places);
 
                 break;
             } catch (Exception e) {
                 LOG.error("Radar search error " + e.getMessage());
+                return;
             }
         }
     }

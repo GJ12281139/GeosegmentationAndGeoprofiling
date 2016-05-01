@@ -1,5 +1,6 @@
 package ru.ifmo.pashaac.common.wrapper;
 
+import com.google.maps.model.PlaceDetails;
 import org.springframework.data.annotation.Id;
 
 /**
@@ -34,9 +35,9 @@ public class Place {
                  String country,
                  Searcher searcher) {
         this.id = id;
-        this.name = name;
+        this.name = name == null ? null : name.replace("\"", "\\\"");
         this.type = type;
-        this.address = address;
+        this.address = address == null ? null : address.replace("\"", "\\\"");
         this.phone = phone;
         this.rating = rating;
         this.region = region;
@@ -48,8 +49,14 @@ public class Place {
         this(id, null, placeType, null, null, null, region, country, searcher);
     }
 
+    @SuppressWarnings("unused") // TODO: for mongodb only?
     public Place() {
         this(null, null, null, null, null);
+    }
+
+    public Place(Place place, PlaceDetails details) {
+        this(place.getId(), details.name, place.getType(), details.formattedAddress, details.internationalPhoneNumber,
+                String.valueOf(details.rating), place.getRegion(), place.getCountry(), place.getSearcher());
     }
 
     @Override

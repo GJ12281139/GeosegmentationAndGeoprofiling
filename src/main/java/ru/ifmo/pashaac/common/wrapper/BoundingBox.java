@@ -28,8 +28,12 @@ public class BoundingBox {
         this(box.southwest, box.northeast, region, country);
     }
 
+    @SuppressWarnings("unused") // TODO: for mongodb only?
     public BoundingBox() {
-        this(null, null, null);
+        this.southwest = null;
+        this.northeast = null;
+        this.region = null;
+        this.country = null;
     }
 
     public Searcher getSouthwest() {

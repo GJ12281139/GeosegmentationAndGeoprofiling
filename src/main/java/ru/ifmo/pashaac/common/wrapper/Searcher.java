@@ -24,6 +24,7 @@ public class Searcher {
         this(lat, lng, 0, null);
     }
 
+    @SuppressWarnings("unused") // TODO: for mongodb only?
     public Searcher() {
         this(0, 0);
     }

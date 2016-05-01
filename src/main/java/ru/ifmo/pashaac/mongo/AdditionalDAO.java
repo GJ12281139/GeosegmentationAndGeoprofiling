@@ -1,5 +1,6 @@
 package ru.ifmo.pashaac.mongo;
 
+import com.google.maps.model.PlaceType;
 import com.mongodb.BasicDBObject;
 import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.wrapper.BoundingBox;
@@ -29,29 +30,29 @@ public class AdditionalDAO {
     }
 
     // Searchers
-    public static void insertSearchers(@NotNull List<Searcher> searchers, String region, String country, String placeType) {
-        String collection = country + "#" + region + "#" + placeType + "#searcher";
+    public static void insertSearchers(@NotNull List<Searcher> searchers, BoundingBox box, PlaceType placeType) {
+        String collection = box.getCountry() + "#" + box.getRegion() + "#" + placeType + "#searcher";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         mongoOperations.dropCollection(collection);
         mongoOperations.insert(searchers, collection);
     }
 
-    public static List<Searcher> getSearchers(String region, String country, String placeType) {
-        String collection = country + "#" + region + "#" + placeType + "#searcher";
+    public static List<Searcher> getSearchers(BoundingBox box, PlaceType placeType) {
+        String collection = box.getCountry() + "#" + box.getRegion() + "#" + placeType + "#searcher";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         return mongoOperations.findAll(Searcher.class, collection);
     }
 
     // Boundingboxes
-    public static void insertBoundingBoxes(@NotNull List<BoundingBox> boundingBoxes, String region, String country, String placeType) {
-        String collection = country + "#" + region + "#" + placeType + "#boundingbox";
+    public static void insertBoundingBoxes(@NotNull List<BoundingBox> boundingBoxes, BoundingBox box, PlaceType placeType) {
+        String collection = box.getCountry()+ "#" + box.getRegion()+ "#" + placeType + "#boundingbox";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         mongoOperations.dropCollection(collection);
         mongoOperations.insert(boundingBoxes, collection);
     }
 
-    public static List<BoundingBox> getBoundingboxes(String region, String country, String placeType) {
-        String collection = country + "#" + region + "#" + placeType + "#boundingbox";
+    public static List<BoundingBox> getBoundingboxes(BoundingBox box, PlaceType placeType) {
+        String collection = box.getCountry() + "#" + box.getRegion() + "#" + placeType + "#boundingbox";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         return mongoOperations.findAll(BoundingBox.class, collection);
     }
