@@ -20,11 +20,14 @@ public class Searcher {
         this.icon = icon;
     }
 
+    public Searcher(LatLng latLng, double rad, String icon) {
+        this(latLng.lat, latLng.lng, rad, icon);
+    }
+
     public Searcher(double lat, double lng) {
         this(lat, lng, 0, null);
     }
 
-    @SuppressWarnings("unused") // TODO: for mongodb only?
     public Searcher() {
         this(0, 0);
     }

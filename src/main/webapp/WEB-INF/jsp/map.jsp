@@ -1,4 +1,4 @@
-<%@ page import="ru.ifmo.pashaac.common.Properties" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -30,7 +30,7 @@
                 var userPos = {lat: ${user.lat}, lng: ${user.lng}};
                 var mapOptions = {
                     center: userPos,
-                    zoom: <%=Properties.getMapZoom()%>,
+                    zoom: 10,
                     scaleControl: true,
                     mapTypeControl: false
                 };
@@ -52,8 +52,15 @@
                     </c:forEach>
                 </c:if>
 
-                <c:if test="${not empty places}">
-                    <c:forEach var="place" items="${places}" varStatus="loop">
+                <c:if test="${not empty google_places}">
+                    <c:forEach var="place" items="${google_places}" varStatus="loop">
+                        pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
+                        addMarker(pos, "${place.searcher.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                    </c:forEach>
+                </c:if>
+
+                <c:if test="${not empty foursquare_places}">
+                    <c:forEach var="place" items="${foursquare_places}" varStatus="loop">
                         pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
                         addMarker(pos, "${place.searcher.icon}", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>

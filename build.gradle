@@ -38,8 +38,10 @@ dependencies {
     compile('com.google.maps:google-maps-services:0.1.12')
     compile('javax.servlet:jstl:1.2')
     compile('org.apache.tomcat.embed:tomcat-embed-jasper')
-    compile files('lib/geocalc-0.5.1.jar') // https://github.com/grumlimited/geocalc.git
+    compile files('lib/geocalc/geocalc-0.5.1.jar') // https://github.com/grumlimited/geocalc.git
+    compile files('lib/foursquare/foursquare-api-1.0.3-SNAPSHOT.jar')
     compile('com.google.code.findbugs:jsr305:3.0.0')
+    compile('org.json:json:20090211')
 	compile('org.springframework.data:spring-data-mongodb:1.9.1.RELEASE')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

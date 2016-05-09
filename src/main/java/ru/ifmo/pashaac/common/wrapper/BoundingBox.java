@@ -14,25 +14,24 @@ public class BoundingBox {
 
     private final Searcher southwest;
     private final Searcher northeast;
-    private final String region;
+    private final String city;
     private final String country;
 
-    public BoundingBox(LatLng southwest, LatLng northeast, String region, String country) {
+    public BoundingBox(LatLng southwest, LatLng northeast, String city, String country) {
         this.southwest = new Searcher(southwest.lat, southwest.lng);
         this.northeast = new Searcher(northeast.lat, northeast.lng);
-        this.region = region;
+        this.city = city;
         this.country = country;
     }
 
-    public BoundingBox(Bounds box, String region, String country) {
-        this(box.southwest, box.northeast, region, country);
+    public BoundingBox(Bounds box, String city, String country) {
+        this(box.southwest, box.northeast, city, country);
     }
 
-    @SuppressWarnings("unused") // TODO: for mongodb only?
     public BoundingBox() {
         this.southwest = null;
         this.northeast = null;
-        this.region = null;
+        this.city = null;
         this.country = null;
     }
 
@@ -51,8 +50,8 @@ public class BoundingBox {
         return bounds;
     }
 
-    public String getRegion() {
-        return region;
+    public String getCity() {
+        return city;
     }
 
     public String getCountry() {
@@ -64,7 +63,7 @@ public class BoundingBox {
         return "BoundingBox{" +
                 "southwest=" + southwest +
                 ", northeast=" + northeast +
-                ", region='" + region + '\'' +
+                ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 '}';
     }

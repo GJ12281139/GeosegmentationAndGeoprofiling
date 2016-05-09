@@ -3,6 +3,7 @@
     <words>
       <w>asadchiy</w>
       <w>boundingboxes</w>
+      <w>checkins</w>
       <w>dbname</w>
       <w>geocodings</w>
       <w>geoprofiling</w>
@@ -12,6 +13,7 @@
       <w>pashaac</w>
       <w>quadtree</w>
       <w>substr</w>
+      <w>thrd</w>
       <w>usergeolocation</w>
     </words>
   </dictionary>

@@ -23,7 +23,7 @@ public class GeoMath {
 
     public static double neighborDistance(Point start, Point finish) {
         double distanceLat = EarthCalc.getVincentyDistance(start, finish);
-        int countLat = (int) Math.ceil(distanceLat / Properties.getMarkerStep());
+        int countLat = (int) Math.ceil(distanceLat / Properties.getNeighborSearchersDistance());
         return distanceLat / countLat;
     }
 

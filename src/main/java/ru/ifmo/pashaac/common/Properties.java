@@ -43,30 +43,52 @@ public class Properties implements Runnable {
         }
     }
 
-    public static double getMarkerRadius() {
-        return Double.parseDouble(properties.get("radius.around.marker"));
+
+    // Searcher
+    public static double getDefaultSearcherRadius() {
+        return Double.parseDouble(properties.get("default.searcher.radius"));
     }
 
-    public static double getMarkerStep() {
-        return Double.parseDouble(properties.get("distance.neighbor.markers"));
+    public static double getNeighborSearchersDistance() {
+        return Double.parseDouble(properties.get("neighbor.searchers.distance"));
     }
 
+
+    // BoundingBox
     public static double getMaxBoundingBoxDiagonal() {
         return Double.parseDouble(properties.get("max.boundingbox.diagonal"));
     }
 
-    public static int getMinRadarSearchPlaces() {
-        return Integer.parseInt(properties.get("min.radar.search.places"));
+
+    // Google Maps
+    public static int getGoogleMapsMinPlacesSearch() {
+        return Integer.parseInt(properties.get("google.maps.min.places.search"));
     }
 
-    public static int getMaxRadarSearchPlaces() {
-        return Integer.parseInt(properties.get("max.radar.search.places"));
+    public static int getGoogleMapsMaxPlacesSearch() {
+        return Integer.parseInt(properties.get("google.maps.max.places.search"));
     }
 
-    public static int getRadarSearchRadiusEps() {
-        return Integer.parseInt(properties.get("radar.search.radius.eps"));
+    public static int getGoogleMapsPlacesSearchRadEps() {
+        return Integer.parseInt(properties.get("google.maps.places.search.rad.eps"));
     }
 
+
+    // Foursquare
+    public static int getFoursquareMaxVenuesSearch() {
+        return Integer.parseInt(properties.get("foursquare.max.venues.search"));
+    }
+
+    public static int getFoursquareMinVenuesSearch() {
+        return Integer.parseInt(properties.get("foursquare.min.venues.search"));
+    }
+
+    public static int getFoursquareVenuesSearchRadEps() {
+        return Integer.parseInt(properties.get("foursquare.venues.search.rad.eps"));
+    }
+
+
+    // Icons
     public static String getIconAzure48() {
         return properties.get("icon.place.azure.48");
     }
@@ -91,29 +113,16 @@ public class Properties implements Runnable {
         return properties.get("icon.place.green.32");
     }
 
-
-    public static String getIconSearch48() {
-        return properties.get("icon.search.48");
+    public static String getIconSearch() {
+        return properties.get("icon.search");
     }
 
-    public static String getIconSearch32() {
-        return properties.get("icon.search.32");
+    public static String getIconSearchError() {
+        return properties.get("icon.search.error");
     }
 
-    public static String getIconUser48() {
-        return properties.get("icon.user.here.48");
-    }
-
-    public static String getIconUser32() {
-        return properties.get("icon.user.here.32");
-    }
-
-    public static int getMapZoom() {
-        return Integer.parseInt(properties.get("map.zoom"));
-    }
-
-    public static boolean isMarkerClickable() {
-        return Boolean.parseBoolean(properties.get("marker.clickable"));
+    public static String getIconUser() {
+        return properties.get("icon.user");
     }
 
 }
