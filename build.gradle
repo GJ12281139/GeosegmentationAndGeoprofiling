@@ -42,6 +42,7 @@ dependencies {
     compile files('lib/foursquare/foursquare-api-1.0.3-SNAPSHOT.jar')
     compile('com.google.code.findbugs:jsr305:3.0.0')
     compile('org.json:json:20090211')
+	compile('org.apache.commons:commons-math3:3.6.1')
 	compile('org.springframework.data:spring-data-mongodb:1.9.1.RELEASE')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

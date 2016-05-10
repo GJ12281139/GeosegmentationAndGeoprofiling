@@ -3,8 +3,8 @@ package ru.ifmo.pashaac.google.maps;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import org.springframework.data.annotation.Id;
-import ru.ifmo.pashaac.common.wrapper.BoundingBox;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.BoundingBox;
+import ru.ifmo.pashaac.common.Searcher;
 
 import java.util.Collection;
 import java.util.Set;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Created by Pavel Asadchiy
  * 19.04.16 22:36.
  */
-public class GooglePlace {
+public class GooglePlace extends Searcher {
 
     @Id
     private final String id;        // place_id
@@ -29,8 +29,6 @@ public class GooglePlace {
     private final String city;
     private final String country;
 
-    private final Searcher searcher;
-
     public GooglePlace(String id,
                        String name,
                        String placeType,
@@ -39,7 +37,11 @@ public class GooglePlace {
                        double rating,
                        String city,
                        String country,
-                       Searcher searcher) {
+                       double lat,
+                       double lng,
+                       double rad,
+                       String icon) {
+        super(lat, lng, rad, icon);
         this.id = id;
         this.name = name;
         this.placeType = placeType;
@@ -48,7 +50,6 @@ public class GooglePlace {
         this.rating = rating;
         this.city = city;
         this.country = country;
-        this.searcher = searcher;
     }
 
     public GooglePlace(PlaceDetails details, String placeType, String city, String country, String icon) {
@@ -60,20 +61,22 @@ public class GooglePlace {
                 details.rating,
                 city,
                 country,
-                new Searcher(details.geometry.location.lat, details.geometry.location.lng, 0, icon));
+                details.geometry.location.lat,
+                details.geometry.location.lng,
+                0,
+                icon);
     }
 
     public GooglePlace(String id, String placeType, BoundingBox bBox, LatLng location, String icon) {
-        this(id, null, placeType, null, null, 0, bBox.getCity(), bBox.getCountry(),
-                new Searcher(location.lat, location.lng, 0, icon));
+        this(id, null, placeType, null, null, 0, bBox.getCity(), bBox.getCountry(), location.lat, location.lng, 0, icon);
     }
 
     public GooglePlace() {
-        this(null, null, null, null, null, 0, null, null, null);
+        this(null, null, null, null, null, 0, null, null, 0, 0, 0, null);
     }
 
     public GooglePlace(PlaceDetails details, GooglePlace place) {
-        this(details, place.getPlaceType(), place.getCity(), place.getCountry(), place.getSearcher().getIcon());
+        this(details, place.getPlaceType(), place.getCity(), place.getCountry(), place.getIcon());
     }
 
     @Override
@@ -123,10 +126,6 @@ public class GooglePlace {
         return country;
     }
 
-    public Searcher getSearcher() {
-        return searcher;
-    }
-
     @Override
     public String toString() {
         return "GooglePlace{" +
@@ -135,10 +134,9 @@ public class GooglePlace {
                 ", placeType='" + placeType + '\'' +
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
-                ", rating='" + rating + '\'' +
+                ", rating=" + rating +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
-                ", searcher=" + searcher +
                 '}';
     }
 
@@ -169,4 +167,5 @@ public class GooglePlace {
         }
         return false;
     }
+
 }

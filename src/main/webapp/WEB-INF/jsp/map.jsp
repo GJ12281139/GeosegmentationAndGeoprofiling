@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>City boundingbox</title>
+    <title>Geosegmentation and geoprofiling</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" charset="utf-8">
 
     <spring:url value="/resources/js/user-geolocation.js" var="userGeolocationJs"/>
@@ -13,7 +13,6 @@
     <spring:url value="/resources/css/boundingbox.css" var="boundingboxCss"/>
     <script src="${userGeolocationJs}"></script>
     <script src="${mapUtilsJs}"></script>
-    <link href="${boundingboxCss}" rel="stylesheet"/>
 </head>
 <body>
 <div id="map"></div>
@@ -22,6 +21,7 @@
         <h1>${error}</h1>
     </c:when>
     <c:when test="${not empty user}">
+        <link href="${boundingboxCss}" rel="stylesheet"/>
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=${key}&callback=mapInitialization"></script>
         <script>
@@ -44,9 +44,10 @@
                     </c:forEach>
                 </c:if>
 
+                var pos;
                 <c:if test="${not empty searchers}">
                     <c:forEach var="searcher" items="${searchers}" varStatus="loop">
-                        var pos = {lat: ${searcher.lat}, lng: ${searcher.lng}};
+                        pos = {lat: ${searcher.lat}, lng: ${searcher.lng}};
                         addMarker(pos, "${searcher.icon}", "Search radius: ${searcher.rad}", "", "", map);
                         addCircle(pos, ${searcher.rad});
                     </c:forEach>
@@ -54,16 +55,24 @@
 
                 <c:if test="${not empty google_places}">
                     <c:forEach var="place" items="${google_places}" varStatus="loop">
-                        pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
-                        addMarker(pos, "${place.searcher.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                        pos = {lat: ${place.lat}, lng: ${place.lng}};
+                        addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>
                 </c:if>
 
                 <c:if test="${not empty foursquare_places}">
                     <c:forEach var="place" items="${foursquare_places}" varStatus="loop">
-                        pos = {lat: ${place.searcher.lat}, lng: ${place.searcher.lng}};
-                        addMarker(pos, "${place.searcher.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                        pos = {lat: ${place.lat}, lng: ${place.lng}};
+                        addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>
+                </c:if>
+
+                <c:if test="${not empty kernels}">
+                    <c:forEach var="kernel" items="${kernels}" varStatus="loop">
+                        pos = {lat: ${kernel.lat}, lng: ${kernel.lng}};
+                        addMarker(pos, "${kernel.icon}", "Kernel #" + ${loop.index}, "", "", map);
+                        addCircle(pos, ${kernel.rad});
+                </c:forEach>
                 </c:if>
 
             }

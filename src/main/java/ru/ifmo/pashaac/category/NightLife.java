@@ -1,7 +1,11 @@
 package ru.ifmo.pashaac.category;
 
-import com.google.maps.model.PlaceType;
+import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Pavel Asadchiy
@@ -10,27 +14,28 @@ import ru.ifmo.pashaac.google.maps.GooglePlace;
 public class NightLife implements Category {
 
     @Override
-    public GooglePlace getPlace(PlaceType placeType) {
+    public Set<GooglePlace> getGooglePlaces() {
         return null;
     }
 
     @Override
-    public GooglePlace[] getPlaces(PlaceType[] placeTypes) {
-        return new GooglePlace[0];
+    public Set<FoursquarePlace> getFoursquarePlaces() {
+        return null;
     }
 
     @Override
-    public void useDifferentIcons() {
-
+    public List<Searcher> getKernels(boolean needClearing) {
+        return null;
     }
 
     @Override
-    public void useSameIcons() {
-
+    public List<Searcher> getGoogleKernels(boolean needClearing) {
+        return null;
     }
 
     @Override
-    public void clearing() {
-
+    public List<Searcher> getFoursquareKernels(boolean needClearing) {
+        return null;
     }
+
 }

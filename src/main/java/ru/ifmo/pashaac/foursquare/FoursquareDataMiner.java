@@ -8,12 +8,10 @@ import fi.foyt.foursquare.api.Result;
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import fi.foyt.foursquare.api.entities.VenuesSearchResult;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.wrapper.BoundingBox;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.Searcher;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.*;
@@ -24,19 +22,19 @@ import java.util.*;
  * Created by Pavel Asadchiy
  * 07.05.16 15:08.
  */
-@Service
 public class FoursquareDataMiner {
 
     private static final Logger LOG = Logger.getLogger(FoursquareDataMiner.class);
 
-    @Autowired
     private final MapService mapService;
     private final List<BoundingBox> boundingBoxes;
     private final List<Searcher> searchers;
     private final Set<FoursquarePlace> places;
+    private final FoursquarePlaceType foursquarePlaceType;
 
-    public FoursquareDataMiner(MapService mapService) {
+    public FoursquareDataMiner(MapService mapService, FoursquarePlaceType foursquarePlaceType) {
         this.mapService = mapService;
+        this.foursquarePlaceType = foursquarePlaceType;
         this.boundingBoxes = new ArrayList<>();
         this.searchers = new ArrayList<>();
         this.places = new HashSet<>();
@@ -54,12 +52,16 @@ public class FoursquareDataMiner {
         return boundingBoxes;
     }
 
-    public void quadtreePlaceSearcher(BoundingBox boundingBox, FoursquarePlaceType foursquarePlaceType) {
+    public void quadtreePlaceSearcher(BoundingBox boundingBox) {
+        boundingBoxes.clear();
+        searchers.clear();
+        places.clear();
+
         boundingBoxes.add(boundingBox);
         int foursquareApiCallCounter = 0;
         for (int i = 0; i < boundingBoxes.size(); i++) {
             final BoundingBox bBox = boundingBoxes.get(i);
-            LOG.info("Trying get data for boundingbox #" + i + "... " + bBox);
+            LOG.info("Trying get data (" + foursquarePlaceType.name() + ") for boundingbox #" + i + "... " + bBox);
             LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
             int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
             int lRad = (int) Properties.getDefaultSearcherRadius();
@@ -84,7 +86,7 @@ public class FoursquareDataMiner {
                 Arrays.stream(venues)
                         .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox.getCity(),
                                 boundingBox.getCountry(), foursquarePlaceType.name(), Properties.getIconPink32())));
-
+                LOG.info("places size " + places.size());
                 if (mRad < rRad) {
                     Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
                     Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());

@@ -2,7 +2,8 @@ package ru.ifmo.pashaac.foursquare;
 
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import org.springframework.data.annotation.Id;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.Searcher;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
  * Created by Pavel Asadchiy
  * 08.05.16 14:46.
  */
-public class FoursquarePlace {
+public class FoursquarePlace extends Searcher {
 
     @Id
     private final String id;
@@ -25,8 +26,6 @@ public class FoursquarePlace {
     private final String address;
     private final String city;
     private final String country;
-
-    private final Searcher searcher;
 
     @Nullable
     private final String url;
@@ -40,10 +39,14 @@ public class FoursquarePlace {
                            @Nullable String address,
                            String city,
                            String country,
-                           Searcher searcher,
+                           double lat,
+                           double lng,
+                           double rad,
+                           String icon,
                            @Nullable String url,
                            int checkinsCount,
                            int userCount) {
+        super(lat, lng, rad, icon);
         this.id = id;
         this.name = name;
         this.placeType = placeType;
@@ -51,7 +54,6 @@ public class FoursquarePlace {
         this.address = address;
         this.city = city;
         this.country = country;
-        this.searcher = searcher;
         this.url = url;
         this.checkinsCount = checkinsCount;
         this.userCount = userCount;
@@ -62,17 +64,20 @@ public class FoursquarePlace {
                 venue.getName().replace("\"", "\\\"").replace("\n", ""),
                 placeType,
                 venue.getContact().getFormattedPhone(),
-                venue.getLocation().getAddress(),
+                venue.getLocation().getAddress() == null ? null : venue.getLocation().getAddress().replace("\"", "\\\""),
                 city,
                 country,
-                new Searcher(venue.getLocation().getLat(), venue.getLocation().getLng(), 0, icon),
+                venue.getLocation().getLat(),
+                venue.getLocation().getLng(),
+                0,
+                icon,
                 venue.getUrl(),
                 venue.getStats().getCheckinsCount(),
                 venue.getStats().getUsersCount());
     }
 
     public FoursquarePlace() { // for mongodb
-        this(null, null, null, null, null, null, null, null, null, 0, 0);
+        this(null, null, null, null, null, null, null, 0, 0, 0, null, null, 0, 0);
     }
 
     public String getId() {
@@ -99,10 +104,6 @@ public class FoursquarePlace {
 
     public String getCountry() {
         return country;
-    }
-
-    public Searcher getSearcher() {
-        return searcher;
     }
 
     @Nullable
@@ -147,7 +148,6 @@ public class FoursquarePlace {
                 ", address='" + address + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
-                ", searcher=" + searcher +
                 ", url='" + url + '\'' +
                 ", checkinsCount=" + checkinsCount +
                 ", userCount=" + userCount +
@@ -158,7 +158,10 @@ public class FoursquarePlace {
         return places.stream()
                 .filter(place -> place.getAddress() != null && !place.getAddress().trim().isEmpty())
                 .filter(place -> Character.isUpperCase(place.getName().charAt(0)))
-                .filter(place -> !place.getName().equals(place.getName().toUpperCase()))
+//                .filter(place -> !place.getName().equals(place.getName().toUpperCase()))
+                .filter(place -> place.getCheckinsCount() > Properties.getFoursquareMinCheckinsCount())
+                .filter(place -> place.getUserCount() > Properties.getFoursquareMinUserCount())
                 .collect(Collectors.toSet());
     }
+
 }

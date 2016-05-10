@@ -5,13 +5,11 @@ import com.google.maps.model.*;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.wrapper.BoundingBox;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.Searcher;
 import ru.ifmo.pashaac.map.MapController;
 import ru.ifmo.pashaac.map.MapService;
 
@@ -25,19 +23,19 @@ import java.util.*;
  * Created by Pavel Asadchiy
  * 08.05.16 14:47.
  */
-@Service
 public class GoogleDataMiner {
 
     private static final Logger LOG = Logger.getLogger(GoogleDataMiner.class);
 
-    @Autowired
     private final MapService mapService;
     private final List<BoundingBox> boundingBoxes;
     private final List<Searcher> searchers;
     private final Set<GooglePlace> places;
+    private final PlaceType placeType;
 
-    public GoogleDataMiner(MapService mapService) {
+    public GoogleDataMiner(MapService mapService, PlaceType placeType) {
         this.mapService = mapService;
+        this.placeType = placeType;
         this.boundingBoxes = new ArrayList<>();
         this.searchers = new ArrayList<>();
         this.places = new HashSet<>();
@@ -55,12 +53,16 @@ public class GoogleDataMiner {
         return boundingBoxes;
     }
 
-    public void quadtreePlaceSearcher(BoundingBox boundingBox, PlaceType placeType) {
+    public void quadtreePlaceSearcher(BoundingBox boundingBox) {
+        boundingBoxes.clear();
+        searchers.clear();
+        places.clear();
+
         boundingBoxes.add(boundingBox);
         int googleMapsApiCallCounter = 0;
         for (int i = 0; i < boundingBoxes.size(); i++) {
             final BoundingBox bBox = boundingBoxes.get(i);
-            LOG.info("Trying get data for boundingbox #" + i + "... " + bBox);
+            LOG.info("Trying get data (" + placeType.name() + ") for boundingbox #" + i + "... " + bBox);
             LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
             int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
             int lRad = (int) ru.ifmo.pashaac.common.Properties.getDefaultSearcherRadius();
@@ -85,7 +87,7 @@ public class GoogleDataMiner {
                 Arrays.stream(searchResults)
                         .forEach(place -> places.add(new GooglePlace(place.placeId, placeType.name(), bBox,
                                 new LatLng(place.geometry.location.lat, place.geometry.location.lng), Properties.getIconGreen32())));
-
+                LOG.info("Places size " + places.size());
                 if (mRad < rRad) {
                     Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
                     Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());
@@ -134,7 +136,6 @@ public class GoogleDataMiner {
         }
     }
 
-    @Deprecated
     @SuppressWarnings("unused")
     public void searchersUniformGeodesicDistribution(BoundingBox boundingBox, ModelAndView view) {
         LOG.info("Static uniform distribution with geodesic calculation...");

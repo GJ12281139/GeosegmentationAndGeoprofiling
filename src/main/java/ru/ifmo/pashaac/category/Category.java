@@ -1,7 +1,11 @@
 package ru.ifmo.pashaac.category;
 
-import com.google.maps.model.PlaceType;
+import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Pavel Asadchiy
@@ -9,13 +13,14 @@ import ru.ifmo.pashaac.google.maps.GooglePlace;
  */
 public interface Category {
 
-    GooglePlace getPlace(PlaceType placeType);
+    Set<GooglePlace> getGooglePlaces();
 
-    GooglePlace[] getPlaces(PlaceType[] placeTypes);
+    Set<FoursquarePlace> getFoursquarePlaces();
 
-    void useDifferentIcons();
+    List<Searcher> getKernels(boolean needClearing);
 
-    void useSameIcons();
+    List<Searcher> getGoogleKernels(boolean needClearing);
 
-    void clearing();
+    List<Searcher> getFoursquareKernels(boolean needClearing);
+
 }

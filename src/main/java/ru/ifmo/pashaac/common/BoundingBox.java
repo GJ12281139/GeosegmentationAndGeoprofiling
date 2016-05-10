@@ -1,4 +1,4 @@
-package ru.ifmo.pashaac.common.wrapper;
+package ru.ifmo.pashaac.common;
 
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;

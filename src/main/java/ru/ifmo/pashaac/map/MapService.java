@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.wrapper.BoundingBox;
+import ru.ifmo.pashaac.common.BoundingBox;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;

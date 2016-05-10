@@ -19,7 +19,7 @@ public class Properties implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(Properties.class);
     private static final String PATH = "src/main/resources/application.properties";
-    private static final int THREAD_SLEEP = 30_000;
+    private static final int THREAD_SLEEP = 60_000;
 
     private static Map<String, String> properties = new HashMap<>();
 
@@ -87,6 +87,14 @@ public class Properties implements Runnable {
         return Integer.parseInt(properties.get("foursquare.venues.search.rad.eps"));
     }
 
+    public static int getFoursquareMinCheckinsCount() {
+        return Integer.parseInt(properties.get("foursquare.min.checkins.count"));
+    }
+
+    public static int getFoursquareMinUserCount() {
+        return Integer.parseInt(properties.get("foursquare.min.user.count"));
+    }
+
 
     // Icons
     public static String getIconAzure48() {
@@ -123,6 +131,20 @@ public class Properties implements Runnable {
 
     public static String getIconUser() {
         return properties.get("icon.user");
+    }
+
+    public static String getIconKernel() {
+        return properties.get("icon.kernel");
+    }
+
+
+    // Kernel
+    public static int getKernelIterationsCount() {
+        return Integer.parseInt(properties.get("kernel.iterations.count"));
+    }
+
+    public static int getKernelsDefaultNumber() {
+        return Integer.parseInt(properties.get("kernels.default.number"));
     }
 
 }

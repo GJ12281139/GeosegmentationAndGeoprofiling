@@ -6,12 +6,14 @@ import com.grum.geocalc.Coordinate;
 import com.grum.geocalc.DegreeCoordinate;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.ml.distance.DistanceMeasure;
 
 /**
  * Created by Pavel Asadchiy
  * 24.04.16 0:36.
  */
-public class GeoMath {
+public class GeoMath implements DistanceMeasure {
 
     public static double distance(double lat1, double lng1, double lat2, double lng2) {
         Coordinate p1Lat = new DegreeCoordinate(lat1);
@@ -69,4 +71,19 @@ public class GeoMath {
         return bounds;
     }
 
+    public static double getSquareInMeters(Bounds box) {
+        return distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.southwest.lng) *
+                distance(box.southwest.lat, box.southwest.lng, box.southwest.lat, box.northeast.lng);
+    }
+
+    public static double getSquareInKilometers(Bounds box) {
+        return getSquareInMeters(box) / 1_000_000;
+    }
+
+    @Override
+    public double compute(double[] a, double[] b) throws DimensionMismatchException {
+        return a.length == b.length && a.length == 2
+                ? distance(a[0], a[1], b[0], b[1])
+                : Properties.getMaxBoundingBoxDiagonal();
+    }
 }

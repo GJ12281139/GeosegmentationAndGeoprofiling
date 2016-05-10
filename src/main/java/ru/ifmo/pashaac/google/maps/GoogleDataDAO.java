@@ -2,8 +2,8 @@ package ru.ifmo.pashaac.google.maps;
 
 import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoOperations;
-import ru.ifmo.pashaac.common.wrapper.BoundingBox;
-import ru.ifmo.pashaac.common.wrapper.Searcher;
+import ru.ifmo.pashaac.common.BoundingBox;
+import ru.ifmo.pashaac.common.Searcher;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 
 import java.util.Collection;

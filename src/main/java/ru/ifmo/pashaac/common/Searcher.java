@@ -1,12 +1,13 @@
-package ru.ifmo.pashaac.common.wrapper;
+package ru.ifmo.pashaac.common;
 
 import com.google.maps.model.LatLng;
+import org.apache.commons.math3.ml.clustering.Clusterable;
 
 /**
  * Created by Pavel Asadchiy
  * 30.04.16 15:01.
  */
-public class Searcher {
+public class Searcher implements Clusterable {
 
     private final double lat;
     private final double lng;
@@ -60,5 +61,10 @@ public class Searcher {
                 ", rad=" + rad +
                 ", icon='" + icon + '\'' +
                 '}';
+    }
+
+    @Override
+    public double[] getPoint() {
+        return new double[] {lat, lng};
     }
 }
