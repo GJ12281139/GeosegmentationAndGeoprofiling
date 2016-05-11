@@ -31,11 +31,11 @@ public class GoogleDataMiner {
     private final List<BoundingBox> boundingBoxes;
     private final List<Searcher> searchers;
     private final Set<GooglePlace> places;
-    private final PlaceType placeType;
+    private final GooglePlaceType googlePlaceType;
 
-    public GoogleDataMiner(MapService mapService, PlaceType placeType) {
+    public GoogleDataMiner(MapService mapService, GooglePlaceType googlePlaceType) {
         this.mapService = mapService;
-        this.placeType = placeType;
+        this.googlePlaceType = googlePlaceType;
         this.boundingBoxes = new ArrayList<>();
         this.searchers = new ArrayList<>();
         this.places = new HashSet<>();
@@ -62,13 +62,13 @@ public class GoogleDataMiner {
         int googleMapsApiCallCounter = 0;
         for (int i = 0; i < boundingBoxes.size(); i++) {
             final BoundingBox bBox = boundingBoxes.get(i);
-            LOG.info("Trying get data (" + placeType.name() + ") for boundingbox #" + i + "... " + bBox);
+            LOG.info("Trying get data (" + googlePlaceType.name() + ") for boundingbox #" + i + "... " + bBox);
             LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
             int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
             int lRad = (int) ru.ifmo.pashaac.common.Properties.getDefaultSearcherRadius();
             while (lRad < rRad) {
                 int mRad = rRad - lRad < Properties.getGoogleMapsPlacesSearchRadEps() ? rRad : (lRad + rRad) / 2;
-                PlacesSearchResult[] searchResults = radarSearch(boxCenter, mRad, placeType);
+                PlacesSearchResult[] searchResults = radarSearch(boxCenter, mRad, googlePlaceType);
                 ++googleMapsApiCallCounter;
                 if (searchResults == null) {
                     searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearchError()));
@@ -85,7 +85,7 @@ public class GoogleDataMiner {
 
                 searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(searchResults)
-                        .forEach(place -> places.add(new GooglePlace(place.placeId, placeType.name(), bBox,
+                        .forEach(place -> places.add(new GooglePlace(place.placeId, googlePlaceType.name(), bBox,
                                 new LatLng(place.geometry.location.lat, place.geometry.location.lng), Properties.getIconGreen32())));
                 LOG.info("Places size " + places.size());
                 if (mRad < rRad) {
@@ -127,11 +127,11 @@ public class GoogleDataMiner {
         LOG.info("Google Maps API called for getting full places info " + googleMapsApiCallCounter[0] + " times");
     }
 
-    private PlacesSearchResult[] radarSearch(LatLng boxCenter, int mRad, PlaceType placeType) {
+    private PlacesSearchResult[] radarSearch(LatLng boxCenter, int mRad, GooglePlaceType googlePlaceType) {
         try {
-            return PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, mRad).type(placeType).await().results;
+            return PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, mRad).type(googlePlaceType.getPlaceType()).await().results;
         } catch (Exception e) {
-            LOG.error("Can't get google maps places, placeType = " + placeType);
+            LOG.error("Can't get google maps places, placeType = " + googlePlaceType);
             return null;
         }
     }

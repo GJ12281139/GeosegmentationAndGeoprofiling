@@ -79,4 +79,8 @@ public class FoursquareDataDAO {
         LOG.info("Collection " + collection + "#" + suffix + " was recreated");
     }
 
+    public void download() {
+
+    }
+
 }

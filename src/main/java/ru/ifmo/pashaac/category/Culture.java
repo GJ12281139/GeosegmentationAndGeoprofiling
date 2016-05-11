@@ -1,7 +1,6 @@
 package ru.ifmo.pashaac.category;
 
 import com.google.maps.model.LatLng;
-import com.google.maps.model.PlaceType;
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import ru.ifmo.pashaac.common.BoundingBox;
@@ -15,6 +14,7 @@ import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
+import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.*;
@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
  */
 public class Culture implements Category {
 
-    public static final PlaceType[] GOOGLE_PLACE_TYPES = {PlaceType.MUSEUM, PlaceType.PARK, PlaceType.ART_GALLERY,
-            PlaceType.CHURCH, PlaceType.LIBRARY};
+    public static final GooglePlaceType[] GOOGLE_PLACE_TYPES = {GooglePlaceType.MUSEUM, GooglePlaceType.PARK, GooglePlaceType.ART_GALLERY,
+            GooglePlaceType.CHURCH, GooglePlaceType.LIBRARY};
 
     public static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM,
             FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.ART_GALLERY,
@@ -127,27 +127,28 @@ public class Culture implements Category {
     }
 
     public static Set<FoursquarePlace> foursquareClearing(Set<FoursquarePlace> dirtyPlaces) {
-        Set<FoursquarePlace> goodPlaces = new HashSet<>();
-        for (FoursquarePlace dirtyPlace : dirtyPlaces) {
-            int less500 = 0;
-            int less750 = 0;
-            int less1000 = 0;
-            for (FoursquarePlace otherDirtyPlace : dirtyPlaces) {
-                double dst = GeoMath.distance(dirtyPlace.getLat(), dirtyPlace.getLng(), otherDirtyPlace.getLat(), otherDirtyPlace.getLng());
-                if (dst < 500) {
-                    ++less500;
-                }
-                if (dst < 750) {
-                    ++less750;
-                }
-                if (dst < 1000) {
-                    ++less1000;
-                }
-            }
-            if (less500 > 3 && less750 * 1.0 / less500 > 1.3) {
-                goodPlaces.add(dirtyPlace);
-            }
-        }
-        return goodPlaces;
+        return dirtyPlaces;
+//        Set<FoursquarePlace> goodPlaces = new HashSet<>();
+//        for (FoursquarePlace dirtyPlace : dirtyPlaces) {
+//            int less500 = 0;
+//            int less750 = 0;
+//            int less1000 = 0;
+//            for (FoursquarePlace otherDirtyPlace : dirtyPlaces) {
+//                double dst = GeoMath.distance(dirtyPlace.getLat(), dirtyPlace.getLng(), otherDirtyPlace.getLat(), otherDirtyPlace.getLng());
+//                if (dst < 500) {
+//                    ++less500;
+//                }
+//                if (dst < 750) {
+//                    ++less750;
+//                }
+//                if (dst < 1000) {
+//                    ++less1000;
+//                }
+//            }
+//            if (less500 > 3 && less750 * 1.0 / less500 > 1.3) {
+//                goodPlaces.add(dirtyPlace);
+//            }
+//        }
+//        return goodPlaces;
     }
 }

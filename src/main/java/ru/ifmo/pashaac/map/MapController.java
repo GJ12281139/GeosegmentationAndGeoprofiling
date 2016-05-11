@@ -11,8 +11,14 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.category.Category;
 import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.*;
+import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
+import ru.ifmo.pashaac.foursquare.FoursquareDataMiner;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
+import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
+import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
+import ru.ifmo.pashaac.google.maps.GooglePlace;
+import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 
 import javax.annotation.Nullable;
 
@@ -48,10 +54,13 @@ public class MapController {
                                     @RequestParam(value = "lng", required = false) Double lng,              // user geolocation
                                     @RequestParam(value = "city", required = false) String city,            // user geolocation
                                     @RequestParam(value = "country", required = false) String country,      // user geolocation
+                                    @RequestParam(value = "googleSource", defaultValue = "false", required = false) boolean isGoogleSource,        // use data from Google Maps
+                                    @RequestParam(value = "foursquareSource", defaultValue = "false", required = false) boolean isFoursquareSource,    // use data from Foursquare
+                                    @RequestParam(value = "placeType", required = false) String placeType,  // placeType depends from source
                                     @RequestParam(value = "category", required = false) String category,    // places category
-                                    @RequestParam(value = "box", required = false) Boolean isBox,           // flag - show boundingboxes around searchers
-                                    @RequestParam(value = "cover", required = false) Boolean isCover,       // flag - search placeType data or not
-                                    @RequestParam(value = "clear", required = false) Boolean isClear) {     // flag - do clearing (delete long away places), etc
+                                    @RequestParam(value = "box", defaultValue = "false", required = false) boolean isBox,       // flag - show boundingboxes around searchers
+                                    @RequestParam(value = "searchers", defaultValue = "false", required = false) boolean isSearchers,   // flag - search placeType data or not
+                                    @RequestParam(value = "clear", defaultValue = "true", required = false) boolean isClear) {  // flag - do clearing (delete long away places), etc
 
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
 
@@ -64,7 +73,7 @@ public class MapController {
                 view.addObject(VIEW_ERROR, "Please, check your coordinates. If all are correct then our developer " +
                         "know about trouble and fix it as soon as possible.");
             } else {
-                buildModelAndView(view, boundingBox, category, isCover, isBox, isClear);
+                buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, isClear);
             }
             return view;
         }
@@ -84,7 +93,7 @@ public class MapController {
                 } else {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
                     view.addObject(VIEW_USER, new Searcher(center.lat, center.lng, 0, Properties.getIconUser()));
-                    buildModelAndView(view, boundingBox, category, isCover, isBox, isClear);
+                    buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, isClear);
                 }
             }
             return view;
@@ -96,10 +105,13 @@ public class MapController {
 
     private void buildModelAndView(ModelAndView view,
                                    BoundingBox boundingBox,
+                                   boolean isGoogleSource,
+                                   boolean isFoursquareSource,
                                    @Nullable String category,
-                                   @Nullable Boolean isCover,
-                                   @Nullable Boolean isBox,
-                                   @Nullable Boolean isClear) {
+                                   @Nullable String placeType,
+                                   boolean isSearchers,
+                                   boolean isBox,
+                                   boolean isClear) {
 
         if (!view.getModel().containsKey(VIEW_USER)) {
             LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
@@ -107,21 +119,81 @@ public class MapController {
         }
         view.addObject(VIEW_KEY, System.getenv("GOOGLE_API_KEY"));
 
-        if (category == null) {
-            new GoogleDataMiner(mapService, null).searchersUniformGeodesicDistribution(boundingBox, view);
+        if (category != null) {
+            Category categoryObj = null;
+            if (category.toLowerCase().equals("culture")) {
+                categoryObj = new Culture(mapService, boundingBox);
+            }
+
+            if (categoryObj != null) {
+                if (isFoursquareSource && isGoogleSource) {
+                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces()));
+                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces()));
+                    view.addObject(VIEW_KERNELS, categoryObj.getKernels(true));
+                } else if (isFoursquareSource) {
+                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces()));
+                    view.addObject(VIEW_KERNELS, categoryObj.getFoursquareKernels(true));
+                } else if (isGoogleSource) {
+                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces()));
+                    view.addObject(VIEW_KERNELS, categoryObj.getGoogleKernels(true));
+                }
+            }
+        } else if (placeType != null) {
+
+            FoursquarePlaceType foursquarePlaceType = getEnumFromString(FoursquarePlaceType.class, placeType);
+            if (isFoursquareSource && foursquarePlaceType != null) {
+                FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
+                if (!foursquareDataDAO.exist()) {
+                    FoursquareDataMiner foursquareDataMiner = new FoursquareDataMiner(mapService, foursquarePlaceType);
+                    foursquareDataMiner.quadtreePlaceSearcher(boundingBox);
+
+                    foursquareDataDAO.insert(foursquareDataMiner.getPlaces());
+                    foursquareDataDAO.recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
+                    foursquareDataDAO.recreate(foursquareDataMiner.getSearchers(), FoursquareDataDAO.SEARCHER_SUFFIX);
+                }
+                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces());
+                view.addObject(VIEW_BOUNDING_BOXES, foursquareDataDAO.getBoundingBoxes());
+                view.addObject(VIEW_SEARCHERS, foursquareDataDAO.getSearchers());
+            }
+
+            GooglePlaceType googlePlaceType = getEnumFromString(GooglePlaceType.class, placeType);
+            if (isGoogleSource && googlePlaceType != null) {
+                GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
+                if (!googleDataDAO.exist()) {
+                    GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, googlePlaceType);
+                    googleDataMiner.quadtreePlaceSearcher(boundingBox);
+                    googleDataMiner.fullPlacesInformation("ru");
+
+                    googleDataDAO.insert(googleDataMiner.getPlaces());
+                    googleDataDAO.recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
+                    googleDataDAO.recreate(googleDataMiner.getSearchers(), GoogleDataDAO.SEARCHER_SUFFIX);
+                }
+                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces());
+                view.addObject(VIEW_BOUNDING_BOXES, googleDataDAO.getBoundingBoxes());
+                view.addObject(VIEW_SEARCHERS, googleDataDAO.getSearchers());
+            }
         } else {
-            Category categoryObj = new Culture(mapService, boundingBox);
-            view.addObject(VIEW_FOURSQUARE_PLACES, Culture.foursquareClearing(FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces())));
-//            view.addObject(VIEW_KERNELS, categoryObj.getFoursquareKernels(true));
+            new GoogleDataMiner(mapService, null).searchersUniformGeodesicDistribution(boundingBox, view);
         }
-        if (isBox == null || !isBox) {
+
+        // flags handle
+        if (!isBox) {
             view.getModel().remove(VIEW_BOUNDING_BOXES);
         }
-        if (isCover == null || !isCover) {
+        if (!isSearchers) {
             view.getModel().remove(VIEW_SEARCHERS);
         }
 
     }
 
+    public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
+        if( c != null && string != null ) {
+            try {
+                return Enum.valueOf(c, string.trim().toUpperCase());
+            } catch(IllegalArgumentException ignored) {
+            }
+        }
+        return null;
+    }
 
 }

@@ -4,7 +4,7 @@ function tryingGetUserGeolocationAndRedirect() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (pos) {
             window.location.replace(window.location.href
-                + "?lat=" + pos.coords.latitude + "&lng=" + pos.coords.longitude + "&box=true&cover=true");
+                + "?lat=" + pos.coords.latitude + "&lng=" + pos.coords.longitude + "&box=true");
         }, function () {
             handleGeolocationError(true)
         });

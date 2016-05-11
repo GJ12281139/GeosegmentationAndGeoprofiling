@@ -63,7 +63,7 @@
                 <c:if test="${not empty foursquare_places}">
                     <c:forEach var="place" items="${foursquare_places}" varStatus="loop">
                         pos = {lat: ${place.lat}, lng: ${place.lng}};
-                        addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                        addMarker(pos, "../resources/icons/vista.ball.dark.orange.48.png", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>
                 </c:if>
 

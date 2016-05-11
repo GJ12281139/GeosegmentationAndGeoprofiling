@@ -23,6 +23,11 @@ public enum FoursquarePlaceType {
     GARDEN("4bf58dd8d48988d15a941735"),
     PALACE("52e81612bcbc57f1066b7a14"),
 
+    // NightLife (Bar/clubs/disco/friends meeting)
+    NIGHTLIFE_SPOT("4d4b7105d754a06376d81259"),
+    BOWLING_GREEN("52e81612bcbc57f1066b7a2f"),
+
+
     //    OPERA_HOUSE("4bf58dd8d48988d136941735"),
     BAR("4bf58dd8d48988d116941735"),
     FOOD("4d4b7105d754a06374d81259"),
@@ -33,5 +38,10 @@ public enum FoursquarePlaceType {
 
     FoursquarePlaceType(String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return name() + " " + categoryId;
     }
 }
