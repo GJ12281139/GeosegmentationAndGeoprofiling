@@ -1,6 +1,5 @@
 package ru.ifmo.pashaac.foursquare;
 
-import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
 import com.sun.istack.internal.Nullable;
 import fi.foyt.foursquare.api.FoursquareApiException;
@@ -64,7 +63,7 @@ public class FoursquareDataMiner {
             LOG.info("Trying get data (" + foursquarePlaceType.name() + ") for boundingbox #" + i + "... " + bBox);
             LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
             int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
-            int lRad = (int) Properties.getDefaultSearcherRadius();
+            int lRad = Properties.getFoursquareVenuesSearchRadEps();
             while (lRad < rRad) {
                 int mRad = rRad - lRad < Properties.getFoursquareVenuesSearchRadEps() ? rRad : (lRad + rRad) / 2;
                 CompactVenue[] venues = venuesSearch(boxCenter, foursquarePlaceType, mRad);
@@ -85,18 +84,10 @@ public class FoursquareDataMiner {
                 searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(venues)
                         .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox.getCity(),
-                                boundingBox.getCountry(), foursquarePlaceType.name(), Properties.getIconPink32())));
+                                boundingBox.getCountry(), foursquarePlaceType.name(), foursquarePlaceType.icon)));
                 LOG.info("places size " + places.size());
                 if (mRad < rRad) {
-                    Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds rightDownBounds = GeoMath.rightDownBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds rightUpBounds = GeoMath.rightUpBoundingBox(boxCenter, bBox.getBounds());
-
-                    boundingBoxes.add(new BoundingBox(leftDownBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(leftUpBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(rightDownBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(rightUpBounds, bBox.getCity(), bBox.getCountry()));
+                    boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
                 }
                 break;
             }

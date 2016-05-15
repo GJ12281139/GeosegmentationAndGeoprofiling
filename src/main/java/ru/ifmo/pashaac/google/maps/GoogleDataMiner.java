@@ -65,7 +65,7 @@ public class GoogleDataMiner {
             LOG.info("Trying get data (" + googlePlaceType.name() + ") for boundingbox #" + i + "... " + bBox);
             LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
             int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
-            int lRad = (int) ru.ifmo.pashaac.common.Properties.getDefaultSearcherRadius();
+            int lRad = Properties.getGoogleMapsPlacesSearchRadEps();
             while (lRad < rRad) {
                 int mRad = rRad - lRad < Properties.getGoogleMapsPlacesSearchRadEps() ? rRad : (lRad + rRad) / 2;
                 PlacesSearchResult[] searchResults = radarSearch(boxCenter, mRad, googlePlaceType);
@@ -86,18 +86,10 @@ public class GoogleDataMiner {
                 searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(searchResults)
                         .forEach(place -> places.add(new GooglePlace(place.placeId, googlePlaceType.name(), bBox,
-                                new LatLng(place.geometry.location.lat, place.geometry.location.lng), Properties.getIconGreen32())));
+                                new LatLng(place.geometry.location.lat, place.geometry.location.lng), googlePlaceType.icon)));
                 LOG.info("Places size " + places.size());
                 if (mRad < rRad) {
-                    Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds rightDownBounds = GeoMath.rightDownBoundingBox(boxCenter, bBox.getBounds());
-                    Bounds rightUpBounds = GeoMath.rightUpBoundingBox(boxCenter, bBox.getBounds());
-
-                    boundingBoxes.add(new BoundingBox(leftDownBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(leftUpBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(rightDownBounds, bBox.getCity(), bBox.getCountry()));
-                    boundingBoxes.add(new BoundingBox(rightUpBounds, bBox.getCity(), bBox.getCountry()));
+                    boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
                 }
                 break;
             }
@@ -111,6 +103,7 @@ public class GoogleDataMiner {
     public void fullPlacesInformation(@Nullable String language) {
         int[] googleMapsApiCallCounter = {0};
         Set<GooglePlace> tmpPlaces = new HashSet<>(places);
+        places.clear();
         tmpPlaces.stream()
                 .forEach(place -> {
                     try {
@@ -118,7 +111,6 @@ public class GoogleDataMiner {
                                 ? PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).await()
                                 : PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).language(language).await();
                         ++googleMapsApiCallCounter[0];
-                        places.remove(place);
                         places.add(new GooglePlace(details, place));
                     } catch (Exception e) {
                         LOG.error("Can't get full place info, placeId = " + place.getId());

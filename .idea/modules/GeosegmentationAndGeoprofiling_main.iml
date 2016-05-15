@@ -4,9 +4,10 @@
     <facet type="Spring" name="Spring">
       <configuration>
         <fileset id="fileset" name="Spring Application Context" removed="false">
-          <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/configuration/SpringRootConfig.java</file>
-          <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/configuration/SpringServletConfig.java</file>
           <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/GeosegmentationAndGeoprofilingApplication.java</file>
+          <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/configuration/SpringRootConfig.java</file>
+          <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/configuration/SpringMongoConfig.java</file>
+          <file>file://$MODULE_DIR$/../../src/main/java/ru/ifmo/pashaac/configuration/SpringServletConfig.java</file>
         </fileset>
       </configuration>
     </facet>
@@ -35,9 +36,7 @@
           <root url="jar://$MODULE_DIR$/../../lib/foursquare/foursquare-api-1.0.3-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../lib/foursquare/foursquare-api-1.0.3-SNAPSHOT-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-mongodb:1.4.0.BUILD-SNAPSHOT" level="project" />
@@ -53,7 +52,7 @@
     <orderEntry type="library" name="Gradle: org.mongodb:mongo-java-driver:2.14.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-tomcat:1.4.0.BUILD-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate:hibernate-validator:5.2.4.Final" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.7.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.7.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-web:4.3.0.RC2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-webmvc:4.3.0.RC2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.6.2" level="project" />
@@ -79,8 +78,8 @@
     <orderEntry type="library" name="Gradle: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.jboss.logging:jboss-logging:3.3.0.Final" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml:classmate:1.3.1" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.7.3" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.7.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.7.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.7.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-aop:4.3.0.RC2" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.1.7" level="project" />

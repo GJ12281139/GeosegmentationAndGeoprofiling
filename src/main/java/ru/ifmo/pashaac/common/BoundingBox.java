@@ -3,6 +3,10 @@ package ru.ifmo.pashaac.common;
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * BoundingBox with places inside it
  * Need to parse data on client JSP side
@@ -56,6 +60,22 @@ public class BoundingBox {
 
     public String getCountry() {
         return country;
+    }
+
+    public static Collection<BoundingBox> getQuarters(BoundingBox bBox) {
+        LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
+
+        Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
+        Bounds leftUpBounds = GeoMath.leftUpBoundingBox(boxCenter, bBox.getBounds());
+        Bounds rightDownBounds = GeoMath.rightDownBoundingBox(boxCenter, bBox.getBounds());
+        Bounds rightUpBounds = GeoMath.rightUpBoundingBox(boxCenter, bBox.getBounds());
+
+        List<BoundingBox> quarters = new ArrayList<>();
+        quarters.add(new BoundingBox(leftDownBounds, bBox.getCity(), bBox.getCountry()));
+        quarters.add(new BoundingBox(leftUpBounds, bBox.getCity(), bBox.getCountry()));
+        quarters.add(new BoundingBox(rightDownBounds, bBox.getCity(), bBox.getCountry()));
+        quarters.add(new BoundingBox(rightUpBounds, bBox.getCity(), bBox.getCountry()));
+        return quarters;
     }
 
     @Override

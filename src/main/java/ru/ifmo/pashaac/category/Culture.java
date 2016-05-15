@@ -2,17 +2,16 @@ package ru.ifmo.pashaac.category;
 
 import com.google.maps.model.LatLng;
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
+import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.Searcher;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
-import ru.ifmo.pashaac.foursquare.FoursquareDataMiner;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
-import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
@@ -28,14 +27,15 @@ import java.util.stream.Collectors;
  */
 public class Culture implements Category {
 
-    public static final GooglePlaceType[] GOOGLE_PLACE_TYPES = {GooglePlaceType.MUSEUM, GooglePlaceType.PARK, GooglePlaceType.ART_GALLERY,
-            GooglePlaceType.CHURCH, GooglePlaceType.LIBRARY};
+    public static final GooglePlaceType[] GOOGLE_PLACE_TYPES = {GooglePlaceType.MUSEUM, GooglePlaceType.PARK};
+//            GooglePlaceType.CHURCH};
+//            /* GooglePlaceType.ART_GALLERY, GooglePlaceType.LIBRARY */}; TODO: ???
 
-    public static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM,
-            FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.ART_GALLERY,
-            FoursquarePlaceType.CIRCUS, FoursquarePlaceType.CONCERT_HALL, FoursquarePlaceType.PUBLIC_ART,
-            FoursquarePlaceType.WATER_PARK, FoursquarePlaceType.BOTANICAL_GARDEN, FoursquarePlaceType.BRIDGE,
-            FoursquarePlaceType.CASTLE, FoursquarePlaceType.FOUNTAIN, FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE};
+    public static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM};
+//            FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.ART_GALLERY,
+//            FoursquarePlaceType.CIRCUS, FoursquarePlaceType.CONCERT_HALL, FoursquarePlaceType.PUBLIC_ART,
+//            FoursquarePlaceType.WATER_PARK, FoursquarePlaceType.BOTANICAL_GARDEN, FoursquarePlaceType.BRIDGE,
+//            FoursquarePlaceType.CASTLE, FoursquarePlaceType.FOUNTAIN, FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE};
 
     private final MapService mapService;
     private final BoundingBox boundingBox;
@@ -48,39 +48,28 @@ public class Culture implements Category {
     }
 
     @Override
-    public Set<GooglePlace> getGooglePlaces() {
+    public Set<GooglePlace> getGooglePlaces(boolean useSourceIcons) {
         return Arrays.stream(GOOGLE_PLACE_TYPES)
                 .map(placeType -> {
                     GoogleDataDAO googleDataDAO = new GoogleDataDAO(placeType.name(), boundingBox.getCity(), boundingBox.getCountry());
                     if (!googleDataDAO.exist()) {
-                        GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, placeType);
-                        googleDataMiner.quadtreePlaceSearcher(boundingBox);
-                        googleDataMiner.fullPlacesInformation("ru");
-
-                        googleDataDAO.insert(googleDataMiner.getPlaces());
-                        googleDataDAO.recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
-                        googleDataDAO.recreate(googleDataMiner.getSearchers(), GoogleDataDAO.SEARCHER_SUFFIX);
+                        googleDataDAO.minePlaces(mapService, boundingBox);
                     }
-                    return googleDataDAO.getPlaces();
+                    return googleDataDAO.getPlaces(useSourceIcons);
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<FoursquarePlace> getFoursquarePlaces() {
+    public Set<FoursquarePlace> getFoursquarePlaces(boolean useSourceIcons) {
         return Arrays.stream(FOURSQUARE_PLACE_TYPES)
                 .map(placeType -> {
                     FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(placeType.name(), boundingBox.getCity(), boundingBox.getCountry());
                     if (!foursquareDataDAO.exist()) {
-                        FoursquareDataMiner foursquareDataMiner = new FoursquareDataMiner(mapService, placeType);
-                        foursquareDataMiner.quadtreePlaceSearcher(boundingBox);
-
-                        foursquareDataDAO.insert(foursquareDataMiner.getPlaces());
-                        foursquareDataDAO.recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
-                        foursquareDataDAO.recreate(foursquareDataMiner.getSearchers(), FoursquareDataDAO.SEARCHER_SUFFIX);
+                        foursquareDataDAO.minePlaces(mapService, boundingBox);
                     }
-                    return foursquareDataDAO.getPlaces();
+                    return foursquareDataDAO.getPlaces(useSourceIcons);
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -94,7 +83,18 @@ public class Culture implements Category {
             for (Searcher place : result.getPoints()) {
                 rad = Math.max(rad, GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()));
             }
-            kernels.add(new Searcher(center.lat, center.lng, rad, Properties.getIconKernel()));
+//            kernels.add(new Searcher(center.lat, center.lng, rad, Properties.getIconKernel()));
+
+            KMeansPlusPlusClusterer<Clusterable> clusterer1 = new KMeansPlusPlusClusterer<>(3, 1000, new GeoMath());
+            List<CentroidCluster<Clusterable>> clusters1 = clusterer1.cluster(new HashSet<>(result.getPoints()));
+            for (CentroidCluster<Clusterable> result1 : clusters1) {
+                center = new LatLng(result1.getCenter().getPoint()[0], result1.getCenter().getPoint()[1]);
+                rad = 1000; // TODO: what about radius around kernels?
+//                for (Searcher place : result.getPoints()) {
+//                    rad = Math.max(rad, GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()));
+//                }
+                kernels.add(new Searcher(center.lat, center.lng, rad, Properties.getIconKernel()));
+            }
         }
         return kernels;
     }
@@ -103,11 +103,11 @@ public class Culture implements Category {
     public List<Searcher> getKernels(boolean needClearing) {
         Collection<Searcher> collection = new HashSet<>();
         if (needClearing) {
-            collection.addAll(GooglePlace.cleaner(getGooglePlaces()));
-            collection.addAll(FoursquarePlace.cleaner(getFoursquarePlaces()));
+            collection.addAll(GooglePlace.cleaner(getGooglePlaces(false)));
+            collection.addAll(FoursquarePlace.cleaner(getFoursquarePlaces(false)));
         } else {
-            collection.addAll(getGooglePlaces());
-            collection.addAll(getFoursquarePlaces());
+            collection.addAll(getGooglePlaces(false));
+            collection.addAll(getFoursquarePlaces(false));
         }
         return getKernels(clusterer.cluster(collection));
     }
@@ -115,40 +115,15 @@ public class Culture implements Category {
     @Override
     public List<Searcher> getGoogleKernels(boolean needClearing) {
         Collection<Searcher> collection = new HashSet<>();
-        collection.addAll(needClearing ? GooglePlace.cleaner(getGooglePlaces()) : getGooglePlaces());
+        collection.addAll(needClearing ? GooglePlace.cleaner(getGooglePlaces(false)) : getGooglePlaces(false));
         return getKernels(clusterer.cluster(collection));
     }
 
     @Override
     public List<Searcher> getFoursquareKernels(boolean needClearing) {
         Collection<Searcher> collection = new HashSet<>();
-        collection.addAll(needClearing ? FoursquarePlace.cleaner(getFoursquarePlaces()) : getFoursquarePlaces());
+        collection.addAll(needClearing ? FoursquarePlace.cleaner(getFoursquarePlaces(false)) : getFoursquarePlaces(false));
         return getKernels(clusterer.cluster(collection));
     }
 
-    public static Set<FoursquarePlace> foursquareClearing(Set<FoursquarePlace> dirtyPlaces) {
-        return dirtyPlaces;
-//        Set<FoursquarePlace> goodPlaces = new HashSet<>();
-//        for (FoursquarePlace dirtyPlace : dirtyPlaces) {
-//            int less500 = 0;
-//            int less750 = 0;
-//            int less1000 = 0;
-//            for (FoursquarePlace otherDirtyPlace : dirtyPlaces) {
-//                double dst = GeoMath.distance(dirtyPlace.getLat(), dirtyPlace.getLng(), otherDirtyPlace.getLat(), otherDirtyPlace.getLng());
-//                if (dst < 500) {
-//                    ++less500;
-//                }
-//                if (dst < 750) {
-//                    ++less750;
-//                }
-//                if (dst < 1000) {
-//                    ++less1000;
-//                }
-//            }
-//            if (less500 > 3 && less750 * 1.0 / less500 > 1.3) {
-//                goodPlaces.add(dirtyPlace);
-//            }
-//        }
-//        return goodPlaces;
-    }
 }

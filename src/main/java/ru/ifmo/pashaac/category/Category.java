@@ -13,9 +13,9 @@ import java.util.Set;
  */
 public interface Category {
 
-    Set<GooglePlace> getGooglePlaces();
+    Set<GooglePlace> getGooglePlaces(boolean useSourceIcons);
 
-    Set<FoursquarePlace> getFoursquarePlaces();
+    Set<FoursquarePlace> getFoursquarePlaces(boolean useSourceIcons);
 
     List<Searcher> getKernels(boolean needClearing);
 

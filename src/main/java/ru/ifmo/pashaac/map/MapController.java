@@ -12,7 +12,6 @@ import ru.ifmo.pashaac.category.Category;
 import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.*;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
-import ru.ifmo.pashaac.foursquare.FoursquareDataMiner;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
@@ -21,6 +20,7 @@ import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 
 /**
  * Created by Pavel Asadchiy
@@ -59,8 +59,9 @@ public class MapController {
                                     @RequestParam(value = "placeType", required = false) String placeType,  // placeType depends from source
                                     @RequestParam(value = "category", required = false) String category,    // places category
                                     @RequestParam(value = "box", defaultValue = "false", required = false) boolean isBox,       // flag - show boundingboxes around searchers
-                                    @RequestParam(value = "searchers", defaultValue = "false", required = false) boolean isSearchers,   // flag - search placeType data or not
-                                    @RequestParam(value = "clear", defaultValue = "true", required = false) boolean isClear) {  // flag - do clearing (delete long away places), etc
+                                    @RequestParam(value = "searchers", defaultValue = "false", required = false) boolean isSearchers, // flag - search placeType data or not
+                                    @RequestParam(value = "sourceIcons", defaultValue = "false", required = false) boolean useSourceIcons) {
+
 
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
 
@@ -73,7 +74,7 @@ public class MapController {
                 view.addObject(VIEW_ERROR, "Please, check your coordinates. If all are correct then our developer " +
                         "know about trouble and fix it as soon as possible.");
             } else {
-                buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, isClear);
+                buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, useSourceIcons);
             }
             return view;
         }
@@ -93,7 +94,7 @@ public class MapController {
                 } else {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
                     view.addObject(VIEW_USER, new Searcher(center.lat, center.lng, 0, Properties.getIconUser()));
-                    buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, isClear);
+                    buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, useSourceIcons);
                 }
             }
             return view;
@@ -111,7 +112,7 @@ public class MapController {
                                    @Nullable String placeType,
                                    boolean isSearchers,
                                    boolean isBox,
-                                   boolean isClear) {
+                                   boolean useSourceIcons) {
 
         if (!view.getModel().containsKey(VIEW_USER)) {
             LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
@@ -127,15 +128,19 @@ public class MapController {
 
             if (categoryObj != null) {
                 if (isFoursquareSource && isGoogleSource) {
-                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces()));
-                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces()));
+                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces(useSourceIcons)));
+                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces(useSourceIcons)));
                     view.addObject(VIEW_KERNELS, categoryObj.getKernels(true));
                 } else if (isFoursquareSource) {
-                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces()));
+                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces(useSourceIcons)));
                     view.addObject(VIEW_KERNELS, categoryObj.getFoursquareKernels(true));
                 } else if (isGoogleSource) {
-                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces()));
+                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces(useSourceIcons)));
                     view.addObject(VIEW_KERNELS, categoryObj.getGoogleKernels(true));
+                }
+
+                if (isBox) {
+                    view.addObject(VIEW_BOUNDING_BOXES, Collections.singletonList(boundingBox));
                 }
             }
         } else if (placeType != null) {
@@ -144,14 +149,9 @@ public class MapController {
             if (isFoursquareSource && foursquarePlaceType != null) {
                 FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 if (!foursquareDataDAO.exist()) {
-                    FoursquareDataMiner foursquareDataMiner = new FoursquareDataMiner(mapService, foursquarePlaceType);
-                    foursquareDataMiner.quadtreePlaceSearcher(boundingBox);
-
-                    foursquareDataDAO.insert(foursquareDataMiner.getPlaces());
-                    foursquareDataDAO.recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
-                    foursquareDataDAO.recreate(foursquareDataMiner.getSearchers(), FoursquareDataDAO.SEARCHER_SUFFIX);
+                    foursquareDataDAO.minePlaces(mapService, boundingBox);
                 }
-                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces());
+                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces(useSourceIcons));
                 view.addObject(VIEW_BOUNDING_BOXES, foursquareDataDAO.getBoundingBoxes());
                 view.addObject(VIEW_SEARCHERS, foursquareDataDAO.getSearchers());
             }
@@ -160,15 +160,9 @@ public class MapController {
             if (isGoogleSource && googlePlaceType != null) {
                 GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 if (!googleDataDAO.exist()) {
-                    GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, googlePlaceType);
-                    googleDataMiner.quadtreePlaceSearcher(boundingBox);
-                    googleDataMiner.fullPlacesInformation("ru");
-
-                    googleDataDAO.insert(googleDataMiner.getPlaces());
-                    googleDataDAO.recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
-                    googleDataDAO.recreate(googleDataMiner.getSearchers(), GoogleDataDAO.SEARCHER_SUFFIX);
+                    googleDataDAO.minePlaces(mapService, boundingBox);
                 }
-                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces());
+                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces(useSourceIcons));
                 view.addObject(VIEW_BOUNDING_BOXES, googleDataDAO.getBoundingBoxes());
                 view.addObject(VIEW_SEARCHERS, googleDataDAO.getSearchers());
             }
@@ -187,10 +181,10 @@ public class MapController {
     }
 
     public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
-        if( c != null && string != null ) {
+        if (c != null && string != null) {
             try {
                 return Enum.valueOf(c, string.trim().toUpperCase());
-            } catch(IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ignored) {
             }
         }
         return null;

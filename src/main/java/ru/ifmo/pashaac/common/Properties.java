@@ -97,30 +97,6 @@ public class Properties implements Runnable {
 
 
     // Icons
-    public static String getIconAzure48() {
-        return properties.get("icon.place.azure.48");
-    }
-
-    public static String getIconAzure32() {
-        return properties.get("icon.place.azure.32");
-    }
-
-    public static String getIconPink48() {
-        return properties.get("icon.place.pink.48");
-    }
-
-    public static String getIconPink32() {
-        return properties.get("icon.place.pink.32");
-    }
-
-    public static String getIconGreen48() {
-        return properties.get("icon.place.green.48");
-    }
-
-    public static String getIconGreen32() {
-        return properties.get("icon.place.green.32");
-    }
-
     public static String getIconSearch() {
         return properties.get("icon.search");
     }

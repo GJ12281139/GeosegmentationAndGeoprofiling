@@ -5,9 +5,11 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.Searcher;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
+import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Pavel Asadchiy
@@ -17,6 +19,7 @@ public class GoogleDataDAO {
 
     public static final String BOUNDINGBOX_SUFFIX = "boundingbox";
     public static final String SEARCHER_SUFFIX = "searcher";
+    public static final String GOOGLE_ICON = MapService.ICON_PATH + "vista.ball.poison.green.32.png";
 
     private static final Logger LOG = Logger.getLogger(GoogleDataDAO.class);
 
@@ -30,8 +33,27 @@ public class GoogleDataDAO {
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<GooglePlace> getPlaces() {
-        return mongoOperations.findAll(GooglePlace.class, collection);
+    public List<GooglePlace> getPlaces(boolean useGoogleIcon) {
+        if (useGoogleIcon) {
+            return mongoOperations.findAll(GooglePlace.class, collection).stream()
+                    .map(place -> new GooglePlace(place.getId(), place.getName(), place.getPlaceType(), place.getAddress(),
+                            place.getPhone(), place.getRating(), place.getCity(), place.getCountry(), place.getLat(), place.getLng(),
+                            place.getRad(), GOOGLE_ICON))
+                    .collect(Collectors.toList());
+        } else {
+            return mongoOperations.findAll(GooglePlace.class, collection);
+        }
+    }
+
+    public void minePlaces(MapService mapService, BoundingBox boundingBox) {
+        GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, GooglePlaceType.valueOf(placeType));
+        googleDataMiner.quadtreePlaceSearcher(boundingBox);
+        LOG.info("Getting places full information... Please wait...");
+        googleDataMiner.fullPlacesInformation("ru");
+        LOG.info("All information was got.");
+        insert(googleDataMiner.getPlaces());
+        recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
+        recreate(googleDataMiner.getSearchers(), GoogleDataDAO.SEARCHER_SUFFIX);
     }
 
     public List<BoundingBox> getBoundingBoxes() {

@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class MapService {
 
+    public static final String ICON_PATH = "resources/icons/";
+
     private static final Logger LOG = Logger.getLogger(MapService.class);
 
     private final GeoApiContext googleContext;
@@ -124,7 +126,7 @@ public class MapService {
     @Nullable
     public BoundingBox getCityBoundingBox(String city, String country) {
         try {
-            String address = city + country;
+            String address = city + " " + country;
             GeocodingResult[] boundingboxes = GeocodingApi.newRequest(googleContext).address(address).await();
             final Bounds box = boundingboxes[0].geometry.bounds;
             LOG.info("Boundingbox: southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + ") " +

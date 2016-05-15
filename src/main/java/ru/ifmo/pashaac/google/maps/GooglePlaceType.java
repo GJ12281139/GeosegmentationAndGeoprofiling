@@ -1,6 +1,7 @@
 package ru.ifmo.pashaac.google.maps;
 
 import com.google.maps.model.PlaceType;
+import ru.ifmo.pashaac.map.MapService;
 
 /**
  * Created by Pavel Asadchiy
@@ -8,16 +9,19 @@ import com.google.maps.model.PlaceType;
  */
 public enum GooglePlaceType {
 
-    MUSEUM("museum"),
-    PARK("park"),
-    ART_GALLERY("art_gallery"),
-    CHURCH("church"),
-    LIBRARY("library");
+    MUSEUM("museum", MapService.ICON_PATH + "vista.ball.bronze.32.png"),
+    PARK("park", MapService.ICON_PATH + "vista.ball.green.32.png");
+//    ART_GALLERY("art_gallery"),
+//    CHURCH("church"),
+//    LIBRARY("library"),
+//    FOOD("food");
 
-    private String placeType;
+    String placeType;
+    String icon;
 
-    GooglePlaceType(final String placeType) {
+    GooglePlaceType(final String placeType, final String icon) {
         this.placeType = placeType;
+        this.icon = icon;
     }
 
     @Override

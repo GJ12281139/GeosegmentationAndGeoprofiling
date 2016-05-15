@@ -30,7 +30,7 @@
                 var userPos = {lat: ${user.lat}, lng: ${user.lng}};
                 var mapOptions = {
                     center: userPos,
-                    zoom: 10,
+                    zoom: 11,
                     scaleControl: true,
                     mapTypeControl: false
                 };
@@ -48,7 +48,7 @@
                 <c:if test="${not empty searchers}">
                     <c:forEach var="searcher" items="${searchers}" varStatus="loop">
                         pos = {lat: ${searcher.lat}, lng: ${searcher.lng}};
-                        addMarker(pos, "${searcher.icon}", "Search radius: ${searcher.rad}", "", "", map);
+                        addMarker(pos, "${searcher.icon}", "Searcher ${loop.index}, radius: ${searcher.rad}", "", "", map);
                         addCircle(pos, ${searcher.rad});
                     </c:forEach>
                 </c:if>
@@ -63,7 +63,7 @@
                 <c:if test="${not empty foursquare_places}">
                     <c:forEach var="place" items="${foursquare_places}" varStatus="loop">
                         pos = {lat: ${place.lat}, lng: ${place.lng}};
-                        addMarker(pos, "../resources/icons/vista.ball.dark.orange.48.png", "${place.name}", "${place.id}", "${place.address}", map);
+                        addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
                     </c:forEach>
                 </c:if>
 
