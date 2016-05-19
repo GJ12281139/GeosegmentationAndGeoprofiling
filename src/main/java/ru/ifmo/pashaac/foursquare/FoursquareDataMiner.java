@@ -7,10 +7,10 @@ import fi.foyt.foursquare.api.Result;
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import fi.foyt.foursquare.api.entities.VenuesSearchResult;
 import org.apache.log4j.Logger;
-import ru.ifmo.pashaac.common.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.*;
@@ -27,7 +27,7 @@ public class FoursquareDataMiner {
 
     private final MapService mapService;
     private final List<BoundingBox> boundingBoxes;
-    private final List<Searcher> searchers;
+    private final List<Marker> markers;
     private final Set<FoursquarePlace> places;
     private final FoursquarePlaceType foursquarePlaceType;
 
@@ -35,7 +35,7 @@ public class FoursquareDataMiner {
         this.mapService = mapService;
         this.foursquarePlaceType = foursquarePlaceType;
         this.boundingBoxes = new ArrayList<>();
-        this.searchers = new ArrayList<>();
+        this.markers = new ArrayList<>();
         this.places = new HashSet<>();
     }
 
@@ -43,8 +43,8 @@ public class FoursquareDataMiner {
         return places;
     }
 
-    public List<Searcher> getSearchers() {
-        return searchers;
+    public List<Marker> getMarkers() {
+        return markers;
     }
 
     public List<BoundingBox> getBoundingBoxes() {
@@ -53,7 +53,7 @@ public class FoursquareDataMiner {
 
     public void quadtreePlaceSearcher(BoundingBox boundingBox) {
         boundingBoxes.clear();
-        searchers.clear();
+        markers.clear();
         places.clear();
 
         boundingBoxes.add(boundingBox);
@@ -69,7 +69,7 @@ public class FoursquareDataMiner {
                 CompactVenue[] venues = venuesSearch(boxCenter, foursquarePlaceType, mRad);
                 ++foursquareApiCallCounter;
                 if (venues == null) {
-                    searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearchError()));
+                    markers.add(new Marker(boxCenter, mRad, Properties.getIconSearchError()));
                     break;
                 }
                 if (mRad < rRad && venues.length > Properties.getFoursquareMaxVenuesSearch()) {
@@ -81,7 +81,7 @@ public class FoursquareDataMiner {
                     continue;
                 }
 
-                searchers.add(new Searcher(boxCenter, mRad, Properties.getIconSearch()));
+                markers.add(new Marker(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(venues)
                         .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox.getCity(),
                                 boundingBox.getCountry(), foursquarePlaceType.name(), foursquarePlaceType.icon)));
@@ -116,6 +116,12 @@ public class FoursquareDataMiner {
                 return venuesSearchResult.getResult().getVenues();
             } else {
                 LOG.error("Venues search return code " + venuesSearchResult.getMeta().getCode());
+                LOG.info("Trying repeat request...");
+                venuesSearchResult = mapService.getFoursquareApi().venuesSearch(params);
+                if (venuesSearchResult.getMeta().getCode() == 200) {
+                    LOG.info("Repeated request success");
+                    return venuesSearchResult.getResult().getVenues();
+                }
                 return null;
             }
         } catch (FoursquareApiException e) {

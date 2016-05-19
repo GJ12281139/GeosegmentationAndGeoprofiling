@@ -4,8 +4,8 @@ import com.sun.istack.internal.NotNull;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import ru.ifmo.pashaac.common.GeoMath;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.Searcher;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,38 +20,38 @@ public class DBSCANClustering {
     public static final int DEFAULT_NEIGHBOR_DISTANCE = 300;
     public static final int DEFAULT_MIN_PLACES_IN_CLUSTER = 5;
 
-    public static List<Searcher> getDBScanClusters(Collection<Searcher> collection, int neighborDistance, int minPlacesInCluster) {
-        DBSCANClusterer<Searcher> dbscanClusterer = new DBSCANClusterer<>(neighborDistance, minPlacesInCluster,  new GeoMath());
-        final List<Cluster<Searcher>> clusters = dbscanClusterer.cluster(collection);
+    public static List<Marker> getDBScanClusters(Collection<Marker> collection, int neighborDistance, int minPlacesInCluster) {
+        DBSCANClusterer<Marker> dbscanClusterer = new DBSCANClusterer<>(neighborDistance, minPlacesInCluster,  new GeoMath());
+        final List<Cluster<Marker>> clusters = dbscanClusterer.cluster(collection);
         return clusters.stream()
                 .map(cluster -> getClusterCenter(cluster.getPoints())).collect(Collectors.toList());
     }
 
-    public static List<Searcher> getDBScanClusters(Collection<Searcher> collection) {
+    public static List<Marker> getDBScanClusters(Collection<Marker> collection) {
         return getDBScanClusters(collection, DEFAULT_NEIGHBOR_DISTANCE, DEFAULT_MIN_PLACES_IN_CLUSTER);
     }
 
     @NotNull
-    private static Searcher getClusterCenter(Collection<Searcher> collection) {
-        Searcher maxDstSearcher1 = null;
-        Searcher maxDstSearcher2 = null;
+    private static Marker getClusterCenter(Collection<Marker> collection) {
+        Marker maxDstMarker1 = null;
+        Marker maxDstMarker2 = null;
         double diameter = 0;
-        for (Searcher searcher1 : collection) {
-            for (Searcher searcher2 : collection) {
-                final double distance = GeoMath.distance(searcher1.getLat(), searcher1.getLng(), searcher2.getLat(), searcher2.getLng());
+        for (Marker marker1 : collection) {
+            for (Marker marker2 : collection) {
+                final double distance = GeoMath.distance(marker1.getLat(), marker1.getLng(), marker2.getLat(), marker2.getLng());
                 if (distance > diameter) {
                     diameter = distance;
-                    maxDstSearcher1 = searcher1;
-                    maxDstSearcher2 = searcher2;
+                    maxDstMarker1 = marker1;
+                    maxDstMarker2 = marker2;
                 }
             }
         }
-        if (maxDstSearcher1 == null) {
+        if (maxDstMarker1 == null) {
             throw new IllegalStateException("Set is too small " + collection.size());
         }
-        final double latCenter = (maxDstSearcher1.getLat() + maxDstSearcher2.getLat()) / 2;
-        final double lngCenter = (maxDstSearcher1.getLng() + maxDstSearcher2.getLng()) / 2;
-        return new Searcher(latCenter, lngCenter, diameter / 2, Properties.getIconKernel());
+        final double latCenter = (maxDstMarker1.getLat() + maxDstMarker2.getLat()) / 2;
+        final double lngCenter = (maxDstMarker1.getLng() + maxDstMarker2.getLng()) / 2;
+        return new Marker(latCenter, lngCenter, diameter / 2, Properties.getIconKernel());
     }
 
 }

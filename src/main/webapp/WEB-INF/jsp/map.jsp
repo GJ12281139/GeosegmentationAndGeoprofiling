@@ -45,11 +45,11 @@
                 </c:if>
 
                 var pos;
-                <c:if test="${not empty searchers}">
-                    <c:forEach var="searcher" items="${searchers}" varStatus="loop">
-                        pos = {lat: ${searcher.lat}, lng: ${searcher.lng}};
-                        addMarker(pos, "${searcher.icon}", "Searcher ${loop.index}, radius: ${searcher.rad}", "", "", map);
-                        addCircle(pos, ${searcher.rad});
+                <c:if test="${not empty markers}">
+                    <c:forEach var="marker" items="${markers}" varStatus="loop">
+                        pos = {lat: ${marker.lat}, lng: ${marker.lng}};
+                        addMarker(pos, "${marker.icon}", "Marker ${loop.index}, radius: ${marker.rad}", "", "", map);
+                        addCircle(pos, ${marker.rad});
                     </c:forEach>
                 </c:if>
 

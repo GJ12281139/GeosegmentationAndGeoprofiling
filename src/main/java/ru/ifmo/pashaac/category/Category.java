@@ -1,6 +1,6 @@
 package ru.ifmo.pashaac.category;
 
-import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
 
@@ -17,10 +17,10 @@ public interface Category {
 
     Set<FoursquarePlace> getFoursquarePlaces();
 
-    List<Searcher> getClustersAllSources();
+    List<Marker> getClustersAllSources();
 
-    List<Searcher> getGoogleClusters();
+    List<Marker> getGoogleClusters();
 
-    List<Searcher> getFoursquareClusters();
+    List<Marker> getFoursquareClusters();
 
 }

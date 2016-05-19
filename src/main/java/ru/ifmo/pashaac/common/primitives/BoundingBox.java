@@ -1,7 +1,8 @@
-package ru.ifmo.pashaac.common;
+package ru.ifmo.pashaac.common.primitives;
 
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
+import ru.ifmo.pashaac.common.GeoMath;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,14 +17,14 @@ import java.util.List;
  */
 public class BoundingBox {
 
-    private final Searcher southwest;
-    private final Searcher northeast;
+    private final Marker southwest;
+    private final Marker northeast;
     private final String city;
     private final String country;
 
     public BoundingBox(LatLng southwest, LatLng northeast, String city, String country) {
-        this.southwest = new Searcher(southwest.lat, southwest.lng);
-        this.northeast = new Searcher(northeast.lat, northeast.lng);
+        this.southwest = new Marker(southwest.lat, southwest.lng);
+        this.northeast = new Marker(northeast.lat, northeast.lng);
         this.city = city;
         this.country = country;
     }
@@ -39,11 +40,11 @@ public class BoundingBox {
         this.country = null;
     }
 
-    public Searcher getSouthwest() {
+    public Marker getSouthwest() {
         return southwest;
     }
 
-    public Searcher getNortheast() {
+    public Marker getNortheast() {
         return northeast;
     }
 

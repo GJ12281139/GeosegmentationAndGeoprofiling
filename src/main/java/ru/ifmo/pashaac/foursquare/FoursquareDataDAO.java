@@ -2,8 +2,8 @@ package ru.ifmo.pashaac.foursquare;
 
 import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoOperations;
-import ru.ifmo.pashaac.common.BoundingBox;
-import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 import ru.ifmo.pashaac.map.MapService;
 
@@ -41,7 +41,7 @@ public class FoursquareDataDAO {
 
         insert(foursquareDataMiner.getPlaces());
         recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
-        recreate(foursquareDataMiner.getSearchers(), FoursquareDataDAO.SEARCHER_SUFFIX);
+        recreate(foursquareDataMiner.getMarkers(), FoursquareDataDAO.SEARCHER_SUFFIX);
     }
 
     public void minePlacesIfNotExist(MapService mapService, BoundingBox boundingBox) {
@@ -54,8 +54,8 @@ public class FoursquareDataDAO {
         return mongoOperations.findAll(BoundingBox.class, collection + "#" + BOUNDINGBOX_SUFFIX);
     }
 
-    public List<Searcher> getSearchers() {
-        return mongoOperations.findAll(Searcher.class, collection + "#" + SEARCHER_SUFFIX);
+    public List<Marker> getSearchers() {
+        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
     }
 
     @SuppressWarnings("unused")

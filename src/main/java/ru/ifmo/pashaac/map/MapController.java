@@ -11,12 +11,13 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.category.Category;
 import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.*;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
-import ru.ifmo.pashaac.statistic.FoursquareStatistic;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -34,7 +35,7 @@ public class MapController {
     public static final String VIEW_ERROR = "error";
     public static final String VIEW_USER = "user";
     public static final String VIEW_BOUNDING_BOXES = "boxes";
-    public static final String VIEW_SEARCHERS = "searchers";
+    public static final String VIEW_SEARCHERS = "markers";
     public static final String VIEW_GOOGLE_PLACES = "google_places";
     public static final String VIEW_FOURSQUARE_PLACES = "foursquare_places";
     public static final String VIEW_KERNELS = "kernels";
@@ -66,7 +67,7 @@ public class MapController {
 
         if (lat != null && lng != null) {
             LOG.info("User coordinates lat = " + lat + ", lng = " + lng);
-            view.addObject(VIEW_USER, new Searcher(lat, lng, 0, Properties.getIconUser()));
+            view.addObject(VIEW_USER, new Marker(lat, lng, 0, Properties.getIconUser()));
             UserDAO.insert(lat, lng);
             BoundingBox boundingBox = mapService.getCityBoundingBox(lat, lng);
             if (boundingBox == null) {
@@ -92,7 +93,7 @@ public class MapController {
                             "developer know about trouble and fix it as soon as possible.");
                 } else {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
-                    view.addObject(VIEW_USER, new Searcher(center.lat, center.lng, 0, Properties.getIconUser()));
+                    view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
                     buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, useSourceIcons);
                 }
             }
@@ -115,7 +116,7 @@ public class MapController {
 
         if (!view.getModel().containsKey(VIEW_USER)) {
             LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
-            view.addObject(VIEW_USER, new Searcher(center.lat, center.lng, 0, Properties.getIconUser()));
+            view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
         }
         view.addObject(VIEW_KEY, System.getenv("GOOGLE_API_KEY"));
 

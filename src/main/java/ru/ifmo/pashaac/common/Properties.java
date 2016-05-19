@@ -44,7 +44,7 @@ public class Properties implements Runnable {
     }
 
 
-    // Searcher
+    // Marker
     public static double getDefaultSearcherRadius() {
         return Double.parseDouble(properties.get("default.searcher.radius"));
     }
@@ -152,4 +152,9 @@ public class Properties implements Runnable {
     public static int getClusterPlaceAvgDistance() {
         return Integer.parseInt(properties.get("cluster.place.avg.distance"));
     }
+
+    public static int getClusterMaxInCity() {
+        return Integer.parseInt(properties.get("cluster.max.in.city"));
+    }
+
 }

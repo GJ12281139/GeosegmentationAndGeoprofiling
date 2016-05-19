@@ -3,9 +3,9 @@ package ru.ifmo.pashaac.google.maps;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
 import org.springframework.data.annotation.Id;
-import ru.ifmo.pashaac.common.BoundingBox;
-import ru.ifmo.pashaac.common.Searcher;
-import ru.ifmo.pashaac.map.MapService;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Icon;
+import ru.ifmo.pashaac.common.primitives.Marker;
 
 import java.util.Collection;
 import java.util.Set;
@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  * Created by Pavel Asadchiy
  * 19.04.16 22:36.
  */
-public class GooglePlace extends Searcher {
+public class GooglePlace extends Marker {
 
-    public static final String GOOGLE_ICON = MapService.ICON_PATH + "vista.ball.poison.green.32.png";
+    public static final String GOOGLE_ICON = Icon.VISTA_BALL_POISON_GREEN_32.getPath();
 
     @Id
     private final String id;        // place_id

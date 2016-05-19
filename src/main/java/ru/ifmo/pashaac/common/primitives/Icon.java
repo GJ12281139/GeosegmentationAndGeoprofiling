@@ -1,4 +1,6 @@
-package ru.ifmo.pashaac.common;
+package ru.ifmo.pashaac.common.primitives;
+
+import ru.ifmo.pashaac.common.Properties;
 
 /**
  * Paths to local icons
@@ -55,5 +57,9 @@ public enum Icon {
 
     Icon(String path) {
         this.path = path;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

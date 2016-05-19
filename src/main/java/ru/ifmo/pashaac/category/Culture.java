@@ -1,7 +1,7 @@
 package ru.ifmo.pashaac.category;
 
-import ru.ifmo.pashaac.common.BoundingBox;
-import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
@@ -9,6 +9,7 @@ import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
+import ru.ifmo.pashaac.segmentation.DarkHoleClustering;
 import ru.ifmo.pashaac.segmentation.KmeansPlusPlusClustering;
 
 import java.util.*;
@@ -27,8 +28,9 @@ public class Culture implements Category {
 //            /* GooglePlaceType.ART_GALLERY, GooglePlaceType.LIBRARY */}; TODO: ???
 
     private static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM,
-            FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK}; //FoursquarePlaceType.ART_GALLERY,
-//            FoursquarePlaceType.CIRCUS, FoursquarePlaceType.CONCERT_HALL, FoursquarePlaceType.PUBLIC_ART,
+            FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.FOUNTAIN,
+            FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE}; //FoursquarePlaceType.ART_GALLERY,
+//             FoursquarePlaceType.CONCERT_HALL, FoursquarePlaceType.PUBLIC_ART,
 //            FoursquarePlaceType.WATER_PARK, FoursquarePlaceType.BOTANICAL_GARDEN, FoursquarePlaceType.BRIDGE,
 //            FoursquarePlaceType.CASTLE, FoursquarePlaceType.FOUNTAIN, FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE};
 
@@ -66,28 +68,44 @@ public class Culture implements Category {
                     return foursquareDataDAO.getPlaces();
                 })
                 .flatMap(Collection::stream)
-                .filter(FoursquarePlace::filter)
+//                .filter(FoursquarePlace::filter)
                 .collect(Collectors.toSet());
-        return FoursquarePlace.filterTopCheckinsPercent(FoursquarePlace.clearLongDistancePlaces(places), 70);
+        return FoursquarePlace
+                .filterTopCheckinsPercent(
+                        FoursquarePlace.filterAverageEmptyAddress(
+                                FoursquarePlace.filterLongDistancePlaces(places)), 85);
     }
 
-
     @Override
-    public List<Searcher> getClustersAllSources() {
-        Collection<Searcher> collection = new HashSet<>();
+    public List<Marker> getClustersAllSources() {
+        Collection<Marker> collection = new HashSet<>();
         collection.addAll(getGooglePlaces());
         collection.addAll(getFoursquarePlaces());
-        return new KmeansPlusPlusClustering(collection).getKernelsDefaultRadius();
+        return new KmeansPlusPlusClustering(collection)
+                .getKernelsDefaultRadius().stream()
+                .map(cluster -> (Marker) cluster)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Searcher> getFoursquareClusters() {
-        return new KmeansPlusPlusClustering(new HashSet<>(getFoursquarePlaces())).getKernelsMaxRadiusWithClearingAndBigCircleClustering();
+    public List<Marker> getFoursquareClusters() {
+//        return new KmeansPlusPlusClustering(new HashSet<>(getFoursquarePlaces()))
+//                .getKernelsWithClearingAndBigCircleClusteringTheBest().stream()
+//                .map(cluster -> (Marker) cluster)
+//                .collect(Collectors.toList());
+
+        return new DarkHoleClustering(new HashSet<>(getFoursquarePlaces()))
+                .getDarkHoleRandom().stream()
+                .map(cluster -> (Marker) cluster)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Searcher> getGoogleClusters() {
-        return new KmeansPlusPlusClustering(new HashSet<>(getGooglePlaces())).getKernelsDefaultRadius();
+    public List<Marker> getGoogleClusters() {
+        return new KmeansPlusPlusClustering(new HashSet<>(getGooglePlaces()))
+                .getKernelsDefaultRadius().stream()
+                .map(cluster -> (Marker) cluster)
+                .collect(Collectors.toList());
     }
 
 }

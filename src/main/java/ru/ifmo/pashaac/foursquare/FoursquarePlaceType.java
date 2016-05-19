@@ -1,6 +1,6 @@
 package ru.ifmo.pashaac.foursquare;
 
-import ru.ifmo.pashaac.map.MapService;
+import ru.ifmo.pashaac.common.primitives.Icon;
 
 /**
  * Foursquare place types
@@ -9,21 +9,21 @@ import ru.ifmo.pashaac.map.MapService;
  * 07.05.16 14:57.
  */
 public enum FoursquarePlaceType {
+
     // Culture
-    MUSEUM("4bf58dd8d48988d181941735", MapService.ICON_PATH + "vista.ball.bronze.32.png"),
-    THEATER("4bf58dd8d48988d137941735", MapService.ICON_PATH + "vista.ball.iron.32.png"),
-    PARK("4bf58dd8d48988d163941735", MapService.ICON_PATH + "vista.ball.green.32.png");
+    MUSEUM("4bf58dd8d48988d181941735", Icon.VISTA_BALL_BRONZE_32.getPath()),
+    THEATER("4bf58dd8d48988d137941735", Icon.VISTA_BALL_IRON_32.getPath()),
+    PARK("4bf58dd8d48988d163941735", Icon.VISTA_BALL_GREEN_32.getPath()),
+    FOUNTAIN("56aa371be4b08b9a8d573547", Icon.VISTA_BALL_BLUE_32.getPath()),
+    GARDEN("4bf58dd8d48988d15a941735", Icon.VISTA_BALL_GREEN_32.getPath()),
+    PALACE("52e81612bcbc57f1066b7a14", Icon.VISTA_BALL_SILVER_32.getPath());
 //    ART_GALLERY("4bf58dd8d48988d1e2931735"),
-//    CIRCUS("52e81612bcbc57f1066b79e7"),
 //    CONCERT_HALL("5032792091d4c4b30a586d5c"),
 //    PUBLIC_ART("507c8c4091d498d9fc8c67a9"),
 //    WATER_PARK("4bf58dd8d48988d193941735"),
 //    BOTANICAL_GARDEN("52e81612bcbc57f1066b7a22"),
 //    BRIDGE("4bf58dd8d48988d1df941735"),
 //    CASTLE("50aaa49e4b90af0d42d5de11"),
-//    FOUNTAIN("56aa371be4b08b9a8d573547"),
-//    GARDEN("4bf58dd8d48988d15a941735"),
-//    PALACE("52e81612bcbc57f1066b7a14"),
 
     // NightLife (Bar/clubs/disco/friends meeting)
 //    NIGHTLIFE_SPOT("4d4b7105d754a06376d81259"),

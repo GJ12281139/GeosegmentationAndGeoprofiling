@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.common.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class MapService {
-
-    public static final String ICON_PATH = "resources/icons/";
 
     private static final Logger LOG = Logger.getLogger(MapService.class);
 

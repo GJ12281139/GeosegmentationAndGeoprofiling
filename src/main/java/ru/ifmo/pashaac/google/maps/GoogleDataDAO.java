@@ -2,8 +2,8 @@ package ru.ifmo.pashaac.google.maps;
 
 import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoOperations;
-import ru.ifmo.pashaac.common.BoundingBox;
-import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 import ru.ifmo.pashaac.map.MapService;
 
@@ -43,7 +43,7 @@ public class GoogleDataDAO {
         LOG.info("All information was got.");
         insert(googleDataMiner.getPlaces());
         recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
-        recreate(googleDataMiner.getSearchers(), GoogleDataDAO.SEARCHER_SUFFIX);
+        recreate(googleDataMiner.getMarkers(), GoogleDataDAO.SEARCHER_SUFFIX);
     }
 
     public void minePlacesIfNotExist(MapService mapService, BoundingBox boundingBox) {
@@ -56,8 +56,8 @@ public class GoogleDataDAO {
         return mongoOperations.findAll(BoundingBox.class, collection + "#" + BOUNDINGBOX_SUFFIX);
     }
 
-    public List<Searcher> getSearchers() {
-        return mongoOperations.findAll(Searcher.class, collection + "#" + SEARCHER_SUFFIX);
+    public List<Marker> getSearchers() {
+        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
     }
 
     @SuppressWarnings("unused")
