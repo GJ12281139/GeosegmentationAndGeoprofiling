@@ -4,11 +4,15 @@
       <w>asadchiy</w>
       <w>boundingbox</w>
       <w>boundingboxes</w>
+      <w>checkins</w>
       <w>clusterer</w>
+      <w>dataset</w>
       <w>dbname</w>
+      <w>dbscan</w>
       <w>geocoding</w>
       <w>geoprofiling</w>
       <w>geosegmentation</w>
+      <w>kmeans</w>
       <w>quadtree</w>
     </words>
   </dictionary>

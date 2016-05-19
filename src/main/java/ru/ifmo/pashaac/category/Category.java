@@ -13,14 +13,14 @@ import java.util.Set;
  */
 public interface Category {
 
-    Set<GooglePlace> getGooglePlaces(boolean useSourceIcons);
+    Set<GooglePlace> getGooglePlaces();
 
-    Set<FoursquarePlace> getFoursquarePlaces(boolean useSourceIcons);
+    Set<FoursquarePlace> getFoursquarePlaces();
 
-    List<Searcher> getKernels(boolean needClearing);
+    List<Searcher> getClustersAllSources();
 
-    List<Searcher> getGoogleKernels(boolean needClearing);
+    List<Searcher> getGoogleClusters();
 
-    List<Searcher> getFoursquareKernels(boolean needClearing);
+    List<Searcher> getFoursquareClusters();
 
 }

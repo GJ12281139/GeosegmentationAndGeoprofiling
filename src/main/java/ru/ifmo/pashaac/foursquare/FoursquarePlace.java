@@ -2,11 +2,14 @@ package ru.ifmo.pashaac.foursquare;
 
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import org.springframework.data.annotation.Id;
+import ru.ifmo.pashaac.common.GeoMath;
+import ru.ifmo.pashaac.common.Icon;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.Searcher;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
  * 08.05.16 14:46.
  */
 public class FoursquarePlace extends Searcher {
+
+    public static final Icon FOURSQUARE_ICON = Icon.VISTA_BALL_PINK_32;
 
     @Id
     private final String id;
@@ -158,10 +163,63 @@ public class FoursquarePlace extends Searcher {
         return places.stream()
                 .filter(place -> place.getAddress() != null && !place.getAddress().trim().isEmpty())
                 .filter(place -> Character.isUpperCase(place.getName().charAt(0)))
-//                .filter(place -> !place.getName().equals(place.getName().toUpperCase()))
                 .filter(place -> place.getCheckinsCount() > Properties.getFoursquareMinCheckinsCount())
                 .filter(place -> place.getUserCount() > Properties.getFoursquareMinUserCount())
                 .collect(Collectors.toSet());
+    }
+
+    public static boolean filter(FoursquarePlace place) {
+        return place.getAddress() != null && !place.getAddress().trim().isEmpty() && Character.isUpperCase(place.getName().charAt(0));
+    }
+
+    public static Set<FoursquarePlace> filterAverage(final Collection<FoursquarePlace> places) {
+        double sum = places.stream()
+                .mapToLong(FoursquarePlace::getCheckinsCount)
+                .sum();
+        final double avg = sum * 1.0 / places.size();
+        return places.stream()
+                .filter(place -> place.getCheckinsCount() > avg)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<FoursquarePlace> filterTopCheckinsPercent(final Collection<FoursquarePlace> places, int percent) {
+        if (percent < 0 || percent > 100) {
+            throw new IllegalStateException("Percent should be between 0 and 100");
+        }
+        int skipPlacesCount = (int) Math.ceil(places.size() * (100 - percent) * 1.0 / 100);
+        return places.stream()
+                .sorted((p1, p2) -> Integer.compare(p1.getCheckinsCount(), p2.getCheckinsCount()))
+                .skip(skipPlacesCount)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<FoursquarePlace> clearLongDistancePlaces(final Collection<FoursquarePlace> places) {
+        int percent = 30;
+        int minPlacesInArea = 2;
+        int areaRadius = 500;
+        int skipPlacesCount = (int) Math.ceil(places.size() * (100 - percent) * 1.0 / 100);
+        final Set<FoursquarePlace> topPercentPlaces = places.stream()
+                .sorted((p1, p2) -> Integer.compare(p1.getCheckinsCount(), p2.getCheckinsCount()))
+                .skip(skipPlacesCount)
+                .collect(Collectors.toSet());
+        final HashSet<FoursquarePlace> goodPlaces = new HashSet<>();
+        for (FoursquarePlace place : places) {
+            int neighborsCount = 0;
+            for (FoursquarePlace neighbor : places) {
+                double distance = GeoMath.distance(place.getLat(), place.getLng(), neighbor.getLat(), neighbor.getLng());
+                if (distance < areaRadius) {
+                    ++neighborsCount;
+                }
+                if (neighborsCount > minPlacesInArea) {
+                    break;
+                }
+            }
+            if (neighborsCount < minPlacesInArea && !topPercentPlaces.contains(place)) {
+                continue;
+            }
+            goodPlaces.add(place);
+        }
+        return goodPlaces;
     }
 
 }

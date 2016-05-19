@@ -87,7 +87,7 @@ public class GoogleDataMiner {
                 Arrays.stream(searchResults)
                         .forEach(place -> places.add(new GooglePlace(place.placeId, googlePlaceType.name(), bBox,
                                 new LatLng(place.geometry.location.lat, place.geometry.location.lng), googlePlaceType.icon)));
-                LOG.info("Places size " + places.size());
+                LOG.info("Places size " + places.size() + " (+" + searchResults.length + ")");
                 if (mRad < rRad) {
                     boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
                 }

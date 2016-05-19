@@ -12,12 +12,11 @@ import ru.ifmo.pashaac.category.Category;
 import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.*;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
-import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
-import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
+import ru.ifmo.pashaac.statistic.FoursquareStatistic;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -128,15 +127,15 @@ public class MapController {
 
             if (categoryObj != null) {
                 if (isFoursquareSource && isGoogleSource) {
-                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces(useSourceIcons)));
-                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces(useSourceIcons)));
-                    view.addObject(VIEW_KERNELS, categoryObj.getKernels(true));
+                    view.addObject(VIEW_GOOGLE_PLACES, categoryObj.getGooglePlaces());
+                    view.addObject(VIEW_FOURSQUARE_PLACES, categoryObj.getFoursquarePlaces());
+                    view.addObject(VIEW_KERNELS, categoryObj.getClustersAllSources());
                 } else if (isFoursquareSource) {
-                    view.addObject(VIEW_FOURSQUARE_PLACES, FoursquarePlace.cleaner(categoryObj.getFoursquarePlaces(useSourceIcons)));
-                    view.addObject(VIEW_KERNELS, categoryObj.getFoursquareKernels(true));
+                    view.addObject(VIEW_FOURSQUARE_PLACES, categoryObj.getFoursquarePlaces());
+                    view.addObject(VIEW_KERNELS, categoryObj.getFoursquareClusters());
                 } else if (isGoogleSource) {
-                    view.addObject(VIEW_GOOGLE_PLACES, GooglePlace.cleaner(categoryObj.getGooglePlaces(useSourceIcons)));
-                    view.addObject(VIEW_KERNELS, categoryObj.getGoogleKernels(true));
+                    view.addObject(VIEW_GOOGLE_PLACES, categoryObj.getGooglePlaces());
+                    view.addObject(VIEW_KERNELS, categoryObj.getGoogleClusters());
                 }
 
                 if (isBox) {
@@ -148,10 +147,8 @@ public class MapController {
             FoursquarePlaceType foursquarePlaceType = getEnumFromString(FoursquarePlaceType.class, placeType);
             if (isFoursquareSource && foursquarePlaceType != null) {
                 FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
-                if (!foursquareDataDAO.exist()) {
-                    foursquareDataDAO.minePlaces(mapService, boundingBox);
-                }
-                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces(useSourceIcons));
+                foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces());
                 view.addObject(VIEW_BOUNDING_BOXES, foursquareDataDAO.getBoundingBoxes());
                 view.addObject(VIEW_SEARCHERS, foursquareDataDAO.getSearchers());
             }
@@ -159,10 +156,8 @@ public class MapController {
             GooglePlaceType googlePlaceType = getEnumFromString(GooglePlaceType.class, placeType);
             if (isGoogleSource && googlePlaceType != null) {
                 GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
-                if (!googleDataDAO.exist()) {
-                    googleDataDAO.minePlaces(mapService, boundingBox);
-                }
-                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces(useSourceIcons));
+                googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces());
                 view.addObject(VIEW_BOUNDING_BOXES, googleDataDAO.getBoundingBoxes());
                 view.addObject(VIEW_SEARCHERS, googleDataDAO.getSearchers());
             }

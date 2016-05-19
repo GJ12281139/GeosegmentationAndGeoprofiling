@@ -85,7 +85,7 @@ public class FoursquareDataMiner {
                 Arrays.stream(venues)
                         .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox.getCity(),
                                 boundingBox.getCountry(), foursquarePlaceType.name(), foursquarePlaceType.icon)));
-                LOG.info("places size " + places.size());
+                LOG.info("Places size " + places.size() + " (+" + venues.length + ")");
                 if (mRad < rRad) {
                     boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
                 }

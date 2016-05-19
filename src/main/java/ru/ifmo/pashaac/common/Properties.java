@@ -113,14 +113,43 @@ public class Properties implements Runnable {
         return properties.get("icon.kernel");
     }
 
+    public static String getIconPathPrefix() {
+        return properties.get("icon.path.prefix");
+    }
+
 
     // Kernel
     public static int getKernelIterationsCount() {
         return Integer.parseInt(properties.get("kernel.iterations.count"));
     }
 
-    public static int getKernelsDefaultNumber() {
-        return Integer.parseInt(properties.get("kernels.default.number"));
+    public static int getKernelDefaultCount() {
+        return Integer.parseInt(properties.get("kernel.default.count"));
     }
 
+    public static int getKernelDefaultRadius() {
+        return Integer.parseInt(properties.get("kernel.default.radius"));
+    }
+
+
+    // Clustering
+    public static int getClusterMinPlaces() {
+        return Integer.parseInt(properties.get("cluster.min.places"));
+    }
+
+    public static int getClusterMaxRadius() {
+        return Integer.parseInt(properties.get("cluster.max.radius"));
+    }
+
+    public static int getClusterMinRadius() {
+        return Integer.parseInt(properties.get("cluster.min.radius"));
+    }
+
+    public static int getClusterPlaceMaxDistance() {
+        return Integer.parseInt(properties.get("cluster.place.max.distance"));
+    }
+
+    public static int getClusterPlaceAvgDistance() {
+        return Integer.parseInt(properties.get("cluster.place.avg.distance"));
+    }
 }

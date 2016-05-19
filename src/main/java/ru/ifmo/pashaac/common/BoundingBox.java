@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * BoundingBox with places inside it
+ * BoundingBox around city information container
  * Need to parse data on client JSP side
- *
+ * <p>
  * Created by Pavel Asadchiy
  * 19.04.16 22:38.
  */

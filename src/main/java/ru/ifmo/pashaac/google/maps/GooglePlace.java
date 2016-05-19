@@ -5,6 +5,7 @@ import com.google.maps.model.PlaceDetails;
 import org.springframework.data.annotation.Id;
 import ru.ifmo.pashaac.common.BoundingBox;
 import ru.ifmo.pashaac.common.Searcher;
+import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Collection;
 import java.util.Set;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
  * 19.04.16 22:36.
  */
 public class GooglePlace extends Searcher {
+
+    public static final String GOOGLE_ICON = MapService.ICON_PATH + "vista.ball.poison.green.32.png";
 
     @Id
     private final String id;        // place_id
@@ -147,6 +150,10 @@ public class GooglePlace extends Searcher {
                 .filter(place -> !place.getName().equals(place.getName().toUpperCase()))
                 .filter(place -> !containsCamelCase(place.getName().split("[^\\w']+")))
                 .collect(Collectors.toSet());
+    }
+
+    public static boolean filter(GooglePlace place) {
+        return place.getAddress() != null && !place.getAddress().trim().isEmpty() && Character.isUpperCase(place.getName().charAt(0));
     }
 
     private static boolean containsCamelCase(String[] words) {

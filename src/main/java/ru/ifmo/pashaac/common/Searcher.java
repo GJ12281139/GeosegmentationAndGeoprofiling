@@ -4,6 +4,9 @@ import com.google.maps.model.LatLng;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 
 /**
+ * Point on map, if contains radius > 0 then it's searcher marker.
+ * Otherwise it's place
+ * <p>
  * Created by Pavel Asadchiy
  * 30.04.16 15:01.
  */
@@ -65,6 +68,6 @@ public class Searcher implements Clusterable {
 
     @Override
     public double[] getPoint() {
-        return new double[] {lat, lng};
+        return new double[]{lat, lng};
     }
 }

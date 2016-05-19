@@ -70,7 +70,7 @@
                 <c:if test="${not empty kernels}">
                     <c:forEach var="kernel" items="${kernels}" varStatus="loop">
                         pos = {lat: ${kernel.lat}, lng: ${kernel.lng}};
-                        addMarker(pos, "${kernel.icon}", "Kernel #" + ${loop.index}, "", "", map);
+                        addMarker(pos, "${kernel.icon}", "Kernels rad " + ${kernel.rad}, "", "", map);
                         addCircle(pos, ${kernel.rad});
                 </c:forEach>
                 </c:if>

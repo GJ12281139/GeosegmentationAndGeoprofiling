@@ -76,14 +76,11 @@ public class GeoMath implements DistanceMeasure {
                 distance(box.southwest.lat, box.southwest.lng, box.southwest.lat, box.northeast.lng);
     }
 
-    public static double getSquareInKilometers(Bounds box) {
-        return getSquareInMeters(box) / 1_000_000;
-    }
-
     @Override
     public double compute(double[] a, double[] b) throws DimensionMismatchException {
-        return a.length == b.length && a.length == 2
-                ? distance(a[0], a[1], b[0], b[1])
-                : Properties.getMaxBoundingBoxDiagonal();
+        if (a.length != b.length || a.length != 2) {
+            throw new IllegalStateException("Can't compute dimension between different lengths arrays and not equal two");
+        }
+        return distance(a[0], a[1], b[0], b[1]);
     }
 }

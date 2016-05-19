@@ -9,7 +9,6 @@ import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Pavel Asadchiy
@@ -19,7 +18,6 @@ public class FoursquareDataDAO {
 
     public static final String BOUNDINGBOX_SUFFIX = "boundingbox";
     public static final String SEARCHER_SUFFIX = "searcher";
-    public static final String FOURSQUARE_ICON = MapService.ICON_PATH + "vista.ball.pink.32.png";
 
     private static final Logger LOG = Logger.getLogger(FoursquareDataDAO.class);
 
@@ -33,16 +31,8 @@ public class FoursquareDataDAO {
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<FoursquarePlace> getPlaces(boolean useFoursquareIcon) {
-        if (useFoursquareIcon) {
-            return mongoOperations.findAll(FoursquarePlace.class, collection).stream()
-                    .map(place -> new FoursquarePlace(place.getId(), place.getName(), place.getPlaceType(), place.getPhone(),
-                            place.getAddress(), place.getCity(), place.getCountry(), place.getLat(), place.getLng(),
-                            place.getRad(), FOURSQUARE_ICON, place.getUrl(), place.getCheckinsCount(), place.getUserCount()))
-                    .collect(Collectors.toList());
-        } else {
-            return mongoOperations.findAll(FoursquarePlace.class, collection);
-        }
+    public List<FoursquarePlace> getPlaces() {
+        return mongoOperations.findAll(FoursquarePlace.class, collection);
     }
 
     public void minePlaces(MapService mapService, BoundingBox boundingBox) {
@@ -54,6 +44,12 @@ public class FoursquareDataDAO {
         recreate(foursquareDataMiner.getSearchers(), FoursquareDataDAO.SEARCHER_SUFFIX);
     }
 
+    public void minePlacesIfNotExist(MapService mapService, BoundingBox boundingBox) {
+        if (!exist()) {
+            minePlaces(mapService, boundingBox);
+        }
+    }
+
     public List<BoundingBox> getBoundingBoxes() {
         return mongoOperations.findAll(BoundingBox.class, collection + "#" + BOUNDINGBOX_SUFFIX);
     }
@@ -62,6 +58,7 @@ public class FoursquareDataDAO {
         return mongoOperations.findAll(Searcher.class, collection + "#" + SEARCHER_SUFFIX);
     }
 
+    @SuppressWarnings("unused")
     public void update(Collection<FoursquarePlace> places) {
         if (places.isEmpty()) {
             LOG.error("Empty foursquare places to insert");
@@ -98,5 +95,4 @@ public class FoursquareDataDAO {
         objects.stream().forEach(obj -> mongoOperations.insert(obj, collection + "#" + suffix));
         LOG.info("Collection " + collection + "#" + suffix + " was recreated");
     }
-
 }

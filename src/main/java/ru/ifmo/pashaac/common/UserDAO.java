@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * DAO for work with user information
+ * <p>
  * Created by Pavel Asadchiy
  * 09.05.16 11:20.
  */
