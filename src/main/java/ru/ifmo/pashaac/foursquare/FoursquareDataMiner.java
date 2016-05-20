@@ -1,18 +1,18 @@
 package ru.ifmo.pashaac.foursquare;
 
 import com.google.maps.model.LatLng;
-import com.sun.istack.internal.Nullable;
 import fi.foyt.foursquare.api.FoursquareApiException;
 import fi.foyt.foursquare.api.Result;
 import fi.foyt.foursquare.api.entities.CompactVenue;
 import fi.foyt.foursquare.api.entities.VenuesSearchResult;
 import org.apache.log4j.Logger;
-import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.map.MapService;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**

@@ -1,12 +1,12 @@
 package ru.ifmo.pashaac.segmentation;
 
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import ru.ifmo.pashaac.common.GeoMath;
-import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.primitives.Marker;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

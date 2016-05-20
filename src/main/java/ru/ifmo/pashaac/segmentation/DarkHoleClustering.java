@@ -25,14 +25,12 @@ public class DarkHoleClustering {
         List<Cluster> answer = new ArrayList<>();
         Collections.shuffle(tmp);
         while (!tmp.isEmpty()) {
-            Random random = new Random();
-            Marker marker = tmp.get(random.nextInt(tmp.size()));
-            int count = 0;
-            while (count < 10 && minClusterDistance(marker.getLatLng(), answer) < Properties.getClusterMaxRadius() * 4) {
-                ++count;
-                marker = tmp.get(random.nextInt(tmp.size()));
+            Marker marker = getLongDistanceFromClustersMarker(tmp, answer);
+            if (marker == null) {
+                break;
             }
-            List<Marker> cluster = new ArrayList<>(Collections.singletonList(tmp.remove(0)));
+            tmp.remove(marker);
+            List<Marker> cluster = new ArrayList<>(Collections.singletonList(marker));
             while (!tmp.isEmpty() && Cluster.getClusterRadius(cluster) < Properties.getClusterMaxRadius()) {
                 Marker nearestMarker = getNearestMarker(Cluster.getCenterOfMass(cluster), tmp);
                 cluster.add(nearestMarker);
@@ -48,6 +46,15 @@ public class DarkHoleClustering {
             }
         }
         return answer;
+    }
+
+    protected Marker getLongDistanceFromClustersMarker(final List<Marker> tmp, final List<Cluster> clusters) {
+        for (Marker marker : tmp) {
+            if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 2) {
+                return marker;
+            }
+        }
+        return null;
     }
 
     private Marker getNearestMarker(LatLng center, final Collection<Marker> markers) {
