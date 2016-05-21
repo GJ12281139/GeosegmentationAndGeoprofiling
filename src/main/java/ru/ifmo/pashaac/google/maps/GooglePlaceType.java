@@ -10,10 +10,9 @@ import ru.ifmo.pashaac.common.primitives.Icon;
 public enum GooglePlaceType {
 
     MUSEUM("museum", Icon.VISTA_BALL_BRONZE_32.getPath()),
-    PARK("park", Icon.VISTA_BALL_GREEN_32.getPath());
-//    ART_GALLERY("art_gallery"),
-//    CHURCH("church"),
-//    LIBRARY("library"),
+    PARK("park", Icon.VISTA_BALL_GREEN_32.getPath()),
+    CHURCH("church", Icon.VISTA_BALL_LIGHT_RED_32.getPath());
+
 //    FOOD("food");
 
     String placeType;

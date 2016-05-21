@@ -24,16 +24,14 @@ import java.util.stream.Collectors;
  */
 public class Culture implements Category {
 
-    private static final GooglePlaceType[] GOOGLE_PLACE_TYPES = {GooglePlaceType.MUSEUM, GooglePlaceType.PARK};
-//            GooglePlaceType.CHURCH};
-//            /* GooglePlaceType.ART_GALLERY, GooglePlaceType.LIBRARY */}; TODO: ???
+    private static final GooglePlaceType[] GOOGLE_PLACE_TYPES = {GooglePlaceType.MUSEUM, GooglePlaceType.PARK,
+            GooglePlaceType.CHURCH};
+
 
     private static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM,
             FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.FOUNTAIN,
-            FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE}; //FoursquarePlaceType.ART_GALLERY,
-//             FoursquarePlaceType.CONCERT_HALL, FoursquarePlaceType.PUBLIC_ART,
-//            FoursquarePlaceType.WATER_PARK, FoursquarePlaceType.BOTANICAL_GARDEN, FoursquarePlaceType.BRIDGE,
-//            FoursquarePlaceType.CASTLE, FoursquarePlaceType.FOUNTAIN, FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE};
+            FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE, FoursquarePlaceType.CASTLE,
+            FoursquarePlaceType.BRIDGE};
 
     private final MapService mapService;
     private final BoundingBox boundingBox;
@@ -67,7 +65,7 @@ public class Culture implements Category {
                 .map(placeType -> {
                     FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(placeType.name(), city, country);
                     foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-                    return foursquareDataDAO.getPlaces();
+                    return FoursquarePlace.filterTopCheckinsPercent(foursquareDataDAO.getPlaces(), all ? 100 : placeType.getFilterPercent());
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -79,12 +77,12 @@ public class Culture implements Category {
 
     @Override
     public List<Marker> getClusters(final Collection<Marker> places) {
-//        return new KmeansPlusPlusClustering(new HashSet<>(getFoursquarePlaces()))
+//        return new KMeansPlusPlusClustering(new HashSet<>(getFoursquarePlaces()))
 //                .getKernelsWithClearingAndBigCircleClusteringTheBest().stream()
 //                .map(cluster -> (Marker) cluster)
 //                .collect(Collectors.toList());
 
-//        return new DarkHoleClustering(places)
+//        return new BlackHoleClustering(places)
 //                .getDarkHoleRandom().stream()
 //                .map(cluster -> (Marker) cluster)
 //                .collect(Collectors.toList());

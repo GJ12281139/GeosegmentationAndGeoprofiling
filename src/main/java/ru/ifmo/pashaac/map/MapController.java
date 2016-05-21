@@ -83,21 +83,21 @@ public class MapController {
                                     @RequestParam(value = "srcIcons", defaultValue = "false", required = false)
                                             boolean isSourceIcons,          // use only sources icons (not places icons)
                                     @RequestParam(value = "all", defaultValue = "false", required = false)
-                                            boolean allPlaces) {            // show all places or filtered
+                                            boolean isAllPlaces) {            // show all places or filtered
 
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
-
+        UserDAO.insert(lat, lng, city, country, isGoogleData, isFoursquareData, placeType, category, clusterAlgorithm,
+                isBox, isSearchers, isSourceIcons, isAllPlaces);
         if (lat != null && lng != null) {
             LOG.info("User coordinates lat = " + lat + ", lng = " + lng);
             view.addObject(VIEW_USER, new Marker(lat, lng, 0, Properties.getIconUser()));
-            UserDAO.insert(lat, lng);
             BoundingBox boundingBox = mapService.getCityBoundingBox(lat, lng);
             if (boundingBox == null) {
                 view.addObject(VIEW_ERROR, "Please, check your coordinates. If all are correct then our developer " +
                         "know about trouble and fix it as soon as possible.");
             } else {
                 buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
-                        clusterAlgorithm, isSearchers, isBox, isSourceIcons, allPlaces);
+                        clusterAlgorithm, isSearchers, isBox, isSourceIcons, isAllPlaces);
             }
             return view;
         }
@@ -118,7 +118,7 @@ public class MapController {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
                     view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
                     buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
-                            clusterAlgorithm, isSearchers, isBox, isSourceIcons, allPlaces);
+                            clusterAlgorithm, isSearchers, isBox, isSourceIcons, isAllPlaces);
                 }
             }
             return view;
@@ -160,8 +160,10 @@ public class MapController {
                 Set<Marker> places = new HashSet<>();
                 places.addAll(googlePlaces);
                 places.addAll(foursquarePlaces);
-                view.addObject(VIEW_GOOGLE_PLACES, googlePlaces);
-                view.addObject(VIEW_FOURSQUARE_PLACES, foursquarePlaces);
+                view.addObject(VIEW_GOOGLE_PLACES, isSourceIcons
+                        ? GooglePlace.useSourceIcon(googlePlaces) : googlePlaces);
+                view.addObject(VIEW_FOURSQUARE_PLACES, isSourceIcons
+                        ? FoursquarePlace.useSourceIcon(foursquarePlaces) : foursquarePlaces);
                 view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm, places));
             }
 
@@ -180,7 +182,8 @@ public class MapController {
                 foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
 
                 view.addObject(VIEW_FOURSQUARE_PLACES, isAllPlaces
-                        ? foursquareDataDAO.getPlaces() : foursquareDataDAO.getFilteredPlaces());
+                        ? (isSourceIcons ? FoursquarePlace.useSourceIcon(foursquareDataDAO.getPlaces()) : foursquareDataDAO.getPlaces())
+                        : (isSourceIcons ? FoursquarePlace.useSourceIcon(foursquareDataDAO.getFilteredPlaces()) : foursquareDataDAO.getFilteredPlaces()));
                 view.addObject(VIEW_BOUNDING_BOXES, isBox
                         ? foursquareDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
                 view.addObject(VIEW_MARKERS, isSearchers
@@ -195,7 +198,8 @@ public class MapController {
                 googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
 
                 view.addObject(VIEW_GOOGLE_PLACES, isAllPlaces
-                        ? googleDataDAO.getPlaces() : googleDataDAO.getFilteredPlaces());
+                        ? (isSourceIcons ? GooglePlace.useSourceIcon(googleDataDAO.getPlaces()) : googleDataDAO.getPlaces())
+                        : (isSourceIcons ? GooglePlace.useSourceIcon(googleDataDAO.getFilteredPlaces()) : googleDataDAO.getFilteredPlaces()));
                 view.addObject(VIEW_BOUNDING_BOXES, isBox
                         ? googleDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
                 view.addObject(VIEW_MARKERS, isSearchers
@@ -215,14 +219,15 @@ public class MapController {
                 ? googleDataMiner.getMarkers() : new ArrayList<Marker>());
     }
 
-    public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
-        if (c != null && string != null) {
-            try {
-                return Enum.valueOf(c, string.trim().toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-            }
+    public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String s) {
+        if (c == null || s == null) {
+            return null;
         }
-        return null;
+        try {
+            return Enum.valueOf(c, s.trim().toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 
 }

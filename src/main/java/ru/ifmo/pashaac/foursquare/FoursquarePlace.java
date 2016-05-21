@@ -213,7 +213,7 @@ public class FoursquarePlace extends Marker {
         return FoursquarePlace
                 .filterTopCheckinsPercent(
                         FoursquarePlace.filterAverageEmptyAddress(
-                                FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 35)), 85);
+                                FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 30)), 80);
     }
 
     public static Set<Marker> toMarkers(final Collection<FoursquarePlace> places) {
@@ -222,4 +222,23 @@ public class FoursquarePlace extends Marker {
                 .collect(Collectors.toSet());
     }
 
+    public static Set<FoursquarePlace> useSourceIcon(final Collection<FoursquarePlace> places) {
+        return places.stream()
+                .map(place -> new FoursquarePlace(
+                        place.getId(),
+                        place.getName(),
+                        place.getPlaceType(),
+                        place.getPhone(),
+                        place.getAddress(),
+                        place.getCity(),
+                        place.getCountry(),
+                        place.getLat(),
+                        place.getLng(),
+                        place.getRad(),
+                        FOURSQUARE_ICON.getPath(),
+                        place.getUrl(),
+                        place.getCheckinsCount(),
+                        place.getUserCount()))
+                .collect(Collectors.toSet());
+    }
 }

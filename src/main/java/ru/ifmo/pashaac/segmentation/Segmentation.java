@@ -18,8 +18,8 @@ public class Segmentation {
     private static final Logger LOG = Logger.getLogger(Segmentation.class);
 
     public static List<Cluster> getDarkHoleClusters(final Collection<Marker> places) {
-        LOG.info("Clustering DarkHole algorithm");
-        return new DarkHoleClustering(places).getDarkHoleRandom();
+        LOG.info("Clustering BlackHole my algorithm");
+        return new BlackHoleClustering(places).getDarkHoleRandom();
     }
 
     public static List<Cluster> getDBSCANClusters(final Collection<Marker> places) {
@@ -27,41 +27,47 @@ public class Segmentation {
         return new DBSCANClustering(places).getDBScanClusters();
     }
 
-    public static List<Cluster> getKmeansPPClustersDefaultRadius(final Collection<Marker> places) {
-        LOG.info("Clustering K-means++ algorithm with default radius");
-        return new KmeansPlusPlusClustering(places).getClustersDefaultRadius();
-    }
-
-    public static List<Cluster> getKmeansPPClustersMaxRadius(final Collection<Marker> places) {
-        LOG.info("Clustering K-means++ algorithm with max radius in cluster visualisation");
-        return new KmeansPlusPlusClustering(places).getClustersMaxRadius();
-    }
-
-    public static List<Cluster> getKmeansPPClustersWithClearingAndBigCirclesClustering(final Collection<Marker> places) {
+    public static List<Cluster> getKMeansPPClustersWithClearingAndBigCirclesClustering(final Collection<Marker> places) {
         LOG.info("Clustering K-means++ algorithm with splitting big circles only");
-        return new KmeansPlusPlusClustering(places).getClustersWithClearingAndBigCirclesClustering(3);
+        return new KMeansPlusPlusClustering(places).getClustersWithClearingAndBigCirclesClustering(3);
     }
 
-    public static List<Cluster> getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(final Collection<Marker> places) {
+    public static List<Cluster> getKMeansPPClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(final Collection<Marker> places) {
         LOG.info("Clustering K-means++ algorithm with splitting big circles and limited out");
-        return new KmeansPlusPlusClustering(places).getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity();
+        return new KMeansPlusPlusClustering(places).getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity();
+    }
+
+    public static List<Cluster> getMultiKMeansPPClustersWithClearingAndBigCircleClustering(final Collection<Marker> places) {
+        LOG.info("Clustering MultiK-means++ algorithm with splitting big circles only");
+        return new MultiKMeansPlusPlusClustering(places).getClustersWithClearingAndBigCirclesClustering(3);
+    }
+
+    public static List<Cluster> getFuzzyKMeansClustersWithClearingAndBigCircleClustering(final Collection<Marker> places) {
+        LOG.info("Clustering FuzzyK-means algorithm with splitting big circles only");
+        return new FuzzyKMeans(places).getClustersWithClearingAndBigCirclesClustering(2);
     }
 
     public static List<Cluster> getClustersByString(@Nullable String mlAlgorithm, final Collection<Marker> places) {
         if (mlAlgorithm == null) {
             return new ArrayList<>();
         }
-        if (mlAlgorithm.toLowerCase().contains("darkhole")) {
+        if (mlAlgorithm.toLowerCase().contains("blackhole")) {
             return getDarkHoleClusters(places);
         }
         if (mlAlgorithm.toLowerCase().contains("dbscan")) {
             return getDBSCANClusters(places);
         }
+        if (mlAlgorithm.toLowerCase().contains("fuzzy") && mlAlgorithm.toLowerCase().contains("kmeans")) {
+            return getFuzzyKMeansClustersWithClearingAndBigCircleClustering(places);
+        }
+        if (mlAlgorithm.toLowerCase().contains("multi") && mlAlgorithm.toLowerCase().contains("kmeans")) {
+            return getMultiKMeansPPClustersWithClearingAndBigCircleClustering(places);
+        }
         if (mlAlgorithm.toLowerCase().contains("kmeans") && mlAlgorithm.toLowerCase().contains("limit")) {
-            return getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(places);
+            return getKMeansPPClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(places);
         }
         if (mlAlgorithm.toLowerCase().contains("kmeans")) {
-            return getKmeansPPClustersWithClearingAndBigCirclesClustering(places);
+            return getKMeansPPClustersWithClearingAndBigCirclesClustering(places);
         }
         return new ArrayList<>();
     }

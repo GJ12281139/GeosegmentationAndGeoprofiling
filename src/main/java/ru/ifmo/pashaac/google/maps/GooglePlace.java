@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class GooglePlace extends Marker {
 
-    public static final String GOOGLE_ICON = Icon.VISTA_BALL_POISON_GREEN_32.getPath();
+    public static final Icon GOOGLE_ICON = Icon.VISTA_BALL_POISON_GREEN_32;
 
     @Id
     private final String id;        // place_id
@@ -178,6 +178,24 @@ public class GooglePlace extends Marker {
     public static Set<Marker> toMarkers(final Collection<GooglePlace> places) {
         return places.stream()
                 .map(place -> (Marker) place)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<GooglePlace> useSourceIcon(final Collection<GooglePlace> places) {
+        return places.stream()
+                .map(place -> new GooglePlace(
+                        place.getId(),
+                        place.getName(),
+                        place.getPlaceType(),
+                        place.getAddress(),
+                        place.getPhone(),
+                        place.getRating(),
+                        place.getCity(),
+                        place.getCountry(),
+                        place.getLat(),
+                        place.getLng(),
+                        place.getRad(),
+                        GOOGLE_ICON.getPath()))
                 .collect(Collectors.toSet());
     }
 }

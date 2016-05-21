@@ -12,11 +12,11 @@ import java.util.*;
  * Created by Pavel Asadchiy
  * on 19.05.16 9:07.
  */
-public class DarkHoleClustering {
+public class BlackHoleClustering {
 
     private final Collection<Marker> places;
 
-    public DarkHoleClustering(final Collection<Marker> places) {
+    public BlackHoleClustering(final Collection<Marker> places) {
         this.places = places;
     }
 
@@ -50,7 +50,7 @@ public class DarkHoleClustering {
 
     private Marker getLongDistanceFromClustersMarker(final List<Marker> tmp, final List<Cluster> clusters) {
         for (Marker marker : tmp) {
-            if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 2) {
+            if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 1.6) {
                 return marker;
             }
         }

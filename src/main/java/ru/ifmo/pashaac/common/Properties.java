@@ -131,6 +131,10 @@ public class Properties implements Runnable {
         return Integer.parseInt(properties.get("kernel.default.radius"));
     }
 
+    public static int getKernelKmeansRunCount() {
+        return Integer.parseInt(properties.get("kernel.kmeans.run.count"));
+    }
+
 
     // Clustering
     public static int getClusterMinPlaces() {
