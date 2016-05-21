@@ -145,14 +145,6 @@ public class Properties implements Runnable {
         return Integer.parseInt(properties.get("cluster.min.radius"));
     }
 
-    public static int getClusterPlaceMaxDistance() {
-        return Integer.parseInt(properties.get("cluster.place.max.distance"));
-    }
-
-    public static int getClusterPlaceAvgDistance() {
-        return Integer.parseInt(properties.get("cluster.place.avg.distance"));
-    }
-
     public static int getClusterMaxInCity() {
         return Integer.parseInt(properties.get("cluster.max.in.city"));
     }

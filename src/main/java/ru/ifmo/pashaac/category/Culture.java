@@ -9,10 +9,11 @@ import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
-import ru.ifmo.pashaac.segmentation.DarkHoleClustering;
-import ru.ifmo.pashaac.segmentation.KmeansPlusPlusClustering;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +48,8 @@ public class Culture implements Category {
     }
 
     @Override
-    public Set<GooglePlace> getGooglePlaces() {
+    public Set<GooglePlace> getGooglePlaces(boolean all) {
+        // TODO: add filtering like in getFoursquarePlaces
         return Arrays.stream(GOOGLE_PLACE_TYPES)
                 .map(placeType -> {
                     GoogleDataDAO googleDataDAO = new GoogleDataDAO(placeType.name(), city, country);
@@ -60,52 +62,34 @@ public class Culture implements Category {
     }
 
     @Override
-    public Set<FoursquarePlace> getFoursquarePlaces() {
-        final Set<FoursquarePlace> places = Arrays.stream(FOURSQUARE_PLACE_TYPES)
+    public Set<FoursquarePlace> getFoursquarePlaces(boolean all) {
+        Set<FoursquarePlace> places = Arrays.stream(FOURSQUARE_PLACE_TYPES)
                 .map(placeType -> {
                     FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(placeType.name(), city, country);
                     foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
                     return foursquareDataDAO.getPlaces();
                 })
                 .flatMap(Collection::stream)
-//                .filter(FoursquarePlace::filter)
                 .collect(Collectors.toSet());
-        return FoursquarePlace
-                .filterTopCheckinsPercent(
-                        FoursquarePlace.filterAverageEmptyAddress(
-                                FoursquarePlace.filterLongDistancePlaces(places)), 85);
+        if (all) {
+            return places;
+        }
+        return FoursquarePlace.filterPlaces(places);
     }
 
     @Override
-    public List<Marker> getClustersAllSources() {
-        Collection<Marker> collection = new HashSet<>();
-        collection.addAll(getGooglePlaces());
-        collection.addAll(getFoursquarePlaces());
-        return new KmeansPlusPlusClustering(collection)
-                .getKernelsDefaultRadius().stream()
-                .map(cluster -> (Marker) cluster)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Marker> getFoursquareClusters() {
+    public List<Marker> getClusters(final Collection<Marker> places) {
 //        return new KmeansPlusPlusClustering(new HashSet<>(getFoursquarePlaces()))
 //                .getKernelsWithClearingAndBigCircleClusteringTheBest().stream()
 //                .map(cluster -> (Marker) cluster)
 //                .collect(Collectors.toList());
 
-        return new DarkHoleClustering(new HashSet<>(getFoursquarePlaces()))
-                .getDarkHoleRandom().stream()
-                .map(cluster -> (Marker) cluster)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Marker> getGoogleClusters() {
-        return new KmeansPlusPlusClustering(new HashSet<>(getGooglePlaces()))
-                .getKernelsDefaultRadius().stream()
-                .map(cluster -> (Marker) cluster)
-                .collect(Collectors.toList());
+//        return new DarkHoleClustering(places)
+//                .getDarkHoleRandom().stream()
+//                .map(cluster -> (Marker) cluster)
+//                .collect(Collectors.toList());
+        // TODO: what do with it?
+        return null;
     }
 
 }

@@ -1,16 +1,17 @@
 package ru.ifmo.pashaac.google.maps;
 
 import com.google.maps.PlacesApi;
-import com.google.maps.model.*;
+import com.google.maps.model.Bounds;
+import com.google.maps.model.LatLng;
+import com.google.maps.model.PlaceDetails;
+import com.google.maps.model.PlacesSearchResult;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import org.apache.log4j.Logger;
-import org.springframework.web.servlet.ModelAndView;
-import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.GeoMath;
-import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.common.Properties;
-import ru.ifmo.pashaac.map.MapController;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.map.MapService;
 
 import javax.annotation.Nullable;
@@ -129,12 +130,15 @@ public class GoogleDataMiner {
     }
 
     @SuppressWarnings("unused")
-    public void searchersUniformGeodesicDistribution(BoundingBox boundingBox, ModelAndView view) {
+    public void searchersUniformGeodesicDistribution(BoundingBox boundingBox) {
+        boundingBoxes.clear();
+        markers.clear();
+        places.clear();
+
         LOG.info("Static uniform distribution with geodesic calculation...");
-        Bounds bounds = boundingBox.getBounds();
-        List<Marker> markers = new ArrayList<>();
-        List<BoundingBox> boundingBoxes = new ArrayList<>();
         boundingBoxes.add(boundingBox);
+        Bounds bounds = boundingBox.getBounds();
+
         Point southwestPoint = GeoMath.point(bounds.southwest.lat, bounds.southwest.lng);
         Point northwestPoint = GeoMath.point(bounds.northeast.lat, bounds.southwest.lng);
 
@@ -156,15 +160,16 @@ public class GoogleDataMiner {
                 markers.add(new Marker(tmp.getLatitude(), tmp.getLongitude(), Properties.getDefaultSearcherRadius(), Properties.getIconSearch()));
             }
         }
-        view.addObject(MapController.VIEW_BOUNDING_BOXES, boundingBoxes);
-        view.addObject(MapController.VIEW_SEARCHERS, markers);
     }
 
     @Deprecated
     @SuppressWarnings("unused")
-    public void searchersUniformDistribution(BoundingBox boundingBox, ModelAndView view) {
+    public void searchersUniformDistribution(BoundingBox boundingBox) {
+        boundingBoxes.clear();
+        markers.clear();
+        places.clear();
+
         LOG.info("Static uniform distribution with simple (without geodesic) calculation...");
-        List<Marker> markers = new ArrayList<>();
         double startLat = boundingBox.getSouthwest().getLat();
         double finishLat = boundingBox.getNortheast().getLat();
         double startLng = boundingBox.getSouthwest().getLng();
@@ -174,6 +179,5 @@ public class GoogleDataMiner {
                 markers.add(new Marker(lat, lng, Properties.getDefaultSearcherRadius(), Properties.getIconSearch()));
             }
         }
-        view.addObject(MapController.VIEW_SEARCHERS, markers);
     }
 }

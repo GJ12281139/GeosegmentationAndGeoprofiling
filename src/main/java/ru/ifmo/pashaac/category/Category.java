@@ -4,6 +4,7 @@ import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlace;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -13,14 +14,10 @@ import java.util.Set;
  */
 public interface Category {
 
-    Set<GooglePlace> getGooglePlaces();
+    Set<GooglePlace> getGooglePlaces(boolean all);
 
-    Set<FoursquarePlace> getFoursquarePlaces();
+    Set<FoursquarePlace> getFoursquarePlaces(boolean all);
 
-    List<Marker> getClustersAllSources();
-
-    List<Marker> getGoogleClusters();
-
-    List<Marker> getFoursquareClusters();
+    List<Marker> getClusters(final Collection<Marker> places);
 
 }

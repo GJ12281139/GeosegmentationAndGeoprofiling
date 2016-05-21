@@ -48,7 +48,7 @@ public class DarkHoleClustering {
         return answer;
     }
 
-    protected Marker getLongDistanceFromClustersMarker(final List<Marker> tmp, final List<Cluster> clusters) {
+    private Marker getLongDistanceFromClustersMarker(final List<Marker> tmp, final List<Cluster> clusters) {
         for (Marker marker : tmp) {
             if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 2) {
                 return marker;
@@ -80,7 +80,6 @@ public class DarkHoleClustering {
         }
         return minDistance;
     }
-
 
 //    public List<Cluster> getDarkHoleClusterCityWeb() {
 //

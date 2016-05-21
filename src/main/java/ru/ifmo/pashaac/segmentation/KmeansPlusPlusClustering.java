@@ -31,16 +31,15 @@ public class KmeansPlusPlusClustering {
         this(places, Properties.getKernelDefaultCount(), Properties.getKernelIterationsCount());
     }
 
-    public List<Cluster> getKernelsDefaultRadius() {
+    public List<Cluster> getClustersDefaultRadius() {
         return clusterer.cluster(places).stream()
                 .map(cluster -> new Cluster(cluster.getCenter().getPoint()[0], cluster.getCenter().getPoint()[1],
                         Properties.getKernelDefaultRadius(), Properties.getIconKernel(), cluster.getPoints()))
                 .collect(Collectors.toList());
     }
 
-    public List<Cluster> getKernelsMaxRadius() {
+    public List<Cluster> getClustersMaxRadius() {
         return clusterer.cluster(places).stream()
-//                .filter(clusterer -> clusterer.getPoints().size() > Properties.getClusterMinPlaces())
                 .map(cluster -> {
                     LatLng center = new LatLng(cluster.getCenter().getPoint()[0], cluster.getCenter().getPoint()[1]);
                     double maxRad = Cluster.getClusterRadius(center, cluster.getPoints());
@@ -49,8 +48,7 @@ public class KmeansPlusPlusClustering {
                 .collect(Collectors.toList());
     }
 
-    public List<Cluster> getKernelsWithClearingAndBigCircleClustering() {
-        int splitClustersCount = 3;
+    public List<Cluster> getClustersWithClearingAndBigCirclesClustering(int splitClustersCount) {
         return clusterer.cluster(places).stream()
                 .filter(clusterer -> clusterer.getPoints().size() > Properties.getClusterMinPlaces())
                 .map(cluster -> {
@@ -58,7 +56,7 @@ public class KmeansPlusPlusClustering {
                     double maxRad = Cluster.getClusterRadius(center, cluster.getPoints());
                     if (maxRad > Properties.getClusterMaxRadius()) {
                         return new KmeansPlusPlusClustering(cluster.getPoints(), splitClustersCount, Properties.getKernelIterationsCount())
-                                .getKernelsWithClearingAndBigCircleClustering();
+                                .getClustersWithClearingAndBigCirclesClustering(splitClustersCount);
                     }
                     return Collections.singletonList(new Cluster(center.lat, center.lng, maxRad, Properties.getIconKernel(), cluster.getPoints()));
                 })
@@ -67,10 +65,10 @@ public class KmeansPlusPlusClustering {
                 .collect(Collectors.toList());
     }
 
-    public List<Cluster> getKernelsWithClearingAndBigCircleClusteringTheBest() {
+    public List<Cluster> getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity() {
         List<Cluster> clusters = new ArrayList<>();
         for (int i = 0; i < Properties.getClusterMaxInCity(); i++) {
-            clusters.addAll(getKernelsWithClearingAndBigCircleClustering());
+            clusters.addAll(getClustersWithClearingAndBigCirclesClustering(3));
         }
 //        Collections.sort(clusters, (c1, c2) -> c2.compareTo(c1)); destiny
         Collections.sort(clusters, (c1, c2) -> Double.compare(c2.getRad(), c1.getRad())); // rad descend better

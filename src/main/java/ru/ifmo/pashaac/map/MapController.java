@@ -10,17 +10,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.category.Category;
 import ru.ifmo.pashaac.category.Culture;
-import ru.ifmo.pashaac.common.*;
+import ru.ifmo.pashaac.common.GeoMath;
+import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
+import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
 import ru.ifmo.pashaac.google.maps.GoogleDataMiner;
+import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
+import ru.ifmo.pashaac.segmentation.Segmentation;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Pavel Asadchiy
@@ -35,7 +43,7 @@ public class MapController {
     public static final String VIEW_ERROR = "error";
     public static final String VIEW_USER = "user";
     public static final String VIEW_BOUNDING_BOXES = "boxes";
-    public static final String VIEW_SEARCHERS = "markers";
+    public static final String VIEW_MARKERS = "markers";
     public static final String VIEW_GOOGLE_PLACES = "google_places";
     public static final String VIEW_FOURSQUARE_PLACES = "foursquare_places";
     public static final String VIEW_KERNELS = "kernels";
@@ -50,18 +58,32 @@ public class MapController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView boundingbox(@RequestParam(value = "lat", required = false) Double lat,              // user geolocation
-                                    @RequestParam(value = "lng", required = false) Double lng,              // user geolocation
-                                    @RequestParam(value = "city", required = false) String city,            // user geolocation
-                                    @RequestParam(value = "country", required = false) String country,      // user geolocation
-                                    @RequestParam(value = "googleSource", defaultValue = "false", required = false) boolean isGoogleSource,        // use data from Google Maps
-                                    @RequestParam(value = "foursquareSource", defaultValue = "false", required = false) boolean isFoursquareSource,    // use data from Foursquare
-                                    @RequestParam(value = "placeType", required = false) String placeType,  // placeType depends from source
-                                    @RequestParam(value = "category", required = false) String category,    // places category
-                                    @RequestParam(value = "box", defaultValue = "false", required = false) boolean isBox,       // flag - show boundingboxes around searchers
-                                    @RequestParam(value = "searchers", defaultValue = "false", required = false) boolean isSearchers, // flag - search placeType data or not
-                                    @RequestParam(value = "sourceIcons", defaultValue = "false", required = false) boolean useSourceIcons) {
-
+    public ModelAndView boundingbox(@RequestParam(value = "lat", required = false)
+                                            Double lat,                     // user latitude geolocation
+                                    @RequestParam(value = "lng", required = false)
+                                            Double lng,                     // user longitude geolocation
+                                    @RequestParam(value = "city", required = false)
+                                            String city,                    // user city geolocation
+                                    @RequestParam(value = "country", required = false)
+                                            String country,                 // user country geolocation
+                                    @RequestParam(value = "gData", defaultValue = "false", required = false)
+                                            boolean isGoogleData,           // use data from Google Maps
+                                    @RequestParam(value = "fData", defaultValue = "false", required = false)
+                                            boolean isFoursquareData,       // use data from Foursquare
+                                    @RequestParam(value = "pType", required = false)
+                                            String placeType,               // placeType depends from source
+                                    @RequestParam(value = "category", required = false)
+                                            String category,                // places category
+                                    @RequestParam(value = "clusterAlg", required = false)
+                                            String clusterAlgorithm,        // machine learning algorithm
+                                    @RequestParam(value = "box", defaultValue = "false", required = false)
+                                            boolean isBox,                  // show boundingboxes around searchers
+                                    @RequestParam(value = "searchers", defaultValue = "false", required = false)
+                                            boolean isSearchers,            // show searchers
+                                    @RequestParam(value = "srcIcons", defaultValue = "false", required = false)
+                                            boolean isSourceIcons,          // use only sources icons (not places icons)
+                                    @RequestParam(value = "all", defaultValue = "false", required = false)
+                                            boolean allPlaces) {            // show all places or filtered
 
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
 
@@ -74,7 +96,8 @@ public class MapController {
                 view.addObject(VIEW_ERROR, "Please, check your coordinates. If all are correct then our developer " +
                         "know about trouble and fix it as soon as possible.");
             } else {
-                buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, useSourceIcons);
+                buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
+                        clusterAlgorithm, isSearchers, isBox, isSourceIcons, allPlaces);
             }
             return view;
         }
@@ -94,7 +117,8 @@ public class MapController {
                 } else {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
                     view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
-                    buildModelAndView(view, boundingBox, isGoogleSource, isFoursquareSource, category, placeType, isSearchers, isBox, useSourceIcons);
+                    buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
+                            clusterAlgorithm, isSearchers, isBox, isSourceIcons, allPlaces);
                 }
             }
             return view;
@@ -110,9 +134,11 @@ public class MapController {
                                    boolean isFoursquareSource,
                                    @Nullable String category,
                                    @Nullable String placeType,
+                                   @Nullable String clusterAlgorithm,
                                    boolean isSearchers,
                                    boolean isBox,
-                                   boolean useSourceIcons) {
+                                   boolean isSourceIcons,
+                                   boolean isAllPlaces) {
 
         if (!view.getModel().containsKey(VIEW_USER)) {
             LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
@@ -127,53 +153,66 @@ public class MapController {
             }
 
             if (categoryObj != null) {
-                if (isFoursquareSource && isGoogleSource) {
-                    view.addObject(VIEW_GOOGLE_PLACES, categoryObj.getGooglePlaces());
-                    view.addObject(VIEW_FOURSQUARE_PLACES, categoryObj.getFoursquarePlaces());
-                    view.addObject(VIEW_KERNELS, categoryObj.getClustersAllSources());
-                } else if (isFoursquareSource) {
-                    view.addObject(VIEW_FOURSQUARE_PLACES, categoryObj.getFoursquarePlaces());
-                    view.addObject(VIEW_KERNELS, categoryObj.getFoursquareClusters());
-                } else if (isGoogleSource) {
-                    view.addObject(VIEW_GOOGLE_PLACES, categoryObj.getGooglePlaces());
-                    view.addObject(VIEW_KERNELS, categoryObj.getGoogleClusters());
-                }
-
-                if (isBox) {
-                    view.addObject(VIEW_BOUNDING_BOXES, Collections.singletonList(boundingBox));
-                }
+                Set<GooglePlace> googlePlaces = isGoogleSource
+                        ? categoryObj.getGooglePlaces(isAllPlaces) : new HashSet<>();
+                Set<FoursquarePlace> foursquarePlaces = isFoursquareSource
+                        ? categoryObj.getFoursquarePlaces(isAllPlaces) : new HashSet<>();
+                Set<Marker> places = new HashSet<>();
+                places.addAll(googlePlaces);
+                places.addAll(foursquarePlaces);
+                view.addObject(VIEW_GOOGLE_PLACES, googlePlaces);
+                view.addObject(VIEW_FOURSQUARE_PLACES, foursquarePlaces);
+                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm, places));
             }
-        } else if (placeType != null) {
+
+            if (isBox) {
+                view.addObject(VIEW_BOUNDING_BOXES, Collections.singletonList(boundingBox));
+            }
+
+            return;
+        }
+
+        if (placeType != null) {
 
             FoursquarePlaceType foursquarePlaceType = getEnumFromString(FoursquarePlaceType.class, placeType);
             if (isFoursquareSource && foursquarePlaceType != null) {
                 FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-                view.addObject(VIEW_FOURSQUARE_PLACES, foursquareDataDAO.getPlaces());
-                view.addObject(VIEW_BOUNDING_BOXES, foursquareDataDAO.getBoundingBoxes());
-                view.addObject(VIEW_SEARCHERS, foursquareDataDAO.getSearchers());
+
+                view.addObject(VIEW_FOURSQUARE_PLACES, isAllPlaces
+                        ? foursquareDataDAO.getPlaces() : foursquareDataDAO.getFilteredPlaces());
+                view.addObject(VIEW_BOUNDING_BOXES, isBox
+                        ? foursquareDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
+                view.addObject(VIEW_MARKERS, isSearchers
+                        ? foursquareDataDAO.getSearchers() : new ArrayList<Marker>());
+                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm,
+                        FoursquarePlace.toMarkers(isAllPlaces ? foursquareDataDAO.getPlaces() : foursquareDataDAO.getFilteredPlaces())));
             }
 
             GooglePlaceType googlePlaceType = getEnumFromString(GooglePlaceType.class, placeType);
             if (isGoogleSource && googlePlaceType != null) {
                 GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-                view.addObject(VIEW_GOOGLE_PLACES, googleDataDAO.getPlaces());
-                view.addObject(VIEW_BOUNDING_BOXES, googleDataDAO.getBoundingBoxes());
-                view.addObject(VIEW_SEARCHERS, googleDataDAO.getSearchers());
+
+                view.addObject(VIEW_GOOGLE_PLACES, isAllPlaces
+                        ? googleDataDAO.getPlaces() : googleDataDAO.getFilteredPlaces());
+                view.addObject(VIEW_BOUNDING_BOXES, isBox
+                        ? googleDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
+                view.addObject(VIEW_MARKERS, isSearchers
+                        ? googleDataDAO.getSearchers() : new ArrayList<Marker>());
+                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm,
+                        GooglePlace.toMarkers(isAllPlaces ? googleDataDAO.getPlaces() : googleDataDAO.getFilteredPlaces())));
             }
-        } else {
-            new GoogleDataMiner(mapService, null).searchersUniformGeodesicDistribution(boundingBox, view);
+
+            return;
         }
 
-        // flags handle
-        if (!isBox) {
-            view.getModel().remove(VIEW_BOUNDING_BOXES);
-        }
-        if (!isSearchers) {
-            view.getModel().remove(VIEW_SEARCHERS);
-        }
-
+        GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, null);
+        googleDataMiner.searchersUniformGeodesicDistribution(boundingBox);
+        view.addObject(VIEW_BOUNDING_BOXES, isBox
+                ? googleDataMiner.getBoundingBoxes() : new ArrayList<BoundingBox>());
+        view.addObject(VIEW_MARKERS, isSearchers
+                ? googleDataMiner.getMarkers() : new ArrayList<Marker>());
     }
 
     public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {

@@ -7,6 +7,7 @@ import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 import ru.ifmo.pashaac.map.MapService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,10 +36,14 @@ public class FoursquareDataDAO {
         return mongoOperations.findAll(FoursquarePlace.class, collection);
     }
 
+    public List<FoursquarePlace> getFilteredPlaces() {
+        return new ArrayList<>(FoursquarePlace.filterPlaces(getPlaces()));
+    }
+
     public void minePlaces(MapService mapService, BoundingBox boundingBox) {
         FoursquareDataMiner foursquareDataMiner = new FoursquareDataMiner(mapService, FoursquarePlaceType.valueOf(placeType));
         foursquareDataMiner.quadtreePlaceSearcher(boundingBox);
-
+        LOG.info("All information was got");
         insert(foursquareDataMiner.getPlaces());
         recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
         recreate(foursquareDataMiner.getMarkers(), FoursquareDataDAO.SEARCHER_SUFFIX);

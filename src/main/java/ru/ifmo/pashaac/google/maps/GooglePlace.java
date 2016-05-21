@@ -175,4 +175,9 @@ public class GooglePlace extends Marker {
         return false;
     }
 
+    public static Set<Marker> toMarkers(final Collection<GooglePlace> places) {
+        return places.stream()
+                .map(place -> (Marker) place)
+                .collect(Collectors.toSet());
+    }
 }

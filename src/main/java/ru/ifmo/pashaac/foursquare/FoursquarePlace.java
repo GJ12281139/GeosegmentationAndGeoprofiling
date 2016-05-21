@@ -163,23 +163,13 @@ public class FoursquarePlace extends Marker {
         return place.getAddress() != null && !place.getAddress().trim().isEmpty() && Character.isUpperCase(place.getName().charAt(0));
     }
 
-    public static Set<FoursquarePlace> filterAverage(final Collection<FoursquarePlace> places) {
-        double sum = places.stream()
-                .mapToLong(FoursquarePlace::getCheckinsCount)
-                .sum();
-        final double avg = sum * 1.0 / places.size();
-        return places.stream()
-                .filter(place -> place.getCheckinsCount() > avg)
-                .collect(Collectors.toSet());
-    }
-
     public static Set<FoursquarePlace> filterAverageEmptyAddress(final Collection<FoursquarePlace> places) {
         double sum = places.stream()
                 .mapToLong(FoursquarePlace::getCheckinsCount)
                 .sum();
         final double avg = sum * 1.0 / places.size();
         return places.stream()
-                .filter(place -> filter(place) || place.getCheckinsCount() > avg)
+                .filter(place -> filter(place) || place.getCheckinsCount() > avg / 2)
                 .collect(Collectors.toSet());
     }
 
@@ -195,22 +185,41 @@ public class FoursquarePlace extends Marker {
                 .collect(Collectors.toSet());
     }
 
-    public static Set<FoursquarePlace> filterLongDistancePlaces(final Collection<FoursquarePlace> places) {
-        final HashSet<FoursquarePlace> goodPlaces = new HashSet<>();
+    public static Set<FoursquarePlace> filterLongDistanceOrNotInTopPlaces(final Collection<FoursquarePlace> places, int topPercent) {
+        final Set<FoursquarePlace> topPlaces = filterTopCheckinsPercent(places, topPercent);
+
+        final HashSet<FoursquarePlace> nearTopPlaces = new HashSet<>();
         for (FoursquarePlace place : places) {
+            if (topPlaces.contains(place)) {
+                nearTopPlaces.add(place);
+                continue;
+            }
             int neighborsCount = 0;
             for (FoursquarePlace neighbor : places) {
                 double distance = GeoMath.distance(place.getLat(), place.getLng(), neighbor.getLat(), neighbor.getLng());
-                if (distance < Properties.getClusterMaxRadius()) {
+                if (distance < 1.5 * Properties.getClusterMaxRadius()) {
                     ++neighborsCount;
                 }
                 if (neighborsCount > Properties.getClusterMinPlaces()) {
-                    goodPlaces.add(place);
+                    nearTopPlaces.add(place);
                     break;
                 }
             }
         }
-        return goodPlaces;
+        return nearTopPlaces;
+    }
+
+    public static Set<FoursquarePlace> filterPlaces(final Collection<FoursquarePlace> places) {
+        return FoursquarePlace
+                .filterTopCheckinsPercent(
+                        FoursquarePlace.filterAverageEmptyAddress(
+                                FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 35)), 85);
+    }
+
+    public static Set<Marker> toMarkers(final Collection<FoursquarePlace> places) {
+        return places.stream()
+                .map(place -> (Marker) place)
+                .collect(Collectors.toSet());
     }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
+import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Collection;
@@ -35,12 +36,16 @@ public class GoogleDataDAO {
         return mongoOperations.findAll(GooglePlace.class, collection);
     }
 
+    public List<GooglePlace> getFilteredPlaces() {
+        return null; // TODO: realisation need
+     }
+
     public void minePlaces(MapService mapService, BoundingBox boundingBox) {
         GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, GooglePlaceType.valueOf(placeType));
         googleDataMiner.quadtreePlaceSearcher(boundingBox);
-        LOG.info("Getting places full information... Please wait...");
+        LOG.info("Getting google places full information... Please wait...");
         googleDataMiner.fullPlacesInformation("ru");
-        LOG.info("All information was got.");
+        LOG.info("All information was got");
         insert(googleDataMiner.getPlaces());
         recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
         recreate(googleDataMiner.getMarkers(), GoogleDataDAO.SEARCHER_SUFFIX);
