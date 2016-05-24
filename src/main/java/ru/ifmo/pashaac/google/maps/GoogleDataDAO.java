@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
-import ru.ifmo.pashaac.foursquare.FoursquarePlace;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Collection;
@@ -32,7 +31,7 @@ public class GoogleDataDAO {
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<GooglePlace> getPlaces() {
+    public List<GooglePlace> getAllPlaces() {
         return mongoOperations.findAll(GooglePlace.class, collection);
     }
 

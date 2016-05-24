@@ -198,4 +198,8 @@ public class GooglePlace extends Marker {
                         GOOGLE_ICON.getPath()))
                 .collect(Collectors.toSet());
     }
+
+    public static Set<GooglePlace> filterPlaces(final Collection<GooglePlace> places, int percent) {
+        return null;
+    }
 }

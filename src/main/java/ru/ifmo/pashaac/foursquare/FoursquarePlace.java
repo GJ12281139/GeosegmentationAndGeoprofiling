@@ -209,11 +209,11 @@ public class FoursquarePlace extends Marker {
         return nearTopPlaces;
     }
 
-    public static Set<FoursquarePlace> filterPlaces(final Collection<FoursquarePlace> places) {
+    public static Set<FoursquarePlace> filterPlaces(final Collection<FoursquarePlace> places, int percent) {
         return FoursquarePlace
                 .filterTopCheckinsPercent(
                         FoursquarePlace.filterAverageEmptyAddress(
-                                FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 30)), 80);
+                                FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 30)), percent);
     }
 
     public static Set<Marker> toMarkers(final Collection<FoursquarePlace> places) {

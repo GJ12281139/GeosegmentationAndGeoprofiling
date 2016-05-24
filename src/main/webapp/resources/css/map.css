@@ -1,0 +1,107 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    height: 100%;
+}
+
+#latitude, #longitude, #city, #country, #findme, #cultureB, #foodB, #nightLifeB, #sportB, #autoB, #submit {
+    position: absolute;
+    z-index: 1;
+    padding: 5px 5px 5px 10px;
+    border: 0;
+    top: 10px;
+    border-radius: 10px;
+    margin-left: 12px;
+    text-align: center;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #5f5f5f inset;
+    -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
+    -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #898a8c inset;
+    -webkit-background-clip: padding-box;
+    outline: 0;
+}
+#longitude {
+    margin-left: 182px;
+}
+#city {
+    top: 40px;
+}
+#country {
+    top: 40px;
+    margin-left: 182px;
+}
+
+#findme {
+    top: 90px;
+    width: 166px;
+    margin-left: 99px;
+    color: #159ba6;
+    cursor: pointer;
+}
+
+#findme:hover, #culture:hover, #foodB:hover, #nightLifeB:hover, #sportB:hover, #autoB:hover, #submit:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bab1ba), color-stop(1, #ededed));
+    background:-moz-linear-gradient(top, #bab1ba 5%, #ededed 100%);
+    background:-webkit-linear-gradient(top, #bab1ba 5%, #ededed 100%);
+    background:-o-linear-gradient(top, #bab1ba 5%, #ededed 100%);
+    background:-ms-linear-gradient(top, #bab1ba 5%, #ededed 100%);
+    background:linear-gradient(to bottom, #bab1ba 5%, #ededed 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#bab1ba', endColorstr='#ededed',GradientType=0);
+    background-color: #4f4d4d;
+}
+
+#cultureB {
+    top: 140px;
+    width: 166px;
+    font-size: 90%;
+    color: #4449a6;
+    cursor: pointer;
+}
+
+#foodB {
+    top: 180px;
+    width: 166px;
+    font-size: 90%;
+    color: #4449a6;
+    cursor: pointer;
+}
+
+#nightLifeB {
+    top: 220px;
+    width: 166px;
+    font-size: 90%;
+    color: #4449a6;
+    cursor: pointer;
+}
+
+#sportB {
+    top: 260px;
+    width: 166px;
+    font-size: 90%;
+    color: #4449a6;
+    cursor: pointer;
+}
+
+#autoB {
+    top: 300px;
+    width: 166px;
+    font-size: 90%;
+    color: #4449a6;
+    cursor: pointer;
+}
+
+#submit {
+    top: 360px;
+    width: 166px;
+    border-radius: 10px;
+    margin-left: 99px;
+    color: #159ba6;
+    cursor: pointer;
+}
+
+

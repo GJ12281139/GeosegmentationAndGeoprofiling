@@ -11,38 +11,46 @@ import ru.ifmo.pashaac.common.primitives.Icon;
 public enum FoursquarePlaceType {
 
     // Culture
-    MUSEUM("4bf58dd8d48988d181941735", Icon.VISTA_BALL_BRONZE_32.getPath(), 80),
-    THEATER("4bf58dd8d48988d137941735", Icon.VISTA_BALL_IRON_32.getPath(), 80),
-    PARK("4bf58dd8d48988d163941735", Icon.VISTA_BALL_GREEN_32.getPath(), 80),
-    FOUNTAIN("56aa371be4b08b9a8d573547", Icon.VISTA_BALL_BLUE_32.getPath(), 95),
-    GARDEN("4bf58dd8d48988d15a941735", Icon.VISTA_BALL_GREEN_32.getPath(), 90),
-    PALACE("52e81612bcbc57f1066b7a14", Icon.VISTA_BALL_SILVER_32.getPath(), 95),
-    CASTLE("50aaa49e4b90af0d42d5de11", Icon.VISTA_BALL_ORANGE_32.getPath(), 90),
-    BRIDGE("4bf58dd8d48988d1df941735", Icon.VISTA_BALL_HUE_32.getPath(), 60);
-
-    // NightLife (Bar/clubs/disco/friends meeting)
-//    NIGHTLIFE_SPOT("4d4b7105d754a06376d81259"),
-//    BOWLING_GREEN("52e81612bcbc57f1066b7a2f"),
+    MUSEUM("4bf58dd8d48988d181941735", Icon.VISTA_BALL_BRONZE_32.getPath()),
+    PARK("4bf58dd8d48988d163941735", Icon.VISTA_BALL_GREEN_32.getPath()),
+    PLAZA("4bf58dd8d48988d164941735", Icon.VISTA_BALL_LIGHT_RED_32.getPath()),
+    SCULPTURE_GARDEN("4bf58dd8d48988d166941735", Icon.VISTA_BALL_PURPLE_32.getPath()),
+    SPIRTUAL_CENTER("4bf58dd8d48988d131941735", Icon.VISTA_BALL_POISON_GREEN_32.getPath()),
+    THEATER("4bf58dd8d48988d137941735", Icon.VISTA_BALL_IRON_32.getPath()),
+    FOUNTAIN("56aa371be4b08b9a8d573547", Icon.VISTA_BALL_BLUE_32.getPath()),
+    GARDEN("4bf58dd8d48988d15a941735", Icon.VISTA_BALL_GREEN_32.getPath()),
+    PALACE("52e81612bcbc57f1066b7a14", Icon.VISTA_BALL_SILVER_32.getPath()),
+    CASTLE("50aaa49e4b90af0d42d5de11", Icon.VISTA_BALL_ORANGE_32.getPath()),
 
 
-    //    OPERA_HOUSE("4bf58dd8d48988d136941735"),
-//    BAR("4bf58dd8d48988d116941735"),
-//    FOOD("4d4b7105d754a06374d81259"),
-//    ATHLETICS_AND_SPORTS("4f4528bc4b90abdf24c9de85"),
-//    HOTEL("4bf58dd8d48988d1fa931735");
+    // Nightlife
+    NIGHTLIFE_SPOT("4d4b7105d754a06376d81259", Icon.VISTA_BALL_POISON_GREEN_32.getPath()),
+    BOWLING_ALLEY("4bf58dd8d48988d1e4931735", Icon.VISTA_BALL_ORANGE_32.getPath()),
+    MOVIE_THEATER("4bf58dd8d48988d17f941735", Icon.VISTA_BALL_IRON_32.getPath()),
+    POOL_HALL("4bf58dd8d48988d1e3931735", Icon.VISTA_BALL_GREEN_32.getPath()),
+
+
+    // Food
+    FOOD("4d4b7105d754a06374d81259", Icon.VISTA_BALL_ORANGE_32.getPath()),
+
+
+    // Sport
+    ATHLETICS_SPORTS("4f4528bc4b90abdf24c9de85", Icon.VISTA_BALL_POISON_GREEN_32.getPath()),
+
+
+    // Auto
+    AUTO_DEALERSHIP("4eb1c1623b7b52c0e1adc2ec", Icon.VISTA_BALL_ORANGE_32.getPath()),
+    AUTO_GARAGE("52f2ab2ebcbc57f1066b8b44", Icon.VISTA_BALL_SILVER_32.getPath()),
+    AUTO_WORKSHOP("56aa371be4b08b9a8d5734d3", Icon.VISTA_BALL_BRONZE_32.getPath()),
+    CAR_WASH("4f04ae1f2fb6e1c99f3db0ba", Icon.VISTA_BALL_BLUE_32.getPath());
+
 
     String categoryId;
     String icon;
-    int filterPercent;
 
-    FoursquarePlaceType(final String categoryId, final String icon, int filterPercent) {
+    FoursquarePlaceType(final String categoryId, final String icon) {
         this.categoryId = categoryId;
         this.icon = icon;
-        this.filterPercent = filterPercent;
-    }
-
-    public int getFilterPercent() {
-        return filterPercent;
     }
 
     @Override

@@ -6,6 +6,7 @@ import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * DAO for work with user input information
@@ -27,7 +28,7 @@ public class UserDAO {
                               boolean isBox,                  // show boundingboxes around searchers
                               boolean isSearchers,            // show searchers
                               boolean isSourceIcons,          // use only sources icons (not places icons)
-                              boolean isAllPlaces) {          // show all places or filtered)
+                              List<Integer> isAllPlaces) {          // show all places or filtered)
         String collection = "UserRequests";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         BasicDBObject dbObject = new BasicDBObject();

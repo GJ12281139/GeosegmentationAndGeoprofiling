@@ -10,10 +10,8 @@ import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,9 +27,9 @@ public class Culture implements Category {
 
 
     private static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {FoursquarePlaceType.MUSEUM,
-            FoursquarePlaceType.THEATER, FoursquarePlaceType.PARK, FoursquarePlaceType.FOUNTAIN,
-            FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE, FoursquarePlaceType.CASTLE,
-            FoursquarePlaceType.BRIDGE};
+            FoursquarePlaceType.PARK, FoursquarePlaceType.PLAZA, FoursquarePlaceType.SCULPTURE_GARDEN,
+            FoursquarePlaceType.SPIRTUAL_CENTER, FoursquarePlaceType.THEATER, FoursquarePlaceType.FOUNTAIN,
+            FoursquarePlaceType.GARDEN, FoursquarePlaceType.PALACE, FoursquarePlaceType.CASTLE};
 
     private final MapService mapService;
     private final BoundingBox boundingBox;
@@ -46,33 +44,48 @@ public class Culture implements Category {
     }
 
     @Override
-    public Set<GooglePlace> getGooglePlaces(boolean all) {
+    public Set<GooglePlace> getGooglePlaces(List<Integer> percents) {
         // TODO: add filtering like in getFoursquarePlaces
-        return Arrays.stream(GOOGLE_PLACE_TYPES)
-                .map(placeType -> {
-                    GoogleDataDAO googleDataDAO = new GoogleDataDAO(placeType.name(), city, country);
-                    googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-                    return googleDataDAO.getPlaces();
-                })
-                .flatMap(Collection::stream)
-                .filter(GooglePlace::filter)
-                .collect(Collectors.toSet());
+        return null;
+//        return Arrays.stream(GOOGLE_PLACE_TYPES)
+//                .map(placeType -> {
+//                    GoogleDataDAO googleDataDAO = new GoogleDataDAO(placeType.name(), city, country);
+//                    googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+//                    return googleDataDAO.getPlaces();
+//                })
+//                .flatMap(Collection::stream)
+//                .filter(GooglePlace::filter)
+//                .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<FoursquarePlace> getFoursquarePlaces(boolean all) {
-        Set<FoursquarePlace> places = Arrays.stream(FOURSQUARE_PLACE_TYPES)
-                .map(placeType -> {
-                    FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(placeType.name(), city, country);
-                    foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-                    return FoursquarePlace.filterTopCheckinsPercent(foursquareDataDAO.getPlaces(), all ? 100 : placeType.getFilterPercent());
-                })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-        if (all) {
-            return places;
+    public Set<FoursquarePlace> getFoursquarePlaces(List<Integer> percents) {
+        Set<FoursquarePlace> foursquarePlaces = new HashSet<>();
+        for (int i = 0; i < FOURSQUARE_PLACE_TYPES.length; i++) {
+            FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(FOURSQUARE_PLACE_TYPES[i].name(), city, country);
+            foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+            int percent = percents.size() > i ? percents.get(i) : 100;
+            foursquarePlaces.addAll(FoursquarePlace.filterTopCheckinsPercent(foursquareDataDAO.getAllPlaces(), percent));
         }
-        return FoursquarePlace.filterPlaces(places);
+        return FoursquarePlace.filterPlaces(foursquarePlaces, 90);
+    }
+
+    @Nonnull
+    @Override
+    public List<BoundingBox> getGoogleBoundingBoxes() {
+        return Arrays.stream(GOOGLE_PLACE_TYPES)
+                .map(placeType -> new GoogleDataDAO(placeType.name(), city, country).getBoundingBoxes())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Nonnull
+    @Override
+    public List<BoundingBox> getFoursquareBoundingBoxes() {
+        return Arrays.stream(FOURSQUARE_PLACE_TYPES)
+                .map(placeType -> new FoursquareDataDAO(placeType.name(), city, country).getBoundingBoxes())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -24,11 +24,10 @@ import ru.ifmo.pashaac.google.maps.GooglePlace;
 import ru.ifmo.pashaac.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.segmentation.Segmentation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Pavel Asadchiy
@@ -39,14 +38,15 @@ import java.util.Set;
 public class MapController {
 
     public static final String VIEW_JSP_NAME = "map";
-    public static final String VIEW_KEY = "key";
     public static final String VIEW_ERROR = "error";
     public static final String VIEW_USER = "user";
+    public static final String VIEW_USER_CITY = "user_city";
+    public static final String VIEW_USER_COUNTRY = "user_country";
     public static final String VIEW_BOUNDING_BOXES = "boxes";
     public static final String VIEW_MARKERS = "markers";
     public static final String VIEW_GOOGLE_PLACES = "google_places";
     public static final String VIEW_FOURSQUARE_PLACES = "foursquare_places";
-    public static final String VIEW_KERNELS = "kernels";
+    public static final String VIEW_CLUSTERS = "clusters";
 
     private static final Logger LOG = Logger.getLogger(MapController.class);
 
@@ -74,6 +74,8 @@ public class MapController {
                                             String placeType,               // placeType depends from source
                                     @RequestParam(value = "category", required = false)
                                             String category,                // places category
+                                    @RequestParam(value = "percents", required = false)
+                                            String percentsStr,         // percents list
                                     @RequestParam(value = "clusterAlg", required = false)
                                             String clusterAlgorithm,        // machine learning algorithm
                                     @RequestParam(value = "box", defaultValue = "false", required = false)
@@ -81,13 +83,19 @@ public class MapController {
                                     @RequestParam(value = "searchers", defaultValue = "false", required = false)
                                             boolean isSearchers,            // show searchers
                                     @RequestParam(value = "srcIcons", defaultValue = "false", required = false)
-                                            boolean isSourceIcons,          // use only sources icons (not places icons)
-                                    @RequestParam(value = "all", defaultValue = "false", required = false)
-                                            boolean isAllPlaces) {            // show all places or filtered
+                                            boolean isSourceIcons) {        // use only sources icons (not places icons)
 
         final ModelAndView view = new ModelAndView(VIEW_JSP_NAME);
+
+        final List<Integer> percents = percentsStr != null && percentsStr.startsWith("[") && percentsStr.endsWith("]")
+                ? Arrays.stream(percentsStr.substring(1, percentsStr.length() - 1).split(","))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList())
+                : new ArrayList<>();
+
         UserDAO.insert(lat, lng, city, country, isGoogleData, isFoursquareData, placeType, category, clusterAlgorithm,
-                isBox, isSearchers, isSourceIcons, isAllPlaces);
+                isBox, isSearchers, isSourceIcons, percents);
+
         if (lat != null && lng != null) {
             LOG.info("User coordinates lat = " + lat + ", lng = " + lng);
             view.addObject(VIEW_USER, new Marker(lat, lng, 0, Properties.getIconUser()));
@@ -96,8 +104,10 @@ public class MapController {
                 view.addObject(VIEW_ERROR, "Please, check your coordinates. If all are correct then our developer " +
                         "know about trouble and fix it as soon as possible.");
             } else {
+                view.addObject(VIEW_USER_CITY, boundingBox.getCity());
+                view.addObject(VIEW_USER_COUNTRY, boundingBox.getCountry());
                 buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
-                        clusterAlgorithm, isSearchers, isBox, isSourceIcons, isAllPlaces);
+                        clusterAlgorithm, isSearchers, isBox, isSourceIcons, percents);
             }
             return view;
         }
@@ -117,14 +127,16 @@ public class MapController {
                 } else {
                     LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
                     view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
+                    view.addObject(VIEW_USER_CITY, boundingBox.getCity());
+                    view.addObject(VIEW_USER_COUNTRY, boundingBox.getCountry());
                     buildModelAndView(view, boundingBox, isGoogleData, isFoursquareData, category, placeType,
-                            clusterAlgorithm, isSearchers, isBox, isSourceIcons, isAllPlaces);
+                            clusterAlgorithm, isSearchers, isBox, isSourceIcons, percents);
                 }
             }
             return view;
         }
 
-        LOG.info("No input data for map initialization, trying to get user geolocation from browser...");
+        LOG.info("No input data for map initialization");
         return view;
     }
 
@@ -138,13 +150,12 @@ public class MapController {
                                    boolean isSearchers,
                                    boolean isBox,
                                    boolean isSourceIcons,
-                                   boolean isAllPlaces) {
+                                   @Nonnull List<Integer> percents) {
 
         if (!view.getModel().containsKey(VIEW_USER)) {
             LatLng center = GeoMath.boundsCenter(boundingBox.getBounds());
             view.addObject(VIEW_USER, new Marker(center.lat, center.lng, 0, Properties.getIconUser()));
         }
-        view.addObject(VIEW_KEY, System.getenv("GOOGLE_API_KEY"));
 
         if (category != null) {
             Category categoryObj = null;
@@ -152,23 +163,30 @@ public class MapController {
                 categoryObj = new Culture(mapService, boundingBox);
             }
 
-            if (categoryObj != null) {
-                Set<GooglePlace> googlePlaces = isGoogleSource
-                        ? categoryObj.getGooglePlaces(isAllPlaces) : new HashSet<>();
-                Set<FoursquarePlace> foursquarePlaces = isFoursquareSource
-                        ? categoryObj.getFoursquarePlaces(isAllPlaces) : new HashSet<>();
-                Set<Marker> places = new HashSet<>();
-                places.addAll(googlePlaces);
-                places.addAll(foursquarePlaces);
-                view.addObject(VIEW_GOOGLE_PLACES, isSourceIcons
-                        ? GooglePlace.useSourceIcon(googlePlaces) : googlePlaces);
-                view.addObject(VIEW_FOURSQUARE_PLACES, isSourceIcons
-                        ? FoursquarePlace.useSourceIcon(foursquarePlaces) : foursquarePlaces);
-                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm, places));
+            if (categoryObj == null) {
+                return;
             }
 
+            Set<GooglePlace> googlePlaces = isGoogleSource
+                    ? categoryObj.getGooglePlaces(percents) : new HashSet<>();
+            Set<FoursquarePlace> foursquarePlaces = isFoursquareSource
+                    ? categoryObj.getFoursquarePlaces(percents) : new HashSet<>();
+            Set<Marker> places = new HashSet<>();
+            places.addAll(googlePlaces);
+            places.addAll(foursquarePlaces);
+            view.addObject(VIEW_GOOGLE_PLACES, isSourceIcons
+                    ? GooglePlace.useSourceIcon(googlePlaces) : googlePlaces);
+            view.addObject(VIEW_FOURSQUARE_PLACES, isSourceIcons
+                    ? FoursquarePlace.useSourceIcon(foursquarePlaces) : foursquarePlaces);
+            view.addObject(VIEW_CLUSTERS, Segmentation.getClustersByString(clusterAlgorithm, places));
+
             if (isBox) {
-                view.addObject(VIEW_BOUNDING_BOXES, Collections.singletonList(boundingBox));
+                List<BoundingBox> foursuqareBoundingBoxes = isFoursquareSource
+                        ? categoryObj.getFoursquareBoundingBoxes() : new ArrayList<>();
+                List<BoundingBox> googleBoundingBoxes = isGoogleSource
+                        ? categoryObj.getGoogleBoundingBoxes() : new ArrayList<>();
+                foursuqareBoundingBoxes.addAll(googleBoundingBoxes);
+                view.addObject(VIEW_BOUNDING_BOXES, foursuqareBoundingBoxes);
             }
 
             return;
@@ -180,32 +198,36 @@ public class MapController {
             if (isFoursquareSource && foursquarePlaceType != null) {
                 FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+                Set<FoursquarePlace> filteredPlaces = FoursquarePlace.filterTopCheckinsPercent(
+                        foursquareDataDAO.getAllPlaces(), percents.size() > 0 ? percents.get(0) : 100);
 
-                view.addObject(VIEW_FOURSQUARE_PLACES, isAllPlaces
-                        ? (isSourceIcons ? FoursquarePlace.useSourceIcon(foursquareDataDAO.getPlaces()) : foursquareDataDAO.getPlaces())
-                        : (isSourceIcons ? FoursquarePlace.useSourceIcon(foursquareDataDAO.getFilteredPlaces()) : foursquareDataDAO.getFilteredPlaces()));
+                view.addObject(VIEW_FOURSQUARE_PLACES, isSourceIcons
+                        ? FoursquarePlace.useSourceIcon(filteredPlaces)
+                        : filteredPlaces);
                 view.addObject(VIEW_BOUNDING_BOXES, isBox
                         ? foursquareDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
                 view.addObject(VIEW_MARKERS, isSearchers
                         ? foursquareDataDAO.getSearchers() : new ArrayList<Marker>());
-                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm,
-                        FoursquarePlace.toMarkers(isAllPlaces ? foursquareDataDAO.getPlaces() : foursquareDataDAO.getFilteredPlaces())));
+                view.addObject(VIEW_CLUSTERS, Segmentation.getClustersByString(clusterAlgorithm,
+                        FoursquarePlace.toMarkers(filteredPlaces)));
             }
 
             GooglePlaceType googlePlaceType = getEnumFromString(GooglePlaceType.class, placeType);
             if (isGoogleSource && googlePlaceType != null) {
                 GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
                 googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+                Set<GooglePlace> filteredPlaces = GooglePlace.filterPlaces(
+                        googleDataDAO.getAllPlaces(), percents.size() > 0 ? percents.get(0) : 100);
 
-                view.addObject(VIEW_GOOGLE_PLACES, isAllPlaces
-                        ? (isSourceIcons ? GooglePlace.useSourceIcon(googleDataDAO.getPlaces()) : googleDataDAO.getPlaces())
-                        : (isSourceIcons ? GooglePlace.useSourceIcon(googleDataDAO.getFilteredPlaces()) : googleDataDAO.getFilteredPlaces()));
+                view.addObject(VIEW_GOOGLE_PLACES, isSourceIcons
+                        ? GooglePlace.useSourceIcon(filteredPlaces)
+                        : filteredPlaces);
                 view.addObject(VIEW_BOUNDING_BOXES, isBox
                         ? googleDataDAO.getBoundingBoxes() : new ArrayList<BoundingBox>());
                 view.addObject(VIEW_MARKERS, isSearchers
                         ? googleDataDAO.getSearchers() : new ArrayList<Marker>());
-                view.addObject(VIEW_KERNELS, Segmentation.getClustersByString(clusterAlgorithm,
-                        GooglePlace.toMarkers(isAllPlaces ? googleDataDAO.getPlaces() : googleDataDAO.getFilteredPlaces())));
+                view.addObject(VIEW_CLUSTERS, Segmentation.getClustersByString(clusterAlgorithm,
+                        GooglePlace.toMarkers(filteredPlaces)));
             }
 
             return;

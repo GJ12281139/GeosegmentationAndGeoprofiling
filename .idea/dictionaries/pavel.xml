@@ -7,15 +7,19 @@
       <w>boundingboxes</w>
       <w>checkins</w>
       <w>clusterer</w>
+      <w>coords</w>
       <w>darkhole</w>
       <w>dataset</w>
       <w>dbname</w>
       <w>dbscan</w>
+      <w>doctype</w>
+      <w>findme</w>
       <w>geocoding</w>
       <w>geoprofiling</w>
       <w>geosegmentation</w>
       <w>kmeans</w>
       <w>quadtree</w>
+      <w>textbox</w>
     </words>
   </dictionary>
 </component>

@@ -32,12 +32,12 @@ public class FoursquareDataDAO {
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<FoursquarePlace> getPlaces() {
+    public List<FoursquarePlace> getAllPlaces() {
         return mongoOperations.findAll(FoursquarePlace.class, collection);
     }
 
-    public List<FoursquarePlace> getFilteredPlaces() {
-        return new ArrayList<>(FoursquarePlace.filterPlaces(getPlaces()));
+    public List<FoursquarePlace> getFilteredPlaces(int percent) {
+        return new ArrayList<>(FoursquarePlace.filterPlaces(getAllPlaces(), percent));
     }
 
     public void minePlaces(MapService mapService, BoundingBox boundingBox) {
