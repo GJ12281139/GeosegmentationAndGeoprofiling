@@ -29,7 +29,7 @@ public class Cluster extends Marker implements Comparable<Cluster> {
     @Override
     public String toString() {
         return "Cluster{" +
-                "markers=" + markers +
+                "places=" + markers +
                 '}';
     }
 

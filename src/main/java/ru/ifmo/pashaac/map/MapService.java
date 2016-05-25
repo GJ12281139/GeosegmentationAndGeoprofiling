@@ -6,14 +6,19 @@ import com.google.maps.model.*;
 import fi.foyt.foursquare.api.FoursquareApi;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
+import ru.ifmo.pashaac.category.Category;
+import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Created by Pavel Asadchiy
@@ -67,7 +72,7 @@ public class MapService {
 
     @Nullable
     public String getCorrectCity(String city, @Nullable String country) {
-        String address = city + (country == null ? "" : " " +  country);
+        String address = city + (country == null ? "" : " " + country);
         try {
             GeocodingResult[] geocodingResults = GeocodingApi.newRequest(googleContext).address(address).await();
             return getCorrectCity(geocodingResults[0]);
@@ -92,7 +97,7 @@ public class MapService {
 
     @Nullable
     public String getCorrectCountry(String city, @Nullable String country) {
-        String address = city + (country == null ? "" : " " +  country);
+        String address = city + (country == null ? "" : " " + country);
         try {
             GeocodingResult[] geocodingResults = GeocodingApi.newRequest(googleContext).address(address).await();
             return getCorrectCountry(geocodingResults[0]);
@@ -117,44 +122,58 @@ public class MapService {
                 .filter(address -> Arrays.stream(address.types)
                         .anyMatch(type -> type == componentType))
                 .findAny();
-
         return component.isPresent() ? component.get().longName : null;
     }
 
-    @Nullable
-    public BoundingBox getCityBoundingBox(String city, String country) {
-        try {
-            String address = city + " " + country;
-            GeocodingResult[] boundingboxes = GeocodingApi.newRequest(googleContext).address(address).await();
-            final Bounds box = boundingboxes[0].geometry.bounds;
-            LOG.info("Boundingbox: southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + ") " +
-                    "northeast (lat = " + box.northeast.lat + ", lng = " + box.northeast.lng + ")");
-            double distance = GeoMath.distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.northeast.lng);
-            if (distance > Properties.getMaxBoundingBoxDiagonal()) {
-                LOG.warn("Diagonal distance " + distance + " more than program maximum " + Properties.getMaxBoundingBoxDiagonal());
-                return null;
-            }
-            return new BoundingBox(box, city, country);
-        } catch (Exception e) {
-            LOG.error("Error getting boundingbox around city = " + city + ", country = " + country);
-            return null;
+    public BoundingBox getCityBoundingBox(final String city, final String country) throws Exception {
+        final String address = city + " " + country;
+        final GeocodingResult[] boundingboxes = GeocodingApi.newRequest(googleContext).address(address).await();
+        final Bounds box = boundingboxes[0].geometry.bounds;
+        LOG.info("City boundingbox: southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + ") " +
+                "northeast (lat = " + box.northeast.lat + ", lng = " + box.northeast.lng + ")");
+        double distance = GeoMath.distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.northeast.lng);
+        if (distance > Properties.getMaxBoundingBoxDiagonal()) {
+            final String warn = "Diagonal distance " + distance + " more than service maximum " + Properties.getMaxBoundingBoxDiagonal() + " meters";
+            LOG.warn(warn);
+            throw new IllegalArgumentException(warn);
         }
+        return new BoundingBox(box, city, country);
     }
 
-    @Nullable
-    public BoundingBox getCityBoundingBox(double lat, double lng) {
-        GeocodingResult[] userAddresses = getAddressByCoordinates(new LatLng(lat, lng));
+    public BoundingBox getCityBoundingBox(double lat, double lng) throws Exception {
+        final GeocodingResult[] userAddresses = getAddressByCoordinates(new LatLng(lat, lng));
         if (userAddresses == null) {
-            LOG.error("Service can't get address by coordinates latitude = " + lat + ", longitude = " + lng);
-            return null;
+            final String error = "Service can't get address by coordinates latitude = " + lat + ", longitude = " + lng;
+            LOG.error(error);
+            throw new IllegalStateException(error);
         }
-        String city = getCorrectCity(userAddresses[0]);
-        String country = getCorrectCountry(userAddresses[0]);
-        LOG.info("Boundingbox city = " + city+ ", country = " + country);
+        final String city = getCorrectCity(userAddresses[0]);
+        final String country = getCorrectCountry(userAddresses[0]);
+        LOG.info("City = " + city + ", country = " + country);
         if (city == null || country == null) {
-            LOG.error("Service can't determine city by coordinates latitude = " + lat + ", longitude = " + lng);
-            return null;
+            final String error = "Service can't determine city/country by coordinates latitude = " + lat + ", longitude = " + lng;
+            LOG.error(error);
+            throw new IllegalStateException(error);
         }
         return getCityBoundingBox(city, country);
+    }
+
+    public List<Integer> percentsHandler(final @Nullable String percents) {
+        return percents != null && percents.startsWith("[") && percents.endsWith("]")
+                ? Arrays.stream(percents.substring(1, percents.length() - 1).split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    public Category getCategory(final String categoryStr, final BoundingBox boundingBox) {
+        switch (categoryStr) {
+            case "culture":
+                return new Culture(this, boundingBox);
+            //TODO: add another categories
+            default:
+                throw new IllegalArgumentException("Service can't determine category " + categoryStr);
+        }
     }
 }

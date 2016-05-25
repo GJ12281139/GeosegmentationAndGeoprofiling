@@ -158,7 +158,7 @@
                 addMarker(userPos, "${user.icon}", "You are here", "", "", map);
                 </c:when>
                 <c:otherwise>
-                userPos = {lat: 59.957570, lng: 30.307946};
+                userPos = {lat: 59.957570, lng: 30.307946}; // ITMO University
                 mapOptions = {
                     center: userPos,
                     zoom: 3,
@@ -209,91 +209,11 @@
             }
 
             function geolocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (pos) {
-                        $('#latitude').val(pos.coords.latitude);
-                        $('#longitude').val(pos.coords.longitude);
-                        map.setZoom(13);
-                        map.setCenter({lat: pos.coords.latitude, lng: pos.coords.longitude});
-                        addMarker(map.center, "<%=Properties.getIconUser()%>", "You are here", "", "", map);
-                    }, function () {
-                        handleGeolocationError(true)
-                    });
-                } else {
-                    handleGeolocationError(false);
-                }
-            }
-
-            function submit() {
-                var latAttr = normalizeAttributes("lat=", $('#latitude').val());
-                var lngAttr = normalizeAttributes("lng=", $('#longitude').val());
-                var cityAttr = normalizeAttributes("city=", $('#city').val());
-                var countryAttr = normalizeAttributes("country=", $('#country').val());
-
-                if (!autoPressed && !culturePressed && !foodPressed && !nightLifePressed && !sportPressed) {
-                    alert("Выберите категорию из списка слева. \n\nChoose category from left side list.");
-                    return;
-                }
-
-                var category;
-                var percents;
-
-                if (autoPressed) {
-                    category = "auto";
-                    percents = autoPercents();
-                }
-
-                if (culturePressed) {
-                    category = "culture";
-                    percents = culturePercents();
-                }
-
-                if (foodPressed) {
-                    category = "food";
-                    percents = foodPercents();
-                }
-
-                if (nightLifePressed) {
-                    category = "nightLife";
-                    percents = nightLifePercents();
-                }
-
-                if (sportPressed) {
-                    category = "sport";
-                    percents = sportPercents();
-                }
-
-                var url = window.location.href;
-                var arr = url.split("/");
-                var emptyurl = arr[0] + "//" + arr[2]
-
-                if (latAttr.length > 0 && lngAttr.length > 0) {
-                    window.location.replace(emptyurl
-                            + "?" + latAttr + "&" + lngAttr + "&fData=true&category=" + category + "&percents=" + percents);
-                    alert("Возможно вы первый пользователь, кто использует сервис в этом городу по данной " +
-                            "категории... Если это так, то пожалуйста подождите несколько минут \n\n" +
-                            "Maybe you are first user for this city and category... If so, please wait several minutes");
-                    return
-                }
-                if (cityAttr.length > 0) {
-                    window.location.replace(emptyurl
-                            + "?" + cityAttr + "&" + countryAttr + "&fData=true&category=" + category + "&percents=" + percents);
-                    alert("Возможно вы первый пользователь, кто использует сервис в этом городу по данной " +
-                            "категории... Если это так, то пожалуйста подождите несколько минут \n\n" +
-                            "Maybe you are first user for this city and category... If so, please wait several minutes");
-                    return
-                }
-                alert("Заполните координаты или укажите город. \n\nFill latitude and longitude fields or city (country may not) field.");
+                geolocationIcon("<%=Properties.getIconUser()%>");
             }
 
             function normalizeAttributes(attrName, attrVal) {
                 return (attrVal.trim().length === 0) ? "" : attrName + attrVal;
-            }
-
-            function handleGeolocationError(browserHasGeolocation) {
-                var msg = 'Add your geolocation by hands in text fields.';
-                alert(browserHasGeolocation ? 'Error: The Geolocation service failed. ' + msg
-                        : 'Error: Your browser does not support geolocation. ' + msg);
             }
         </script>
     </c:otherwise>

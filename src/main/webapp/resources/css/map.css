@@ -26,20 +26,29 @@ html, body {
     outline: 0;
 }
 #longitude {
-    margin-left: 182px;
+    margin-left: 212px;
 }
 #city {
-    top: 40px;
+    top: 45px;
 }
 #country {
-    top: 40px;
-    margin-left: 182px;
+    top: 45px;
+    margin-left: 212px;
 }
 
 #findme {
     top: 90px;
     width: 166px;
-    margin-left: 99px;
+    margin-left: 122px;
+    color: #159ba6;
+    cursor: pointer;
+}
+
+#submit {
+    top: 360px;
+    width: 166px;
+    border-radius: 10px;
+    margin-left: 122px;
     color: #159ba6;
     cursor: pointer;
 }
@@ -95,13 +104,5 @@ html, body {
     cursor: pointer;
 }
 
-#submit {
-    top: 360px;
-    width: 166px;
-    border-radius: 10px;
-    margin-left: 99px;
-    color: #159ba6;
-    cursor: pointer;
-}
 
 

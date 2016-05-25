@@ -45,8 +45,36 @@ public class UserDAO {
         dbObject.append("isSearchers", isSearchers);
         dbObject.append("isSourceIcons", isSourceIcons);
         dbObject.append("isAllPlaces", isAllPlaces);
-        dbObject.append("requestTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        dbObject.append("requestTime", getTime());
         mongoOperations.insert(dbObject, collection);
+    }
+
+    public static void insert(double lat, double lng) {
+        String collection = "UserGeolocation";
+        MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
+        BasicDBObject dbObject = new BasicDBObject();
+        dbObject.append("lat", lat);
+        dbObject.append("lng", lng);
+        dbObject.append("requestTime", getTime());
+        mongoOperations.insert(dbObject, collection);
+    }
+
+    public static void insert(double lat, double lng, String city, String country, String category, List<Integer> percents) {
+        String collection = "UserSegmentation";
+        MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
+        BasicDBObject dbObject = new BasicDBObject();
+        dbObject.append("lat", lat);
+        dbObject.append("lng", lng);
+        dbObject.append("city", city);
+        dbObject.append("country", country);
+        dbObject.append("category", category);
+        dbObject.append("percents", percents);
+        dbObject.append("requestTime", getTime());
+        mongoOperations.insert(dbObject, collection);
+    }
+
+    public static String getTime() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
 }
