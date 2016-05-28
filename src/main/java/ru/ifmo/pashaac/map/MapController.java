@@ -129,8 +129,9 @@ public class MapController {
 
     private Category makeCategory(Map<String, String> data) throws Exception {
         List<Integer> percents = mapService.percentsHandler(data.get("percents"));
-        String city = data.get("city");
-        String country = data.get("country");
+        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
+        String city = mapServiceCityBoundingBox.getCity();
+        String country = mapServiceCityBoundingBox.getCountry();
         String categoryStr = data.get("category");
         LOG.info("Segmentation in city = " + city + ", country = " + country + ", category = " + categoryStr + ", percents = " + percents);
         BoundingBox boundingBox = mapService.getCityBoundingBox(city, country);
