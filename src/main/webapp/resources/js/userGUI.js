@@ -108,6 +108,7 @@ function segmentation(json) {
         success: function (result) {
             clearBoundingboxes();
             fillBoundingboxes(result);
+            map.setZoom(11);
         },
         error: function (data) {
             alert(data.responseText);

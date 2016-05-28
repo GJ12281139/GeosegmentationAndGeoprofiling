@@ -103,6 +103,8 @@ public class MapService {
     public BoundingBox getCityBoundingBox(final String city, final String country) throws Exception {
         final String address = city + " " + country;
         final GeocodingResult[] boundingboxes = GeocodingApi.newRequest(googleContext).address(address).await();
+        final String correctCity = getCorrectCity(boundingboxes[0]);
+        final String correctCountry = getCorrectCountry(boundingboxes[0]);
         final Bounds box = boundingboxes[0].geometry.bounds;
         LOG.info("City boundingbox: southwest (lat = " + box.southwest.lat + ", lng = " + box.southwest.lng + ") " +
                 "northeast (lat = " + box.northeast.lat + ", lng = " + box.northeast.lng + ")");
@@ -112,7 +114,7 @@ public class MapService {
             LOG.warn(warn);
             throw new IllegalArgumentException(warn);
         }
-        return new BoundingBox(box, city, country);
+        return new BoundingBox(box, correctCity, correctCountry);
     }
 
     public BoundingBox getCityBoundingBox(double lat, double lng) throws Exception {
