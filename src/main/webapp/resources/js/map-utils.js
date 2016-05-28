@@ -12,6 +12,7 @@ function addUserMarker(position, icon, name, map) {
     marker.addListener('click', function () {
         infowindow.open(map, marker);
     });
+    return marker;
 }
 
 

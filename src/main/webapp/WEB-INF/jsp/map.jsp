@@ -44,8 +44,8 @@
 <body>
 
 <%-- user buttons --%>
-<input id="latitude" class="textbox" placeholder="latitude (ex. 12.34)">
-<input id="longitude" class="textbox" placeholder="longitude (ex. 56.78)">
+<input id="latitude" class="textbox" placeholder="latitude (ex. 59.957)">
+<input id="longitude" class="textbox" placeholder="longitude (ex. 30.307)">
 <input id="city" class="textbox" placeholder="city (ex. Saint-Petersburg)">
 <input id="country" class="textbox" placeholder="country (ex. Russia)">
 <input id="findme" class="button" value="Find me" type="button" onclick="geolocation()">

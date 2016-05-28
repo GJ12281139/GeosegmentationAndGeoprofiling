@@ -1,6 +1,9 @@
 // Find me button - user geolocations
+var user = null;
 function geolocationIcon(icon) {
-    map.setZoom(11);
+    if (user != null) {
+        user.setMap(null);
+    }
     var json;
     if ($('#latitude').val().length > 0 && $('#longitude').val().length > 0) {
         json = {
@@ -16,7 +19,6 @@ function geolocationIcon(icon) {
             "country" : $('#country').val()
         };
         doGeolocation(json, icon);
-        addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
         return;
     }
 
@@ -54,8 +56,9 @@ function doGeolocation(json, icon) {
                 $('#latitude').val((result.southwest.lat + result.northeast.lat) / 2);
                 $('#longitude').val((result.southwest.lng + result.northeast.lng) / 2);
             }
+            map.setZoom(11);
             map.setCenter({lat: parseFloat($('#latitude').val()), lng: parseFloat($('#longitude').val())});
-            addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
+            user = addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
             $('#city').val(result.city);
             $('#country').val(result.country);
         },
