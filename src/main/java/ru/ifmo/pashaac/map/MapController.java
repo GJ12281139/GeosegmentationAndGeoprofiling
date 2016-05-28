@@ -66,10 +66,17 @@ public class MapController {
     @ResponseBody
     public BoundingBox geolocation(@RequestBody Map<String, String> coordinates) throws Exception {
         LOG.info("Geolocation with arguments " + coordinates);
-        final double lat = Double.parseDouble(coordinates.get("lat"));
-        final double lng = Double.parseDouble(coordinates.get("lng"));
-        UserDAO.insert(lat, lng);
-        return mapService.getCityBoundingBox(lat, lng);
+        if (coordinates.get("lat") != null && coordinates.get("lng") != null) {
+            final double lat = Double.parseDouble(coordinates.get("lat"));
+            final double lng = Double.parseDouble(coordinates.get("lng"));
+            UserDAO.insert(lat, lng);
+            return mapService.getCityBoundingBox(lat, lng);
+        }
+        if (coordinates.get("city") != null) {
+            String tmpCountry = coordinates.get("country") != null ? coordinates.get("country") : "";
+            return mapService.getCityBoundingBox(coordinates.get("city"), tmpCountry);
+        }
+        throw new IllegalArgumentException("Enter coordinates or city");
     }
 
 

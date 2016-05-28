@@ -1,42 +1,69 @@
 // Find me button - user geolocations
 function geolocationIcon(icon) {
+    map.setZoom(11);
+    var json;
+    if ($('#latitude').val().length > 0 && $('#longitude').val().length > 0) {
+        json = {
+            "lat": $('#latitude').val(),
+            "lng": $('#longitude').val()
+        };
+        doGeolocation(json, icon);
+        return;
+    }
+    if ($('#city').val().length > 0) {
+        json = {
+            "city": $('#city').val(),
+            "country" : $('#country').val()
+        };
+        doGeolocation(json, icon);
+        addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
+        return;
+    }
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (pos) {
             $('#latitude').val(pos.coords.latitude);
             $('#longitude').val(pos.coords.longitude);
-            map.setZoom(11);
-            map.setCenter({lat: pos.coords.latitude, lng: pos.coords.longitude});
             var json = {
                 "lat": pos.coords.latitude,
                 "lng": pos.coords.longitude
             };
-            $.ajax({
-                url: '/geolocation',
-                data: JSON.stringify(json),
-                type: "POST",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Accept", "application/json");
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                },
-                success: function (result) {
-                    $('#city').val(result.city);
-                    $('#country').val(result.country);
-                },
-                error: function (data) {
-                    alert(data.responseText);
-                    console.log(data);
-                }
-            });
-            addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
+            doGeolocation(json, icon);
         }, function () {
             handleGeolocationError(true)
         });
     } else {
         handleGeolocationError(false);
     }
+}
+
+function doGeolocation(json, icon) {
+    $.ajax({
+        url: '/geolocation',
+        data: JSON.stringify(json),
+        type: "POST",
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Accept", "application/json");
+            xhr.setRequestHeader("Content-Type", "application/json");
+        },
+        success: function (result) {
+            if ($('#latitude').val().length === 0 && $('#longitude').val().length === 0) {
+                $('#latitude').val((result.southwest.lat + result.northeast.lat) / 2);
+                $('#longitude').val((result.southwest.lng + result.northeast.lng) / 2);
+            }
+            map.setCenter({lat: parseFloat($('#latitude').val()), lng: parseFloat($('#longitude').val())});
+            addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
+            $('#city').val(result.city);
+            $('#country').val(result.country);
+        },
+        error: function (data) {
+            alert(data.responseText);
+            console.log(data);
+        }
+    });
 }
 
 function handleGeolocationError(browserHasGeolocation) {
