@@ -33,13 +33,6 @@ public class MultiKMeansPlusPlusClustering {
         this(places, Properties.getKernelDefaultCount(), Properties.getKernelIterationsCount(), Properties.getKernelKmeansRunCount());
     }
 
-    public List<Cluster> getClustersDefaultRadius() {
-        return clusterer.cluster(places).stream()
-                .map(cluster -> new Cluster(cluster.getCenter().getPoint()[0], cluster.getCenter().getPoint()[1],
-                        Properties.getKernelDefaultRadius(), Properties.getIconKernel(), cluster.getPoints()))
-                .collect(Collectors.toList());
-    }
-
     public List<Cluster> getClustersMaxRadius() {
         return clusterer.cluster(places).stream()
                 .map(cluster -> {
@@ -50,7 +43,7 @@ public class MultiKMeansPlusPlusClustering {
                 .collect(Collectors.toList());
     }
 
-    public List<Cluster> getClustersWithClearingAndBigCirclesClustering(int splitClustersCount) {
+    public List<Cluster> getFiltersClustersWithConditions(int splitClustersCount) {
         return clusterer.cluster(places).stream()
                 .filter(clusterer -> clusterer.getPoints().size() > Properties.getClusterMinPlaces())
                 .map(cluster -> {
@@ -58,13 +51,17 @@ public class MultiKMeansPlusPlusClustering {
                     double maxRad = Cluster.getClusterRadius(center, cluster.getPoints());
                     if (maxRad > Properties.getClusterMaxRadius()) {
                         return new MultiKMeansPlusPlusClustering(cluster.getPoints(), splitClustersCount, Properties.getKernelIterationsCount(), Properties.getKernelKmeansRunCount())
-                                .getClustersWithClearingAndBigCirclesClustering(splitClustersCount);
+                                .getFiltersClustersWithConditions(splitClustersCount);
                     }
                     return Collections.singletonList(new Cluster(center.lat, center.lng, maxRad, Properties.getIconKernel(), cluster.getPoints()));
                 })
                 .flatMap(Collection::stream)
                 .filter(cluster -> cluster.getRad() > Properties.getClusterMinRadius())
                 .collect(Collectors.toList());
+    }
+
+    public List<Cluster> getFiltersClustersWithConditions() {
+        return getFiltersClustersWithConditions(2);
     }
 
 }

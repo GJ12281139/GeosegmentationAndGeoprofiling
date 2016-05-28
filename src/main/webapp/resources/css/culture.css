@@ -1,5 +1,6 @@
 
-#museumText, #parkText, #plazaText, #sculptureGardenText, #spirtualCenterText, #theaterText, #fountainText, #gardenText, #palaceText, #castleText {
+#fMuseumText, #fParkText, #fPlazaText, #fSculptureGardenText, #fSpirtualCenterText, #fTheaterText, #fFountainText,
+#fGardenText, #fPalaceText, #fCastleText, #gMuseumText, #gParkText, #gChurchText {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -15,10 +16,12 @@
     -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-background-clip: padding-box;
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
     outline: 0;
 }
 
-#museum, #park, #plaza, #sculptureGarden, #spirtualCenter, #theater, #fountain, #garden, #palace, #castle {
+#fMuseum, #fPark, #fPlaza, #fSculptureGarden, #fSpirtualCenter, #fTheater, #fFountain, #fGarden, #fPalace, #fCastle,
+#gMuseum, #gPark, #gChurch {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -27,82 +30,99 @@
 }
 
 /* Park */
-#parkText {
+#fParkText {
     top: 65px;
 }
 
-#park {
+#fPark {
+    margin-top: 95px;
+}
+
+#gParkText {
+    top: 65px;
+}
+
+#gPark {
     margin-top: 95px;
 }
 
 /* Plaza */
-#plazaText {
+#fPlazaText {
     top: 120px;
 }
 
-#plaza {
+#fPlaza {
     margin-top: 150px;
 }
 
-/* Sculpture garden */
-#sculptureGardenText {
+/* Church */
+#gChurchText {
+    top: 120px;
+}
+
+#gChurch {
+    margin-top: 150px;
+}
+
+/* Sculpture fGarden */
+#fSculptureGardenText {
     top: 175px;
 }
 
-#sculptureGarden {
+#fSculptureGarden {
     margin-top: 205px;
 }
 
 /* Spirtual center */
-#spirtualCenterText {
+#fSpirtualCenterText {
     top: 230px;
 }
 
-#spirtualCenter {
+#fSpirtualCenter {
     margin-top: 260px;
 }
 
 /* Theater */
-#theaterText {
+#fTheaterText {
     top: 285px;
 }
 
-#theater {
+#fTheater {
     margin-top: 315px;
 }
 
 /* Fountain */
-#fountainText {
+#fFountainText {
     top: 340px;
 }
 
-#fountain {
+#fFountain {
     margin-top: 370px;
 }
 
 /* Garden */
-#gardenText {
+#fGardenText {
     top: 395px;
 }
 
-#garden {
+#fGarden {
     margin-top: 425px;
 }
 
 /* Palace */
-#palaceText {
+#fPalaceText {
     top: 450px;
 }
 
-#palace {
+#fPalace {
     margin-top: 480px;
 }
 
 /* Castle */
-#castleText {
+#fCastleText {
     top: 505px;
 }
 
-#castle {
+#fCastle {
     margin-top: 535px;
 }

@@ -1,0 +1,133 @@
+#latitude, #longitude, #city, #country, #findme, #culture, #food, #nightLife, #sport,
+#auto, #submit, #foursquareSource, #googleSource, #segmentMinRadius, #segmentMaxRadius {
+    position: absolute;
+    z-index: 1;
+    padding: 5px 5px 5px 10px;
+    border: 0;
+    top: 10px;
+    border-radius: 10px;
+    margin-left: 12px;
+    text-align: center;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #5f5f5f inset;
+    -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
+    -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #898a8c inset;
+    -webkit-background-clip: padding-box;
+    outline: 0;
+}
+
+#foursquareSource {
+    font-size: 80%;
+    top: 130px;
+}
+
+#googleSource {
+    font-size: 80%;
+    width: 165px;
+    top: 130px;
+    margin-left: 215px;
+}
+
+#segmentText {
+    top: 165px;
+    width: 200px;
+    position: absolute;
+    margin-left: 14px;
+    z-index: 1;
+    background-color: transparent;
+    font-size: 90%;
+}
+
+#segmentMinRadius, #segmentMaxRadius {
+    top: 163px;
+    width: 50px;
+    position: absolute;
+    z-index: 1;
+    margin-left: 12px;
+}
+
+#segmentMinRadius {
+    margin-left: 215px;
+}
+
+#segmentMaxRadius {
+    margin-left: 315px;
+}
+
+#findme, #submit {
+    width: 165px;
+    font-size: 90%;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-left: 110px;
+    color: #006900;
+    cursor: pointer;
+    background: -webkit-linear-gradient(top, #606060 0%, #606060 100%);
+}
+
+#culture, #food, #nightLife, #sport, #auto, #foursquareSource, #googleSource {
+    font-size: 90%;
+    color: rgba(0, 0, 0, 0.94);
+    cursor: pointer;
+    background: -webkit-linear-gradient(top, #606060 0%, #606060 100%);
+}
+
+#longitude {
+    margin-left: 215px;
+}
+
+#city {
+    top: 45px;
+}
+
+#country {
+    top: 45px;
+    margin-left: 215px;
+}
+
+#findme {
+    top: 90px;
+}
+
+#submit {
+    top: 400px;
+}
+
+#culture:hover, #food:hover, #nightLife:hover, #sport:hover, #auto:hover, #findme:hover, #submit:hover,
+#foursquareSource:hover, #googleSource:hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bab1ba), color-stop(1, #bab1ba));
+    background: -moz-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -webkit-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -o-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -ms-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bab1ba', endColorstr='#ededed', GradientType=0);
+}
+
+/* Categories */
+
+#auto {
+    top: 360px;
+    width: 166px;
+}
+
+#culture {
+    top: 200px;
+    width: 166px;
+}
+
+#food {
+    top: 240px;
+    width: 166px;
+}
+
+#nightLife {
+    top: 280px;
+    width: 166px;
+}
+
+#sport {
+    top: 320px;
+    width: 166px;
+}

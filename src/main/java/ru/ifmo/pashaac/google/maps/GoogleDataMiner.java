@@ -3,7 +3,6 @@ package ru.ifmo.pashaac.google.maps;
 import com.google.maps.PlacesApi;
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
-import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
@@ -14,7 +13,6 @@ import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.map.MapService;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 
@@ -69,7 +67,7 @@ public class GoogleDataMiner {
             int lRad = Properties.getGoogleMapsPlacesSearchRadEps();
             while (lRad < rRad) {
                 int mRad = rRad - lRad < Properties.getGoogleMapsPlacesSearchRadEps() ? rRad : (lRad + rRad) / 2;
-                PlacesSearchResult[] searchResults = radarSearch(boxCenter, mRad, googlePlaceType);
+                PlacesSearchResult[] searchResults = nearbySearch(boxCenter, mRad, googlePlaceType);
                 ++googleMapsApiCallCounter;
                 if (searchResults == null) {
                     markers.add(new Marker(boxCenter, mRad, Properties.getIconSearchError()));
@@ -86,8 +84,7 @@ public class GoogleDataMiner {
 
                 markers.add(new Marker(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(searchResults)
-                        .forEach(place -> places.add(new GooglePlace(place.placeId, googlePlaceType.name(), bBox,
-                                new LatLng(place.geometry.location.lat, place.geometry.location.lng), googlePlaceType.icon)));
+                        .forEach(place -> places.add(new GooglePlace(place, boundingBox, googlePlaceType)));
                 LOG.info("Places size " + places.size() + " (+" + searchResults.length + ")");
                 if (mRad < rRad) {
                     boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
@@ -101,34 +98,44 @@ public class GoogleDataMiner {
 
     }
 
-    public void fullPlacesInformation(@Nullable String language) {
-        int[] googleMapsApiCallCounter = {0};
-        Set<GooglePlace> tmpPlaces = new HashSet<>(places);
-        places.clear();
-        tmpPlaces.stream()
-                .forEach(place -> {
-                    try {
-                        PlaceDetails details = language == null
-                                ? PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).await()
-                                : PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).language(language).await();
-                        ++googleMapsApiCallCounter[0];
-                        places.add(new GooglePlace(details, place));
-                    } catch (Exception e) {
-                        LOG.error("Can't get full place info, placeId = " + place.getId());
-                    }
-                });
-        LOG.info("Google Maps API called for getting full places info " + googleMapsApiCallCounter[0] + " times");
-    }
+//    public void fullPlacesInformation(@Nullable String language) {
+//        int[] googleMapsApiCallCounter = {0};
+//        Set<GooglePlace> tmpPlaces = new HashSet<>(places);
+//        places.clear();
+//        tmpPlaces.stream()
+//                .forEach(place -> {
+//                    try {
+//                        PlaceDetails details = language == null
+//                                ? PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).await()
+//                                : PlacesApi.placeDetails(mapService.getGoogleContext(), place.getId()).language(language).await();
+//                        ++googleMapsApiCallCounter[0];
+//                        places.add(new GooglePlace(details, place));
+//                    } catch (Exception e) {
+//                        LOG.error("Can't get full place info, placeId = " + place.getId());
+//                    }
+//                });
+//        LOG.info("Google Maps API called for getting full places info " + googleMapsApiCallCounter[0] + " times");
+//    }
 
-    private PlacesSearchResult[] radarSearch(LatLng boxCenter, int mRad, GooglePlaceType googlePlaceType) {
+    private PlacesSearchResult[] nearbySearch(LatLng boxCenter, int mRad, GooglePlaceType googlePlaceType) {
         try {
-            return PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, mRad).type(googlePlaceType.getPlaceType()).await().results;
+            return PlacesApi.nearbySearchQuery(mapService.getGoogleContext(), boxCenter).radius(mRad).language("ru").type(googlePlaceType.getPlaceType()).await().results;
         } catch (Exception e) {
             LOG.error("Can't get google maps places, placeType = " + googlePlaceType);
             return null;
         }
     }
 
+//    private PlacesSearchResult[] radarSearch(LatLng boxCenter, int mRad, GooglePlaceType googlePlaceType) {
+//        try {
+//            return PlacesApi.radarSearchQuery(mapService.getGoogleContext(), boxCenter, mRad).type(googlePlaceType.getPlaceType()).await().results;
+//        } catch (Exception e) {
+//            LOG.error("Can't get google maps places, placeType = " + googlePlaceType);
+//            return null;
+//        }
+//    }
+
+    @Deprecated
     @SuppressWarnings("unused")
     public void searchersUniformGeodesicDistribution(BoundingBox boundingBox) {
         boundingBoxes.clear();

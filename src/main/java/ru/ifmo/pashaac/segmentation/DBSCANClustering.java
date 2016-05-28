@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * Created by Pavel Asadchiy
  * on 17.05.16 17:49.
  */
+// TODO: need checkl functional on this algorithm
 public class DBSCANClustering {
 
     public static final int DEFAULT_NEIGHBOR_DISTANCE = 300;

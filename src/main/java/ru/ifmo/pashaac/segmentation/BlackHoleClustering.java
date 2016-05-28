@@ -81,34 +81,4 @@ public class BlackHoleClustering {
         return minDistance;
     }
 
-//    public List<Cluster> getDarkHoleClusterCityWeb() {
-//
-//        List<Marker> placesCopy = new ArrayList<>(places);
-//        List<Marker> kernels = new ArrayList<>();
-//        Collections.shuffle(placesCopy);
-//
-//        while (!placesCopy.isEmpty()) {
-//            Marker place = placesCopy.remove(0);
-//            Marker kernel = new Marker(place.getLat(), place.getLng(), 0, Properties.getIconKernel());
-//            List<Marker> tmp = new ArrayList<>(placesCopy);
-//            for (int i = 0; i < tmp.size(); i++) {
-//                if (GeoMath.distance(kernel.getLat(), kernel.getLng(), tmp.get(i).getLat(), tmp.get(i).getLng()) < Properties.getClusterPlaceAvgDistance()) {
-//
-//                }
-//            }
-//
-//            List<Marker> sortedList = new ArrayList<>(placesCopy);
-//            Collections.sort(sortedList, (p1, p2) -> Double.compare(
-//                    GeoMath.distance(place.getLat(), place.getLng(), p1.getLat(), p2.getLng()),
-//                    GeoMath.distance(place.getLat(), place.getLng(), p2.getLat(), p2.getLng())));
-//
-//
-//        }
-//
-//        return null;
-//    }
-//
-//    private List<BoundingBox> getCityWeb() {
-//
-//    }
 }

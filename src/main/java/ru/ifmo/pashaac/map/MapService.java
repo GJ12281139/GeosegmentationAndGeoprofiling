@@ -6,8 +6,6 @@ import com.google.maps.model.*;
 import fi.foyt.foursquare.api.FoursquareApi;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import ru.ifmo.pashaac.category.Category;
-import ru.ifmo.pashaac.category.Culture;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
@@ -17,10 +15,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
+ * Main service which contains private keys and tools for API interaction
+ * <p>
  * Created by Pavel Asadchiy
  * 27.04.16 12:15.
  */
@@ -31,6 +33,7 @@ public class MapService {
 
     private final GeoApiContext googleContext;
     private final FoursquareApi foursquareApi;
+    private final ConcurrentMap<String, Boolean> handlingMineOperations;
 
     public MapService() {
         if (System.getenv("GOOGLE_API_KEY") == null) {
@@ -50,6 +53,7 @@ public class MapService {
             throw new IllegalStateException("No id/secret key for foursquare API usage");
         }
         this.foursquareApi = new FoursquareApi(clientId, clientSecret, "");
+        this.handlingMineOperations = new ConcurrentHashMap<>();
     }
 
     public GeoApiContext getGoogleContext() {
@@ -60,26 +64,12 @@ public class MapService {
         return foursquareApi;
     }
 
-    @Nullable
-    public GeocodingResult[] getAddressByCoordinates(LatLng user) {
-        try {
-            return GeocodingApi.newRequest(googleContext).latlng(user).await();
-        } catch (Exception e) {
-            LOG.error("Error getting address by coordinates (" + user.lat + ", " + user.lng + " - reverse geocoding)");
-            return null;
-        }
+    public ConcurrentMap<String, Boolean> getHandlingMineOperations() {
+        return handlingMineOperations;
     }
 
-    @Nullable
-    public String getCorrectCity(String city, @Nullable String country) {
-        String address = city + (country == null ? "" : " " + country);
-        try {
-            GeocodingResult[] geocodingResults = GeocodingApi.newRequest(googleContext).address(address).await();
-            return getCorrectCity(geocodingResults[0]);
-        } catch (Exception e) {
-            LOG.error("Can't correct address " + address);
-            return null;
-        }
+    public GeocodingResult[] getAddressByCoordinates(LatLng user) throws Exception {
+        return GeocodingApi.newRequest(googleContext).latlng(user).await();
     }
 
     @Nullable
@@ -96,24 +86,9 @@ public class MapService {
     }
 
     @Nullable
-    public String getCorrectCountry(String city, @Nullable String country) {
-        String address = city + (country == null ? "" : " " + country);
-        try {
-            GeocodingResult[] geocodingResults = GeocodingApi.newRequest(googleContext).address(address).await();
-            return getCorrectCountry(geocodingResults[0]);
-        } catch (Exception e) {
-            LOG.error("Can't correct address " + address);
-            return null;
-        }
-    }
-
-    @Nullable
     public String getCorrectCountry(GeocodingResult geoResult) {
         String country = getComponentTypeLongName(geoResult, AddressComponentType.COUNTRY);
-        if (country != null) {
-            return country.trim().replaceAll("\\s+", "_");
-        }
-        return null;
+        return country != null ? country.trim().replaceAll("\\s+", "_") : null;
     }
 
     @Nullable
@@ -158,7 +133,7 @@ public class MapService {
         return getCityBoundingBox(city, country);
     }
 
-    public List<Integer> percentsHandler(final @Nullable String percents) {
+    public List<Integer> percentsHandler(@Nullable String percents) {
         return percents != null && percents.startsWith("[") && percents.endsWith("]")
                 ? Arrays.stream(percents.substring(1, percents.length() - 1).split(","))
                 .map(String::trim)
@@ -167,13 +142,4 @@ public class MapService {
                 : new ArrayList<>();
     }
 
-    public Category getCategory(final String categoryStr, final BoundingBox boundingBox) {
-        switch (categoryStr) {
-            case "culture":
-                return new Culture(this, boundingBox);
-            //TODO: add another categories
-            default:
-                throw new IllegalArgumentException("Service can't determine category " + categoryStr);
-        }
-    }
 }

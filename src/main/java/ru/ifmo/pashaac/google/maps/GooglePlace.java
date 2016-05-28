@@ -2,6 +2,7 @@ package ru.ifmo.pashaac.google.maps;
 
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
+import com.google.maps.model.PlacesSearchResult;
 import org.springframework.data.annotation.Id;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Icon;
@@ -74,6 +75,21 @@ public class GooglePlace extends Marker {
         this(id, null, placeType, null, null, 0, bBox.getCity(), bBox.getCountry(), location.lat, location.lng, 0, icon);
     }
 
+    public GooglePlace(PlacesSearchResult placesSearchResult, BoundingBox boundingBox, GooglePlaceType placeType) {
+        this(placesSearchResult.placeId,
+                placesSearchResult.name.replace("\"", "\\\"").replace("\n", ""),
+                placeType.name(),
+                placesSearchResult.formattedAddress == null ? "" : placesSearchResult.formattedAddress.replace("\"", "\\\""),
+                "", // no phone
+                placesSearchResult.rating,
+                boundingBox.getCity(),
+                boundingBox.getCountry(),
+                placesSearchResult.geometry.location.lat,
+                placesSearchResult.geometry.location.lng,
+                placesSearchResult.rating,
+                placeType.icon);
+    }
+
     public GooglePlace() {
         this(null, null, null, null, null, 0, null, null, 0, 0, 0, null);
     }
@@ -143,38 +159,6 @@ public class GooglePlace extends Marker {
                 '}';
     }
 
-    public static Set<GooglePlace> cleaner(Collection<GooglePlace> places) {
-        return places.stream()
-                .filter(place -> place.getAddress() != null && !place.getAddress().trim().isEmpty())
-                .filter(place -> Character.isUpperCase(place.getName().charAt(0)))
-                .filter(place -> !place.getName().equals(place.getName().toUpperCase()))
-                .filter(place -> !containsCamelCase(place.getName().split("[^\\w']+")))
-                .collect(Collectors.toSet());
-    }
-
-    public static boolean filter(GooglePlace place) {
-        return place.getAddress() != null && !place.getAddress().trim().isEmpty() && Character.isUpperCase(place.getName().charAt(0));
-    }
-
-    private static boolean containsCamelCase(String[] words) {
-        for (String word : words) {
-            int upperCaseChars = 0;
-            int alphaCount = 0;
-            for (int i = 0; i < word.length(); i++) {
-                if (Character.isAlphabetic(word.charAt(i))) {
-                    ++alphaCount;
-                    if (Character.isUpperCase(word.charAt(i))) {
-                        ++upperCaseChars;
-                    }
-                }
-            }
-            if (upperCaseChars > 1 && upperCaseChars < alphaCount) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static Set<Marker> toMarkers(final Collection<GooglePlace> places) {
         return places.stream()
                 .map(place -> (Marker) place)
@@ -199,7 +183,17 @@ public class GooglePlace extends Marker {
                 .collect(Collectors.toSet());
     }
 
-    public static Set<GooglePlace> filterPlaces(final Collection<GooglePlace> places, int percent) {
-        return null;
+    public static boolean filter(GooglePlace place) {
+        return Character.isUpperCase(place.getName().charAt(0));
+    }
+    public static Set<GooglePlace> filterTopRating(Collection<GooglePlace> places, int percents) {
+        if (percents < 0 || percents > 100) {
+            throw new IllegalStateException("Percents should be between 0 and 100");
+        }
+        return places.stream()
+                .filter(GooglePlace::filter)
+                .sorted((p1, p2) -> Double.compare(p2.getRating(), p1.getRating())) // descend
+                .limit((int) Math.ceil(places.size() * percents * 1.0 / 100))
+                .collect(Collectors.toSet());
     }
 }

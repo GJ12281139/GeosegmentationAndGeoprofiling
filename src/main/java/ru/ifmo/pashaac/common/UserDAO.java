@@ -59,14 +59,15 @@ public class UserDAO {
         mongoOperations.insert(dbObject, collection);
     }
 
-    public static void insert(double lat, double lng, String city, String country, String category, List<Integer> percents) {
-        String collection = "UserSegmentation";
+    public static void insert(double lat, double lng, String city, String country, String source, String category, List<Integer> percents) {
+        String collection = "UserRequest";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         BasicDBObject dbObject = new BasicDBObject();
         dbObject.append("lat", lat);
         dbObject.append("lng", lng);
         dbObject.append("city", city);
         dbObject.append("country", country);
+        dbObject.append("source", source);
         dbObject.append("category", category);
         dbObject.append("percents", percents);
         dbObject.append("requestTime", getTime());

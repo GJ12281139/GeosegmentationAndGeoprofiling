@@ -41,7 +41,7 @@ public class Cluster extends Marker implements Comparable<Cluster> {
         return Double.compare(density, densityOther);
     }
 
-    public static double getClusterRadius(LatLng center, final Collection<Marker> places) {
+    public static double getClusterRadius(LatLng center, Collection<Marker> places) {
         double maxRad = 0;
         for (Marker place : places) {
             maxRad = Math.max(maxRad, GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()));
@@ -49,7 +49,7 @@ public class Cluster extends Marker implements Comparable<Cluster> {
         return maxRad;
     }
 
-    public static double getClusterRadius(final Collection<Marker> places) {
+    public static double getClusterRadius(Collection<Marker> places) {
         final LatLng center = getCenterOfMass(places);
         double maxRad = 0;
         for (Marker place : places) {
@@ -58,7 +58,7 @@ public class Cluster extends Marker implements Comparable<Cluster> {
         return maxRad;
     }
 
-    public static LatLng getCenterOfMass(final Collection<Marker> markers) {
+    public static LatLng getCenterOfMass(Collection<Marker> markers) {
         double lat = 0;
         double lng = 0;
         for (Marker marker : markers) {

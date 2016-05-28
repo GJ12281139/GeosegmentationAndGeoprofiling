@@ -4,12 +4,12 @@ import org.apache.log4j.Logger;
 import ru.ifmo.pashaac.common.primitives.Cluster;
 import ru.ifmo.pashaac.common.primitives.Marker;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
+ * Proxy between ML algorithms and common server side
+ * <p>
  * Created by Pavel Asadchiy
  * on 21.05.16 18:45.
  */
@@ -17,59 +17,35 @@ public class Segmentation {
 
     private static final Logger LOG = Logger.getLogger(Segmentation.class);
 
-    public static List<Cluster> getDarkHoleClusters(final Collection<Marker> places) {
-        LOG.info("Clustering BlackHole my algorithm");
-        return new BlackHoleClustering(places).getDarkHoleRandom();
-    }
-
-    public static List<Cluster> getDBSCANClusters(final Collection<Marker> places) {
-        LOG.info("Clustering DBSCAN algorithm");
-        return new DBSCANClustering(places).getDBScanClusters();
-    }
-
-    public static List<Cluster> getKMeansPPClustersWithClearingAndBigCirclesClustering(final Collection<Marker> places) {
-        LOG.info("Clustering K-means++ algorithm with splitting big circles only");
-        return new KMeansPlusPlusClustering(places).getClustersWithClearingAndBigCirclesClustering(3);
-    }
-
-    public static List<Cluster> getKMeansPPClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(final Collection<Marker> places) {
-        LOG.info("Clustering K-means++ algorithm with splitting big circles and limited out");
-        return new KMeansPlusPlusClustering(places).getClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity();
-    }
-
-    public static List<Cluster> getMultiKMeansPPClustersWithClearingAndBigCircleClustering(final Collection<Marker> places) {
-        LOG.info("Clustering MultiK-means++ algorithm with splitting big circles only");
-        return new MultiKMeansPlusPlusClustering(places).getClustersWithClearingAndBigCirclesClustering(3);
-    }
-
-    public static List<Cluster> getFuzzyKMeansClustersWithClearingAndBigCircleClustering(final Collection<Marker> places) {
-        LOG.info("Clustering FuzzyK-means algorithm with splitting big circles only");
-        return new FuzzyKMeans(places).getClustersWithClearingAndBigCirclesClustering(2);
-    }
-
-    public static List<Cluster> getClustersByString(@Nullable String mlAlgorithm, final Collection<Marker> places) {
-        if (mlAlgorithm == null) {
-            return new ArrayList<>();
+    public static List<Cluster> clustering(Algorithm algorithm, Collection<Marker> places) {
+        switch (algorithm) {
+            case BLACK_HOLE_RANDOM:
+                LOG.info("Clustering MY BlackHole random algorithm");
+                return new BlackHoleClustering(places).getDarkHoleRandom();
+            case DBSCAN:
+                LOG.info("Clustering DBSCAN algorithm");
+                return new DBSCANClustering(places).getDBScanClusters();
+            case KMEANSPP_MAXRAD:
+                LOG.info("Clustering K-means++ algorithm with max radius");
+                return new KMeansPlusPlusClustering(places).getClustersMaxRadius();
+            case KMEANSPP_FILTER_SPLIT:
+                LOG.info("Clustering K-means++ algorithm with cluster filter and splitting if need");
+                return new KMeansPlusPlusClustering(places).getFiltersClustersWithConditions();
+            case FUZZY_KMEANS_MAXRAD:
+                LOG.info("Clustering Fuzzy K-means++ algorithm with max radius");
+                return new FuzzyKMeans(places).getClustersMaxRadius();
+            case FUZZY_KMEANS_FILTER_SPLIT:
+                LOG.info("Clustering Fuzzy K-means++ algorithm with cluster filter and splitting if need");
+                return new FuzzyKMeans(places).getFiltersClustersWithConditions();
+            case MULTI_KMEANSPP_MAXRAD:
+                LOG.info("Clustering Multi K-means++ algorithm with max radius");
+                return new MultiKMeansPlusPlusClustering(places).getClustersMaxRadius();
+            case MULTI_KMEANSPP_FILTER_SPLIT:
+                LOG.info("Clustering Multi K-means++ algorithm with cluster filter and splitting if need");
+                return new MultiKMeansPlusPlusClustering(places).getFiltersClustersWithConditions();
+            default:
+                throw new IllegalArgumentException("Incorrect algorithm value " + algorithm);
         }
-        if (mlAlgorithm.toLowerCase().contains("blackhole")) {
-            return getDarkHoleClusters(places);
-        }
-        if (mlAlgorithm.toLowerCase().contains("dbscan")) {
-            return getDBSCANClusters(places);
-        }
-        if (mlAlgorithm.toLowerCase().contains("fuzzy") && mlAlgorithm.toLowerCase().contains("kmeans")) {
-            return getFuzzyKMeansClustersWithClearingAndBigCircleClustering(places);
-        }
-        if (mlAlgorithm.toLowerCase().contains("multi") && mlAlgorithm.toLowerCase().contains("kmeans")) {
-            return getMultiKMeansPPClustersWithClearingAndBigCircleClustering(places);
-        }
-        if (mlAlgorithm.toLowerCase().contains("kmeans") && mlAlgorithm.toLowerCase().contains("limit")) {
-            return getKMeansPPClustersWithClearingAndBigCircleClusteringLimitMaxClustersInCity(places);
-        }
-        if (mlAlgorithm.toLowerCase().contains("kmeans")) {
-            return getKMeansPPClustersWithClearingAndBigCirclesClustering(places);
-        }
-        return new ArrayList<>();
     }
 
 }

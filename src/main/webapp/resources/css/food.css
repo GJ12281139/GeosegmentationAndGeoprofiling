@@ -1,4 +1,6 @@
-#foodText {
+
+#fAsianRestaurantText, #fJapaneseRestaurantText, #fFrenchRestaurantText, #fItalianRestaurantText, #fBakeryText,
+#fBistroText, #fFastFoodRestaurantText, #fCafeText, #gCafeText, #gRestaurantText {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -12,16 +14,88 @@
     -webkit-border-radius: 10px;
     box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #5f5f5f inset;
     -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
-    -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #898a8c inset;
+    -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-background-clip: padding-box;
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
     outline: 0;
 }
 
-#food {
+#fAsianRestaurant, #fJapaneseRestaurant, #fFrenchRestaurant, #fItalianRestaurant, #fBakery,
+#fBistro, #fFastFoodRestaurant, #fCafe, #gCafe, #gRestaurant {
     visibility: hidden;
     position: absolute;
     z-index: 1;
     right: 28px;
     margin-top: 40px;
-    background-color: lawngreen;
+}
+
+/* fJapaneseRestaurant */
+#fJapaneseRestaurantText {
+    top: 65px;
+}
+
+#fJapaneseRestaurant {
+    margin-top: 95px;
+}
+
+#gRestaurantText {
+    top: 65px;
+}
+
+#gRestaurant {
+    margin-top: 95px;
+}
+
+/* fFrenchRestaurant */
+#fFrenchRestaurantText {
+    top: 120px;
+}
+
+#fFrenchRestaurant {
+    margin-top: 150px;
+}
+
+/* fItalianRestaurant */
+#fItalianRestaurantText {
+    top: 175px;
+}
+
+#fItalianRestaurant {
+    margin-top: 205px;
+}
+
+/* fBakery */
+#fBakeryText {
+    top: 230px;
+}
+
+#fBakery{
+    margin-top: 260px;
+}
+
+/* fBistro */
+#fBistroText {
+    top: 285px;
+}
+
+#fBistro {
+    margin-top: 315px;
+}
+
+/* fFastFoodRestaurant */
+#fFastFoodRestaurantText {
+    top: 340px;
+}
+
+#fFastFoodRestaurant {
+    margin-top: 370px;
+}
+
+/* fCafe */
+#fCafeText {
+    top: 395px;
+}
+
+#fCafe {
+    margin-top: 425px;
 }

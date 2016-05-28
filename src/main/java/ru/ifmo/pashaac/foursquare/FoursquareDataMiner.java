@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * Service get data from Foursquare with API help
+ * Service for getting data from Foursquare with API help
  *
  * Created by Pavel Asadchiy
  * 07.05.16 15:08.
@@ -83,8 +83,7 @@ public class FoursquareDataMiner {
 
                 markers.add(new Marker(boxCenter, mRad, Properties.getIconSearch()));
                 Arrays.stream(venues)
-                        .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox.getCity(),
-                                boundingBox.getCountry(), foursquarePlaceType.name(), foursquarePlaceType.icon)));
+                        .forEach(venue -> places.add(new FoursquarePlace(venue, boundingBox, foursquarePlaceType.name(), foursquarePlaceType.icon)));
                 LOG.info("Places size " + places.size() + " (+" + venues.length + ")");
                 if (mRad < rRad) {
                     boundingBoxes.addAll(BoundingBox.getQuarters(bBox));

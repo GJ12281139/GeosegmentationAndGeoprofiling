@@ -3,7 +3,6 @@ package ru.ifmo.pashaac.google.maps;
 import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
-import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 import ru.ifmo.pashaac.map.MapService;
 
@@ -21,57 +20,61 @@ public class GoogleDataDAO {
 
     private static final Logger LOG = Logger.getLogger(GoogleDataDAO.class);
 
-    private final String placeType;
+    private final GooglePlaceType placeType;
     private final String collection;
     private final MongoOperations mongoOperations;
 
-    public GoogleDataDAO(String placeType, String city, String country) {
+    public GoogleDataDAO(GooglePlaceType placeType, BoundingBox boundingBox) {
         this.placeType = placeType;
-        this.collection = "Google" + "#" + country + "#" + city + "#" + placeType;
+        this.collection = getCollection(boundingBox, placeType);
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<GooglePlace> getAllPlaces() {
+    public static String getCollection(BoundingBox boundingBox, GooglePlaceType placeType) {
+        return "Google" + "#" + boundingBox.getCountry() + "#" + boundingBox.getCity() + "#" + placeType;
+    }
+
+    public List<GooglePlace> getPlaces() {
         return mongoOperations.findAll(GooglePlace.class, collection);
     }
 
-    public List<GooglePlace> getFilteredPlaces() {
-        return null; // TODO: realisation need
-     }
+    public Collection<GooglePlace> getTopRatingPlaces(int percents) {
+        return GooglePlace.filterTopRating(getPlaces(), percents);
+    }
 
-    public void minePlaces(MapService mapService, BoundingBox boundingBox) {
-        GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, GooglePlaceType.valueOf(placeType));
+    private void minePlaces(MapService mapService, BoundingBox boundingBox) {
+        GoogleDataMiner googleDataMiner = new GoogleDataMiner(mapService, placeType);
+        LOG.info("Wait until the quadtree algorithm collecting places...");
         googleDataMiner.quadtreePlaceSearcher(boundingBox);
-        LOG.info("Getting google places full information... Please wait...");
-        googleDataMiner.fullPlacesInformation("ru");
-        LOG.info("All information was got");
         insert(googleDataMiner.getPlaces());
         recreate(googleDataMiner.getBoundingBoxes(), GoogleDataDAO.BOUNDINGBOX_SUFFIX);
         recreate(googleDataMiner.getMarkers(), GoogleDataDAO.SEARCHER_SUFFIX);
     }
 
-    public void minePlacesIfNotExist(MapService mapService, BoundingBox boundingBox) {
-        if (!exist()) {
-            minePlaces(mapService, boundingBox);
+    public void minePlacesIfNeed(MapService mapService, BoundingBox boundingBox) {
+        if (exist()) {
+            LOG.info("Google table exist or same operation is handling");
+            return;
         }
+        LOG.info("(Google) Table with city=" + boundingBox.getCity() + ", country=" + boundingBox.getCountry() + ", placeType=" + placeType + " not exist");
+        minePlaces(mapService, boundingBox);
     }
 
     public List<BoundingBox> getBoundingBoxes() {
         return mongoOperations.findAll(BoundingBox.class, collection + "#" + BOUNDINGBOX_SUFFIX);
     }
 
-    public List<Marker> getSearchers() {
-        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
-    }
-
-    @SuppressWarnings("unused")
-    public void update(Collection<GooglePlace> places) {
-        if (places.isEmpty()) {
-            LOG.error("Empty google maps places to insert");
-            return;
-        }
-        places.stream().forEach(place -> mongoOperations.save(place, collection));
-    }
+//    public List<Marker> getSearchers() {
+//        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
+//    }
+//
+//    public void update(Collection<GooglePlace> places) {
+//        if (places.isEmpty()) {
+//            LOG.error("Empty google maps places to insert");
+//            return;
+//        }
+//        places.stream().forEach(place -> mongoOperations.save(place, collection));
+//    }
 
     public boolean exist() {
         return mongoOperations.collectionExists(collection);
@@ -87,7 +90,7 @@ public class GoogleDataDAO {
             return;
         }
         places.stream()
-                .filter(place -> place.getPlaceType().equals(placeType))
+                .filter(place -> place.getPlaceType().equals(placeType.name()))
                 .forEach(place -> mongoOperations.insert(place, collection));
         LOG.info("Data inserted if placeType was matched");
     }

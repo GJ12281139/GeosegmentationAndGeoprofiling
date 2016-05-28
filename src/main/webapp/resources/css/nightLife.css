@@ -1,4 +1,4 @@
-#nightLifeText, #bowlingAlleyText, #movieTheaterText, #poolHallText {
+#fNightLifeSpotText, #fBowlingAlleyText, #fMovieTheaterText, #fPoolHallText, #gBowlingAlleyText, #gMovieTheaterText, #gNightClubText {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -14,10 +14,11 @@
     -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-background-clip: padding-box;
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
     outline: 0;
 }
 
-#nightLife, #bowlingAlley, #movieTheater, #poolHall {
+#fNightLifeSpot, #fBowlingAlley, #fMovieTheater, #fPoolHall, #gBowlingAlley, #gMovieTheater, #gNightClub {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -25,29 +26,45 @@
     margin-top: 40px;
 }
 
-/* bowlingAlley */
-#bowlingAlleyText {
+/* fBowlingAlley */
+#fBowlingAlleyText {
     top: 65px;
 }
 
-#bowlingAlley {
+#fBowlingAlley {
     margin-top: 95px;
 }
 
-/* movieTheaterText */
-#movieTheaterText {
+#gMovieTheaterText {
+    top: 65px;
+}
+
+#gMovieTheater {
+    margin-top: 95px;
+}
+
+/* fMovieTheaterText */
+#fMovieTheaterText {
     top: 120px;
 }
 
-#movieTheater {
+#fMovieTheater {
     margin-top: 150px;
 }
 
-/* poolHall */
-#poolHallText {
+#gNightClubText {
+    top: 120px;
+}
+
+#gNightClub {
+    margin-top: 150px;
+}
+
+/* fPoolHall */
+#fPoolHallText {
     top: 175px;
 }
 
-#poolHall {
+#fPoolHall {
     margin-top: 205px;
 }

@@ -1,4 +1,4 @@
-#athleticsSportsText {
+#fAthleticsSportsText, #gGymText  {
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -14,10 +14,11 @@
     -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-background-clip: padding-box;
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
     outline: 0;
 }
 
-#athleticsSports {
+#fAthleticsSports, #gGym {
     visibility: hidden;
     position: absolute;
     z-index: 1;

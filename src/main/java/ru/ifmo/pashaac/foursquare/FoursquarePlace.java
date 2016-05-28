@@ -4,12 +4,14 @@ import fi.foyt.foursquare.api.entities.CompactVenue;
 import org.springframework.data.annotation.Id;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Icon;
 import ru.ifmo.pashaac.common.primitives.Marker;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,14 +66,14 @@ public class FoursquarePlace extends Marker {
         this.userCount = userCount;
     }
 
-    public FoursquarePlace(CompactVenue venue, String city, String country, String placeType, String icon) {
+    public FoursquarePlace(CompactVenue venue, BoundingBox boundingBox, String placeType, String icon) {
         this(venue.getId(),
                 venue.getName().replace("\"", "\\\"").replace("\n", ""),
                 placeType,
                 venue.getContact().getFormattedPhone(),
                 venue.getLocation().getAddress() == null ? null : venue.getLocation().getAddress().replace("\"", "\\\""),
-                city,
-                country,
+                boundingBox.getCity(),
+                boundingBox.getCountry(),
                 venue.getLocation().getLat(),
                 venue.getLocation().getLng(),
                 0,
@@ -173,20 +175,19 @@ public class FoursquarePlace extends Marker {
                 .collect(Collectors.toSet());
     }
 
-
-    public static Set<FoursquarePlace> filterTopCheckinsPercent(final Collection<FoursquarePlace> places, int percent) {
-        if (percent < 0 || percent > 100) {
-            throw new IllegalStateException("Percent should be between 0 and 100");
+    public static Set<FoursquarePlace> filterTopCheckins(Collection<FoursquarePlace> places, int percents) {
+        if (percents < 0 || percents > 100) {
+            throw new IllegalStateException("Percents should be between 0 and 100");
         }
-        int count = (int) Math.ceil(places.size() * percent * 1.0 / 100);
         return places.stream()
-                .sorted((p1, p2) -> Integer.compare(p2.getCheckinsCount(), p1.getCheckinsCount()))
-                .limit(count)
+                .filter(FoursquarePlace::filter)
+                .sorted((p1, p2) -> Integer.compare(p2.getCheckinsCount(), p1.getCheckinsCount())) // descend
+                .limit((int) Math.ceil(places.size() * percents * 1.0 / 100))
                 .collect(Collectors.toSet());
     }
 
     public static Set<FoursquarePlace> filterLongDistanceOrNotInTopPlaces(final Collection<FoursquarePlace> places, int topPercent) {
-        final Set<FoursquarePlace> topPlaces = filterTopCheckinsPercent(places, topPercent);
+        final Set<FoursquarePlace> topPlaces = filterTopCheckins(places, topPercent);
 
         final HashSet<FoursquarePlace> nearTopPlaces = new HashSet<>();
         for (FoursquarePlace place : places) {
@@ -211,15 +212,15 @@ public class FoursquarePlace extends Marker {
 
     public static Set<FoursquarePlace> filterPlaces(final Collection<FoursquarePlace> places, int percent) {
         return FoursquarePlace
-                .filterTopCheckinsPercent(
+                .filterTopCheckins(
                         FoursquarePlace.filterAverageEmptyAddress(
                                 FoursquarePlace.filterLongDistanceOrNotInTopPlaces(places, 30)), percent);
     }
 
-    public static Set<Marker> toMarkers(final Collection<FoursquarePlace> places) {
+    public static List<Marker> toMarkers(final Collection<FoursquarePlace> places) {
         return places.stream()
                 .map(place -> (Marker) place)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public static Set<FoursquarePlace> useSourceIcon(final Collection<FoursquarePlace> places) {

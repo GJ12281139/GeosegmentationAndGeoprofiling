@@ -45,7 +45,7 @@ public class FuzzyKMeans {
                 .collect(Collectors.toList());
     }
 
-    public List<Cluster> getClustersWithClearingAndBigCirclesClustering(int splitClustersCount) {
+    public List<Cluster> getFiltersClustersWithConditions(int splitClustersCount) {
         return clusterer.cluster(places).stream()
                 .filter(clusterer -> clusterer.getPoints().size() > Properties.getClusterMinPlaces())
                 .map(cluster -> {
@@ -53,13 +53,17 @@ public class FuzzyKMeans {
                     double maxRad = Cluster.getClusterRadius(center, cluster.getPoints());
                     if (maxRad > Properties.getClusterMaxRadius()) {
                         return new FuzzyKMeans(cluster.getPoints(), splitClustersCount, DEFAULT_FUZZINESS, Properties.getKernelIterationsCount())
-                                .getClustersWithClearingAndBigCirclesClustering(splitClustersCount);
+                                .getFiltersClustersWithConditions(splitClustersCount);
                     }
                     return Collections.singletonList(new Cluster(center.lat, center.lng, maxRad, Properties.getIconKernel(), cluster.getPoints()));
                 })
                 .flatMap(Collection::stream)
                 .filter(cluster -> cluster.getRad() > Properties.getClusterMinRadius())
                 .collect(Collectors.toList());
+    }
+
+    public List<Cluster> getFiltersClustersWithConditions() {
+        return getFiltersClustersWithConditions(2);
     }
 
 }

@@ -14,13 +14,18 @@ import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Cluster;
 import ru.ifmo.pashaac.foursquare.FoursquarePlace;
+import ru.ifmo.pashaac.google.maps.GooglePlace;
+import ru.ifmo.pashaac.segmentation.Algorithm;
 import ru.ifmo.pashaac.segmentation.Segmentation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
+ * Main controller!!!
+ *
  * Created by Pavel Asadchiy
  * 18.04.16 22:17.
  */
@@ -29,17 +34,17 @@ import java.util.Set;
 public class MapController {
 
     public static final String VIEW_JSP_NAME = "map";
-    public static final String VIEW_DEBUG_JSP_NAME = "debug";
 
-    public static final String VIEW_ERROR = "error";
-    public static final String VIEW_USER = "user";
-    public static final String VIEW_USER_CITY = "user_city";
-    public static final String VIEW_USER_COUNTRY = "user_country";
-    public static final String VIEW_BOUNDING_BOXES = "boxes";
-    public static final String VIEW_MARKERS = "places";
-    public static final String VIEW_GOOGLE_PLACES = "google_places";
-    public static final String VIEW_FOURSQUARE_PLACES = "foursquare_places";
-    public static final String VIEW_CLUSTERS = "clusters";
+//    public static final String VIEW_DEBUG_JSP_NAME = "debug";
+//    public static final String VIEW_ERROR = "error";
+//    public static final String VIEW_USER = "user";
+//    public static final String VIEW_USER_CITY = "user_city";
+//    public static final String VIEW_USER_COUNTRY = "user_country";
+//    public static final String VIEW_BOUNDING_BOXES = "boxes";
+//    public static final String VIEW_MARKERS = "places";
+//    public static final String VIEW_GOOGLE_PLACES = "google_places";
+//    public static final String VIEW_FOURSQUARE_PLACES = "foursquare_places";
+//    public static final String VIEW_CLUSTERS = "clusters";
 
     private static final Logger LOG = Logger.getLogger(MapController.class);
 
@@ -52,7 +57,7 @@ public class MapController {
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView entrance() {
-        LOG.info("Entrance time = " + UserDAO.getTime());
+        LOG.info("Service entrance time = " + UserDAO.getTime());
         return new ModelAndView(VIEW_JSP_NAME);
     }
 
@@ -67,41 +72,69 @@ public class MapController {
         return mapService.getCityBoundingBox(lat, lng);
     }
 
+
     @RequestMapping(value = "/segmentation", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<Cluster> segmentation(@RequestBody final Map<String, String> data) throws Exception {
-        return Segmentation.getDarkHoleClusters(FoursquarePlace.toMarkers(
-                makeCategory(data).getFoursquarePlaces(mapService.percentsHandler(data.get("percents")))));
+    public Collection<Cluster> segmentation(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting segments/clusters for category --- " + data.get("category") +
+                " with algorithm " + data.get("algorithm") + " with source " + data.get("source"));
+        double lat = Double.parseDouble(data.get("lat"));
+        double lng = Double.parseDouble(data.get("lng"));
+        String city = data.get("city");
+        String country = data.get("country");
+        String source = data.get("source");
+        List<Integer> percents = mapService.percentsHandler(data.get("percents"));
+        String categoryStr = data.get("category");
+        UserDAO.insert(lat, lng, city, country, source, categoryStr, percents);
+        if ("google".equals(data.get("source"))) {
+            return Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), GooglePlace.toMarkers(placesGoogle(data)));
+        }
+        if ("foursquare".equals(data.get("source"))) {
+            return Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), FoursquarePlace.toMarkers(placesFoursquare(data)));
+        }
+        return new ArrayList<>();
     }
 
-    @RequestMapping(value = "/segmentation/places/foursquare", method = RequestMethod.POST,
+    @RequestMapping(value = "/boundingboxes", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Set<FoursquarePlace> foursquare(@RequestBody final Map<String, String> data) throws Exception {
-        LOG.info("Getting foursquare places by category --- " + data.get("category"));
+    public Collection<BoundingBox> boundingboxes(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting boundingboxes for category --- " + data.get("category") + " with source " + data.get("source"));
+        Category category = makeCategory(data);
+        if ("google".equals(data.get("source"))) {
+            return category.getGoogleBoundingBoxes();
+        }
+        if ("foursquare".equals(data.get("source"))) {
+            return category.getFoursquareBoundingBoxes();
+        }
+        return new ArrayList<>();
+    }
+
+    @RequestMapping(value = "/places/foursquare", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Collection<FoursquarePlace> placesFoursquare(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting foursquare places for category --- " + data.get("category"));
         return makeCategory(data).getFoursquarePlaces(mapService.percentsHandler(data.get("percents")));
     }
 
-
-    @RequestMapping(value = "/segmentation/boundingbox", method = RequestMethod.POST,
+    @RequestMapping(value = "/places/google", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<BoundingBox> boundingbox(@RequestBody final Map<String, String> data) throws Exception {
-        return makeCategory(data).getFoursquareBoundingBoxes();
+    public Collection<GooglePlace> placesGoogle(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting foursquare places for category --- " + data.get("category"));
+        return makeCategory(data).getGooglePlaces(mapService.percentsHandler(data.get("percents")));
     }
 
-    private Category makeCategory(final Map<String, String> data) throws Exception {
-        final List<Integer> percents = mapService.percentsHandler(data.get("percents"));
-        final double lat = Double.parseDouble(data.get("lat"));
-        final double lng = Double.parseDouble(data.get("lng"));
-        final String city = data.get("city");
-        final String country = data.get("country");
-        final String categoryStr = data.get("category");
+    private Category makeCategory(Map<String, String> data) throws Exception {
+        List<Integer> percents = mapService.percentsHandler(data.get("percents"));
+        String city = data.get("city");
+        String country = data.get("country");
+        String categoryStr = data.get("category");
         LOG.info("Segmentation in city = " + city + ", country = " + country + ", category = " + categoryStr + ", percents = " + percents);
-        UserDAO.insert(lat, lng, city, country, categoryStr, percents);
-        final BoundingBox boundingBox = mapService.getCityBoundingBox(city, country);
-        return mapService.getCategory(categoryStr, boundingBox);
+        BoundingBox boundingBox = mapService.getCityBoundingBox(city, country);
+        return Category.getCategory(categoryStr, mapService, boundingBox);
     }
 
 //    @RequestMapping(value = "/debug", method = RequestMethod.GET)
@@ -246,9 +279,9 @@ public class MapController {
 //            FoursquarePlaceType foursquarePlaceType = getEnumFromString(FoursquarePlaceType.class, placeType);
 //            if (isFoursquareSource && foursquarePlaceType != null) {
 //                FoursquareDataDAO foursquareDataDAO = new FoursquareDataDAO(foursquarePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
-//                foursquareDataDAO.minePlacesIfNotExist(mapService, boundingBox);
-//                Set<FoursquarePlace> filteredPlaces = FoursquarePlace.filterTopCheckinsPercent(
-//                        foursquareDataDAO.getAllPlaces(), percents.size() > 0 ? percents.get(0) : 100);
+//                foursquareDataDAO.minePlacesIfNeed(mapService, boundingBox);
+//                Set<FoursquarePlace> filteredPlaces = FoursquarePlace.filterTopCheckins(
+//                        foursquareDataDAO.getPlaces(), percents.size() > 0 ? percents.get(0) : 100);
 //
 //                view.addObject(VIEW_FOURSQUARE_PLACES, isSourceIcons
 //                        ? FoursquarePlace.useSourceIcon(filteredPlaces)
@@ -264,9 +297,9 @@ public class MapController {
 //            GooglePlaceType googlePlaceType = getEnumFromString(GooglePlaceType.class, placeType);
 //            if (isGoogleSource && googlePlaceType != null) {
 //                GoogleDataDAO googleDataDAO = new GoogleDataDAO(googlePlaceType.name(), boundingBox.getCity(), boundingBox.getCountry());
-//                googleDataDAO.minePlacesIfNotExist(mapService, boundingBox);
+//                googleDataDAO.minePlacesIfNeed(mapService, boundingBox);
 //                Set<GooglePlace> filteredPlaces = GooglePlace.filterPlaces(
-//                        googleDataDAO.getAllPlaces(), percents.size() > 0 ? percents.get(0) : 100);
+//                        googleDataDAO.getPlaces(), percents.size() > 0 ? percents.get(0) : 100);
 //
 //                view.addObject(VIEW_GOOGLE_PLACES, isSourceIcons
 //                        ? GooglePlace.useSourceIcon(filteredPlaces)

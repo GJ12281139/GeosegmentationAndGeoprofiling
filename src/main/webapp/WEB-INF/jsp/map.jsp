@@ -1,124 +1,169 @@
-<%@ page import="ru.ifmo.pashaac.common.Properties" %>
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="ru.ifmo.pashaac.common.Properties" contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Geosegmentation and geoprofiling</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" charset="utf-8">
 
-    <spring:url value="/resources/js/user-geolocation.js" var="userGeolocationJs"/>
     <spring:url value="/resources/js/map-utils.js" var="mapUtilsJs"/>
-    <spring:url value="/resources/css/map.css" var="mapCss"/>
-    <spring:url value="/resources/js/culture.js" var="cultureJs"/>
-    <spring:url value="/resources/css/culture.css" var="cultureCss"/>
-    <spring:url value="/resources/js/food.js" var="foodJs"/>
-    <spring:url value="/resources/css/food.css" var="foodCss"/>
-    <spring:url value="/resources/js/nightLife.js" var="nightLifeJs"/>
-    <spring:url value="/resources/css/nightLife.css" var="nightLifeCss"/>
-    <spring:url value="/resources/js/sport.js" var="sportJs"/>
-    <spring:url value="/resources/css/sport.css" var="sportCss"/>
     <spring:url value="/resources/js/auto.js" var="autoJs"/>
-    <spring:url value="/resources/css/auto.css" var="autoCss"/>
+    <spring:url value="/resources/js/culture.js" var="cultureJs"/>
+    <spring:url value="/resources/js/food.js" var="foodJs"/>
+    <spring:url value="/resources/js/nightLife.js" var="nightLifeJs"/>
+    <spring:url value="/resources/js/sport.js" var="sportJs"/>
+    <spring:url value="/resources/js/userGUI.js" var="userGUIJs"/>
 
-    <script src="${userGeolocationJs}"></script>
+    <spring:url value="/resources/css/map.css" var="mapCss"/>
+    <spring:url value="/resources/css/auto.css" var="autoCss"/>
+    <spring:url value="/resources/css/culture.css" var="cultureCss"/>
+    <spring:url value="/resources/css/food.css" var="foodCss"/>
+    <spring:url value="/resources/css/nightLife.css" var="nightLifeCss"/>
+    <spring:url value="/resources/css/sport.css" var="sportCss"/>
+    <spring:url value="/resources/css/userGUI.css" var="userGUICss"/>
+
     <script src="${mapUtilsJs}"></script>
+    <script src="${autoJs}"></script>
     <script src="${cultureJs}"></script>
     <script src="${foodJs}"></script>
     <script src="${nightLifeJs}"></script>
     <script src="${sportJs}"></script>
-    <script src="${autoJs}"></script>
+    <script src="${userGUIJs}"></script>
 
+    <%-- TODO: what need from libs ??????? --%>
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet"
           type="text/css"/>
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
 
-<input id="latitude" class="textbox" placeholder="latitude (ex. 77.77)" type="text">
-<input id="longitude" class="textbox" placeholder="longitude (ex. 77.77)" type="text">
-<input id="city" class="textbox" placeholder="city (ex. Saint-Petersburg)" type="text">
-<input id="country" class="textbox" placeholder="country (ex. Russia)" type="text">
+<%-- user buttons --%>
+<input id="latitude" class="textbox" placeholder="latitude (ex. 12.34)">
+<input id="longitude" class="textbox" placeholder="longitude (ex. 56.78)">
+<input id="city" class="textbox" placeholder="city (ex. Saint-Petersburg)">
+<input id="country" class="textbox" placeholder="country (ex. Russia)">
 <input id="findme" class="button" value="Find me" type="button" onclick="geolocation()">
 <input id="submit" class="button" value="Submit" type="button" onclick="submit()">
+<input id="foursquareSource" class="button" value="Foursquare data source" type="button"
+       onclick="foursquareSourceHandler()">
+<input id="googleSource" class="button" value="Google data source" type="button" onclick="googleSourceHandler()">
+<input id="segmentText" class="text" value="Segment radius range [from,to]:" style="border: none">
+<input id="segmentMinRadius" class="textbox" value="275" onchange="segmentMinRadiusHandler()">
+<input id="segmentMaxRadius" class="textbox" value="800" onchange="segmentMaxRadiusHandler()">
+
 
 <%-- Categories --%>
-<input id="cultureB" class="button" value="Cultural and leisure time" type="button" onclick="culturalLeisure()">
-<input id="foodB" class="button" value="Snack / lunch / dinner ..." type="button" onclick="food()">
-<input id="nightLifeB" class="button" value="Parties / clubs / bars..." type="button" onclick="nightLife()">
-<input id="sportB" class="button" value="Sport places!" type="button" onclick="sport()">
-<input id="autoB" class="button" value="Auto-auto-auto" type="button" onclick="auto()">
+<input id="culture" class="button" value="Cultural and leisure time" type="button" onclick="culture()">
+<input id="food" class="button" value="Snack / lunch / dinner ..." type="button" onclick="food()">
+<input id="nightLife" class="button" value="Parties / clubs / bars..." type="button" onclick="nightLife()">
+<input id="sport" class="button" value="Sport places!" type="button" onclick="sport()">
+<input id="auto" class="button" value="Auto-auto-auto" type="button" onclick="auto()">
 
-<%-- Culture --%>
-<input id="museumText" class="text" value="Museums: 80%" type="text">
-<input id="museum" type="range" value="80" min="0" max="100" onchange="museumsRangeChange()"
-       oninput="museumsRangeChange()">
-<input id="parkText" class="text" value="Parks: 80%" type="text">
-<input id="park" type="range" value="80" min="0" max="100" onchange="parksRangeChange()" oninput="parksRangeChange()">
-<input id="plazaText" class="text" value="Plazas: 80%" type="text">
-<input id="plaza" type="range" value="80" min="0" max="100" onchange="plazaRangeChange()" oninput="plazaRangeChange()">
-<input id="sculptureGardenText" class="text" value="Sculpture gardens: 80%" type="text">
-<input id="sculptureGarden" type="range" value="80" min="0" max="100" onchange="sculptureGardenRangeChange()"
-       oninput="sculptureGardenRangeChange()">
-<input id="spirtualCenterText" class="text" value="Spirtual centers: 80%" type="text">
-<input id="spirtualCenter" type="range" value="80" min="0" max="100" onchange="spirtualCenterRangeChange()"
-       oninput="spirtualCenterRangeChange()">
-<input id="theaterText" class="text" value="Theaters: 80%" type="text">
-<input id="theater" type="range" value="80" min="0" max="100" onchange="theaterRangeChange()"
-       oninput="theaterRangeChange()">
-<input id="fountainText" class="text" value="Fountains: 80%" type="text">
-<input id="fountain" type="range" value="80" min="0" max="100" onchange="fountainRangeChange()"
-       oninput="fountainRangeChange()">
-<input id="gardenText" class="text" value="Gardens: 80%" type="text">
-<input id="garden" type="range" value="80" min="0" max="100" onchange="gardenRangeChange()"
-       oninput="gardenRangeChange()">
-<input id="palaceText" class="text" value="Palaces: 80%" type="text">
-<input id="palace" type="range" value="80" min="0" max="100" onchange="palaceRangeChange()"
-       oninput="palaceRangeChange()">
-<input id="castleText" class="text" value="Castles: 80%" type="text">
-<input id="castle" type="range" value="80" min="0" max="100" onchange="castleRangeChange()"
-       oninput="castleRangeChange()">
 
-<%-- Food --%>
-<input id="foodText" class="text" value="Cafe/restaurants/...: 80%" type="text">
-<input id="food" type="range" value="80" min="0" max="100" onchange="foodRangeChange()" oninput="foodRangeChange()">
+<%-- Foursquare Culture --%>
+<input id="fMuseumText" class="text" value="Museums: 80%" type="text">
+<input id="fMuseum" type="range" value="80" oninput="fMuseumRangeChange()">
+<input id="fParkText" class="text" value="Parks: 80%" type="text">
+<input id="fPark" type="range" value="80" oninput="fParkRangeChange()">
+<input id="fPlazaText" class="text" value="Plazas: 80%" type="text">
+<input id="fPlaza" type="range" value="80" oninput="fPlazaRangeChange()">
+<input id="fSculptureGardenText" class="text" value="Sculpture gardens: 80%" type="text">
+<input id="fSculptureGarden" type="range" value="80" oninput="fSculptureGardenRangeChange()">
+<input id="fSpirtualCenterText" class="text" value="Spirtual centers: 80%" type="text">
+<input id="fSpirtualCenter" type="range" value="80" oninput="fSpirtualCenterRangeChange()">
+<input id="fTheaterText" class="text" value="Theaters: 80%" type="text">
+<input id="fTheater" type="range" value="80" oninput="fTheaterRangeChange()">
+<input id="fFountainText" class="text" value="Fountains: 80%" type="text">
+<input id="fFountain" type="range" value="80" oninput="fFountainRangeChange()">
+<input id="fGardenText" class="text" value="Gardens: 80%" type="text">
+<input id="fGarden" type="range" value="80" oninput="fGardenRangeChange()">
+<input id="fPalaceText" class="text" value="Palaces: 80%" type="text">
+<input id="fPalace" type="range" value="80" oninput="fPalaceRangeChange()">
+<input id="fCastleText" class="text" value="Castles: 80%" type="text">
+<input id="fCastle" type="range" value="80" oninput="fCastleRangeChange()">
+<%-- Google culture --%>
+<input id="gMuseumText" class="text" value="Museums: 80%" type="text">
+<input id="gMuseum" type="range" value="80" oninput="gMuseumRangeChange()">
+<input id="gParkText" class="text" value="Parks: 80%" type="text">
+<input id="gPark" type="range" value="80" oninput="gParkRangeChange()">
+<input id="gChurchText" class="text" value="Churches: 80%" type="text">
+<input id="gChurch" type="range" value="80" oninput="gChurchRangeChange()">
 
-<%-- Night Life --%>
-<input id="nightLifeText" class="text" value="Bars/clubs/disco/...: 80%" type="text">
-<input id="nightLife" type="range" value="80" min="0" max="100" onchange="nightLifeRangeChange()"
-       oninput="nightLifeRangeChange()">
-<input id="bowlingAlleyText" class="text" value="Bowling alleys: 80%" type="text">
-<input id="bowlingAlley" type="range" value="80" min="0" max="100" onchange="bowlingAlleyRangeChange()"
-       oninput="bowlingAlleyRangeChange()">
-<input id="movieTheaterText" class="text" value="Movie theaters: 80%" type="text">
-<input id="movieTheater" type="range" value="80" min="0" max="100" onchange="movieTheaterRangeChange()"
-       oninput="movieTheaterRangeChange()">
-<input id="poolHallText" class="text" value="Pool halls: 80%" type="text">
-<input id="poolHall" type="range" value="80" min="0" max="100" onchange="poolHallRangeChange()"
-       oninput="poolHallRangeChange()">
 
-<%-- Sport --%>
-<input id="athleticsSportsText" class="text" value="Athletics and sports: 80%" type="text">
-<input id="athleticsSports" type="range" value="80" min="0" max="100" onchange="athleticsSportsRangeChange()"
-       oninput="athleticsSportsRangeChange()">
+<%-- Foursuqare Food --%>
+<input id="fAsianRestaurantText" class="text" value="Asian restaurants: 80%" type="text">
+<input id="fAsianRestaurant" type="range" value="80" oninput="fAsianRestaurantRangeChange()">
+<input id="fJapaneseRestaurantText" class="text" value="Japan restaurants: 80%" type="text">
+<input id="fJapaneseRestaurant" type="range" value="80" oninput="fJapaneseRestaurantRangeChange()">
+<input id="fFrenchRestaurantText" class="text" value="French restaurants: 80%" type="text">
+<input id="fFrenchRestaurant" type="range" value="80" oninput="fFrenchRestaurantRangeChange()">
+<input id="fItalianRestaurantText" class="text" value="Italian restaurants: 80%" type="text">
+<input id="fItalianRestaurant" type="range" value="80" oninput="fItalianRestaurantRangeChange()">
+<input id="fBakeryText" class="text" value="Bakery: 80%" type="text">
+<input id="fBakery" type="range" value="80" oninput="fBakeryRangeChange()">
+<input id="fBistroText" class="text" value="Bistro: 80%" type="text">
+<input id="fBistro" type="range" value="80" oninput="fBistroRangeChange()">
+<input id="fFastFoodRestaurantText" class="text" value="Fast Food: 80%" type="text">
+<input id="fFastFoodRestaurant" type="range" value="80" oninput="fFastFoodRestaurantRangeChange()">
+<input id="fCafeText" class="text" value="Cafe: 80%" type="text">
+<input id="fCafe" type="range" value="80" oninput="fCafeRangeChange()">
+<%-- Google food --%>
+<input id="gCafeText" class="text" value="Cafe: 80%" type="text">
+<input id="gCafe" type="range" value="80" oninput="gCafeRangeChange()">
+<input id="gRestaurantText" class="text" value="Restaurant: 80%" type="text">
+<input id="gRestaurant" type="range" value="80" oninput="gRestaurantRangeChange()">
 
-<%-- Auto --%>
-<input id="autoDealershipText" class="text" value="Auto dealerships: 80%" type="text">
-<input id="autoDealership" type="range" value="80" min="0" max="100" onchange="autoDealershipRangeChange()"
-       oninput="autoDealershipRangeChange()">
-<input id="autoGarageText" class="text" value="Auto garages: 80%" type="text">
-<input id="autoGarage" type="range" value="80" min="0" max="100" onchange="autoGarageRangeChange()"
-       oninput="autoGarageRangeChange()">
-<input id="autoWorkshopText" class="text" value="Auto workshops: 80%" type="text">
-<input id="autoWorkshop" type="range" value="80" min="0" max="100" onchange="autoWorkshopRangeChange()"
-       oninput="autoWorkshopRangeChange()">
-<input id="carWashText" class="text" value="Car washes: 80%" type="text">
-<input id="carWash" type="range" value="80" min="0" max="100" onchange="carWashRangeChange()"
-       oninput="carWashRangeChange()">
+
+<%-- Foursquare Night Life --%>
+<input id="fNightLifeSpotText" class="text" value="Bars/clubs/disco/...: 80%" type="text">
+<input id="fNightLifeSpot" type="range" value="80" oninput="fNightLifeSpotRangeChange()">
+<input id="fBowlingAlleyText" class="text" value="Bowling alleys: 80%" type="text">
+<input id="fBowlingAlley" type="range" value="80" oninput="fBowlingAlleyRangeChange()">
+<input id="fMovieTheaterText" class="text" value="Movie theaters: 80%" type="text">
+<input id="fMovieTheater" type="range" value="80" oninput="fMovieTheaterRangeChange()">
+<input id="fPoolHallText" class="text" value="Pool halls: 80%" type="text">
+<input id="fPoolHall" type="range" value="80" oninput="fPoolHallRangeChange()">
+<%-- Google Night Life --%>
+<input id="gBowlingAlleyText" class="text" value="Bowling alleys: 80%" type="text">
+<input id="gBowlingAlley" type="range" value="80" oninput="gBowlingAlleyRangeChange()">
+<input id="gMovieTheaterText" class="text" value="Movie theaters: 80%" type="text">
+<input id="gMovieTheater" type="range" value="80" oninput="gMovieTheaterRangeChange()">
+<input id="gNightClubText" class="text" value="Night clubs: 80%" type="text">
+<input id="gNightClub" type="range" value="80" oninput="gNightClubRangeChange()">
+
+
+<%-- Foursquare Sport --%>
+<input id="fAthleticsSportsText" class="text" value="Athletics and sports: 80%" type="text">
+<input id="fAthleticsSports" type="range" value="80" oninput="fAthleticsSportsRangeChange()">
+<%-- Google Sport --%>
+<input id="gGymText" class="text" value="Gyms: 80%" type="text">
+<input id="gGym" type="range" value="80" oninput="gGymRangeChange()">
+
+
+<%-- Foursquare Auto --%>
+<input id="fAutoDealershipText" class="text" value="Auto dealerships: 80%" type="text">
+<input id="fAutoDealership" type="range" value="80" oninput="fAutoDealershipRangeChange()">
+<input id="fAutoGarageText" class="text" value="Auto garages: 80%" type="text">
+<input id="fAutoGarage" type="range" value="80" oninput="fAutoGarageRangeChange()">
+<input id="fAutoWorkshopText" class="text" value="Auto workshops: 80%" type="text">
+<input id="fAutoWorkshop" type="range" value="80" oninput="fAutoWorkshopRangeChange()">
+<input id="fCarWashText" class="text" value="Car washes: 80%" type="text">
+<input id="fCarWash" type="range" value="80" oninput="fCarWashRangeChange()">
+<%-- Google Auto --%>
+<input id="gCarDealerText" class="text" value="Car dealers: 80%" type="text">
+<input id="gCarDealer" type="range" value="80" oninput="gCarDealerRangeChange()">
+<input id="gCarRentalText" class="text" value="Car rental: 80%" type="text">
+<input id="gCarRental" type="range" value="80" oninput="gCarRentalRangeChange()">
+<input id="gCarRepairText" class="text" value="Car repairs: 80%" type="text">
+<input id="gCarRepair" type="range" value="80" oninput="gCarRepairRangeChange()">
+<input id="gCarWashText" class="text" value="Car washes: 80%" type="text">
+<input id="gCarWash" type="range" value="80" oninput="gCarWashRangeChange()">
 
 <div id="map"></div>
 <c:choose>
@@ -132,6 +177,7 @@
         <link href="${nightLifeCss}" rel="stylesheet"/>
         <link href="${sportCss}" rel="stylesheet"/>
         <link href="${autoCss}" rel="stylesheet"/>
+        <link href="${userGUICss}" rel="stylesheet"/>
 
         <script async defer
                 src="https://maps.googleapis.com/maps/api/js?key=<%=System.getenv("GOOGLE_API_KEY")%>&callback=mapInitialization"></script>

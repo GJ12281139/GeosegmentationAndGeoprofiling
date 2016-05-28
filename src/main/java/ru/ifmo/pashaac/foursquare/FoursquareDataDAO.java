@@ -3,15 +3,15 @@ package ru.ifmo.pashaac.foursquare;
 import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoOperations;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
-import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.configuration.SpringMongoConfig;
 import ru.ifmo.pashaac.map.MapService;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
+ * DAO for foursquare places, need for save/get/handle operations in MongoDB
+ *
  * Created by Pavel Asadchiy
  * 08.05.16 23:13.
  */
@@ -22,55 +22,62 @@ public class FoursquareDataDAO {
 
     private static final Logger LOG = Logger.getLogger(FoursquareDataDAO.class);
 
-    private final String placeType;
+    private final FoursquarePlaceType placeType;
     private final String collection;
     private final MongoOperations mongoOperations;
 
-    public FoursquareDataDAO(String placeType, String city, String country) {
+    public FoursquareDataDAO(FoursquarePlaceType placeType, BoundingBox boundingBox) {
         this.placeType = placeType;
-        this.collection = "Foursquare" + "#" + country + "#" + city + "#" + placeType;
+        this.collection = getCollection(boundingBox, placeType);
         this.mongoOperations = SpringMongoConfig.getMongoOperations();
     }
 
-    public List<FoursquarePlace> getAllPlaces() {
+    public static String getCollection(BoundingBox boundingBox, FoursquarePlaceType placeType) {
+        return "Foursquare" + "#" + boundingBox.getCountry() + "#" + boundingBox.getCity() + "#" + placeType;
+    }
+
+    public Collection<FoursquarePlace> getPlaces() {
         return mongoOperations.findAll(FoursquarePlace.class, collection);
     }
 
-    public List<FoursquarePlace> getFilteredPlaces(int percent) {
-        return new ArrayList<>(FoursquarePlace.filterPlaces(getAllPlaces(), percent));
+    public Collection<FoursquarePlace> getTopRatingPlaces(int percents) {
+        return FoursquarePlace.filterTopCheckins(getPlaces(), percents);
     }
 
-    public void minePlaces(MapService mapService, BoundingBox boundingBox) {
-        FoursquareDataMiner foursquareDataMiner = new FoursquareDataMiner(mapService, FoursquarePlaceType.valueOf(placeType));
-        foursquareDataMiner.quadtreePlaceSearcher(boundingBox);
-        LOG.info("All information was got");
-        insert(foursquareDataMiner.getPlaces());
-        recreate(foursquareDataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
-        recreate(foursquareDataMiner.getMarkers(), FoursquareDataDAO.SEARCHER_SUFFIX);
-    }
-
-    public void minePlacesIfNotExist(MapService mapService, BoundingBox boundingBox) {
-        if (!exist()) {
-            minePlaces(mapService, boundingBox);
+    public void minePlacesIfNeed(MapService mapService, BoundingBox boundingBox) {
+        if (exist()) {
+            LOG.info("Foursquare table exist or same operation is handling");
+            return;
         }
+        LOG.info("(Foursquare) Table with city=" + boundingBox.getCity() + ", country=" + boundingBox.getCountry() + ", placeType=" + placeType + " not exist");
+        minePlaces(mapService, boundingBox);
+    }
+
+    private void minePlaces(MapService mapService, BoundingBox boundingBox) {
+        FoursquareDataMiner dataMiner = new FoursquareDataMiner(mapService, placeType);
+        LOG.info("Wait until the quadtree algorithm collecting places...");
+        dataMiner.quadtreePlaceSearcher(boundingBox);
+        insert(dataMiner.getPlaces());
+        recreate(dataMiner.getBoundingBoxes(), FoursquareDataDAO.BOUNDINGBOX_SUFFIX);
+        recreate(dataMiner.getMarkers(), FoursquareDataDAO.SEARCHER_SUFFIX);
+        LOG.info("All places was handled and saved in MongoDB");
     }
 
     public List<BoundingBox> getBoundingBoxes() {
         return mongoOperations.findAll(BoundingBox.class, collection + "#" + BOUNDINGBOX_SUFFIX);
     }
 
-    public List<Marker> getSearchers() {
-        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
-    }
-
-    @SuppressWarnings("unused")
-    public void update(Collection<FoursquarePlace> places) {
-        if (places.isEmpty()) {
-            LOG.error("Empty foursquare places to insert");
-            return;
-        }
-        places.stream().forEach(place -> mongoOperations.save(place, collection));
-    }
+//    public List<Marker> getSearchers() {
+//        return mongoOperations.findAll(Marker.class, collection + "#" + SEARCHER_SUFFIX);
+//    }
+//
+//    public void update(Collection<FoursquarePlace> places) {
+//        if (places.isEmpty()) {
+//            LOG.error("Empty foursquare places to insert");
+//            return;
+//        }
+//        places.stream().forEach(place -> mongoOperations.save(place, collection));
+//    }
 
     public boolean exist() {
         return mongoOperations.collectionExists(collection);
@@ -86,7 +93,7 @@ public class FoursquareDataDAO {
             return;
         }
         places.stream()
-                .filter(place -> place.getPlaceType().equals(placeType))
+                .filter(place -> place.getPlaceType().equals(placeType.name()))
                 .forEach(place -> mongoOperations.insert(place, collection));
         LOG.info("Data inserted if placeType was matched");
     }
