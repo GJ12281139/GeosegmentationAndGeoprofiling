@@ -93,7 +93,7 @@ function submit() {
         "percents": getPressedPercents(),
         "segmentMinRadius": $('#segmentMinRadius').val(),
         "segmentMaxRadius": $('#segmentMaxRadius').val(),
-        "algorithm": "BLACK_HOLE_RANDOM"
+        "algorithm": "KMEANSPP_FILTER_SPLIT"
     };
     fakeSegmentation(json);
 }

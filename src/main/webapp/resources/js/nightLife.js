@@ -104,7 +104,7 @@ function gNightClubRangeChange() {
 
 function nightLifePercents() {
     if (foursquareSourcePressed) {
-        return "[" + document.getElementById("nightLife").value + "," +
+        return "[" + document.getElementById("fNightLifeSpot").value + "," +
             document.getElementById("fBowlingAlley").value + "," +
             document.getElementById("fMovieTheater").value + "," +
             document.getElementById("fPoolHall").value + "]";
