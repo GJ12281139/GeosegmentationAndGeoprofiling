@@ -94,7 +94,7 @@ public class KMeansPlusPlusClustering {
             for (Marker marker : cluster.getMarkers()) {
                 if (GeoMath.insideCircle(center, rad, marker.getLatLng())) {
                     markers.add(marker);
-                    rating += marker.getGoogleRating();
+                    rating += marker.getRating();
                 }
             }
             rating *= Properties.getClusterMinRadius() * 1.0 / Properties.getClusterMaxRadius();

@@ -58,7 +58,7 @@ public class Marker implements Clusterable {
         return icon;
     }
 
-    public double getGoogleRating() {
+    public double getRating() {
         return rating;
     }
 
