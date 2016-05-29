@@ -32,6 +32,7 @@
     <script src="${userGUIJs}"></script>
 
     <%-- TODO: what need from libs ??????? --%>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet"
@@ -42,6 +43,13 @@
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 </head>
 <body>
+
+<div id="wait" style="display:none;width:400px;height:100%;position:absolute;z-index:1;top:15%;left:50%;padding:2px;">
+    <img src='wait.gif' width="200" height="200" />
+    <h2>Возможно вы первый пользователь задавший данную категорию и город, идёт закгрузка данных, пожалуйста подождите или вернитесь к нам через 5 минут...</h2>
+    <h2>Maybe you are our first user with such city and category, run process data downloading... Please wait or return in 5 minutes </h2>
+</div>
+
 
 <%-- user buttons --%>
 <input id="latitude" class="textbox" placeholder="latitude (ex. 59.957)">
@@ -67,18 +75,18 @@
 
 
 <%-- Foursquare Culture --%>
-<input id="fMuseumText" class="text" value="Museums: 30%" type="text">
-<input id="fMuseum" type="range" value="30" oninput="fMuseumRangeChange()">
-<input id="fParkText" class="text" value="Parks: 30%" type="text">
-<input id="fPark" type="range" value="30" oninput="fParkRangeChange()">
+<input id="fMuseumText" class="text" value="Museums: 15%" type="text">
+<input id="fMuseum" type="range" value="15" oninput="fMuseumRangeChange()">
+<input id="fParkText" class="text" value="Parks: 15%" type="text">
+<input id="fPark" type="range" value="15" oninput="fParkRangeChange()">
 <input id="fPlazaText" class="text" value="Plazas: 30%" type="text">
 <input id="fPlaza" type="range" value="30" oninput="fPlazaRangeChange()">
 <input id="fSculptureGardenText" class="text" value="Sculpture gardens: 30%" type="text">
-<input id="fSculptureGarden" type="range" value="30" oninput="fSculptureGardenRangeChange()">
-<input id="fSpirtualCenterText" class="text" value="Spirtual centers: 30%" type="text">
-<input id="fSpirtualCenter" type="range" value="30" oninput="fSpirtualCenterRangeChange()">
-<input id="fTheaterText" class="text" value="Theaters: 30%" type="text">
-<input id="fTheater" type="range" value="30" oninput="fTheaterRangeChange()">
+<input id="fSculptureGarden" type="range" value="15" oninput="fSculptureGardenRangeChange()">
+<input id="fSpirtualCenterText" class="text" value="Spirtual centers: 10%" type="text">
+<input id="fSpirtualCenter" type="range" value="10" oninput="fSpirtualCenterRangeChange()">
+<input id="fTheaterText" class="text" value="Theaters: 15%" type="text">
+<input id="fTheater" type="range" value="15" oninput="fTheaterRangeChange()">
 <input id="fFountainText" class="text" value="Fountains: 30%" type="text">
 <input id="fFountain" type="range" value="30" oninput="fFountainRangeChange()">
 <input id="fGardenText" class="text" value="Gardens: 30%" type="text">
@@ -201,7 +209,7 @@
                 };
                 //noinspection JSUnresolvedVariable,JSUnresolvedFunction
                 map = new google.maps.Map(document.getElementById('map'), mapOptions);
-                addMarker(userPos, "${user.icon}", "You are here", "", "", map);
+                addMarker(userPos, "${user.icon}", "You are here", "", "", "", map);
                 </c:when>
                 <c:otherwise>
                 userPos = {lat: 59.957570, lng: 30.307946}; // ITMO University
@@ -226,7 +234,7 @@
                 <c:if test="${not empty markers}">
                 <c:forEach var="marker" items="${markers}" varStatus="loop">
                 pos = {lat: ${marker.lat}, lng: ${marker.lng}};
-                addMarker(pos, "${marker.icon}", "Marker ${loop.index}, radius: ${marker.rad}", "", "", map);
+                addMarker(pos, "${marker.icon}", "Marker ${loop.index}, radius: ${marker.rad}", "", "", ${marker.googleRating}, map);
                 addCircle(pos, ${marker.rad});
                 </c:forEach>
                 </c:if>
@@ -234,21 +242,21 @@
                 <c:if test="${not empty google_places}">
                 <c:forEach var="place" items="${google_places}" varStatus="loop">
                 pos = {lat: ${place.lat}, lng: ${place.lng}};
-                addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", ${place.googleRating}, map);
                 </c:forEach>
                 </c:if>
 
                 <c:if test="${not empty foursquare_places}">
                 <c:forEach var="place" items="${foursquare_places}" varStatus="loop">
                 pos = {lat: ${place.lat}, lng: ${place.lng}};
-                addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", map);
+                addMarker(pos, "${place.icon}", "${place.name}", "${place.id}", "${place.address}", ${place.googleRating}, map);
                 </c:forEach>
                 </c:if>
 
                 <c:if test="${not empty clusters}">
                 <c:forEach var="cluster" items="${clusters}" varStatus="loop">
                 pos = {lat: ${cluster.lat}, lng: ${cluster.lng}};
-                addMarker(pos, "${cluster.icon}", "Cluster rad " + ${cluster.rad}, "", "", map);
+                addMarker(pos, "${cluster.icon}", "Cluster rad " + ${cluster.rad}, "", "", "", map);
                 addCircle(pos, ${cluster.rad});
                 </c:forEach>
                 </c:if>

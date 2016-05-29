@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.category.Category;
+import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Cluster;
@@ -91,6 +92,8 @@ public class MapController {
         String city = data.get("city");
         String country = data.get("country");
         String source = data.get("source");
+        Properties.clusterMinRadius = Integer.parseInt(data.get("segmentMinRadius"));
+        Properties.clusterMaxRadius = Integer.parseInt(data.get("segmentMaxRadius"));
         List<Integer> percents = mapService.percentsHandler(data.get("percents"));
         String categoryStr = data.get("category");
         UserDAO.insert(lat, lng, city, country, source, categoryStr, percents);

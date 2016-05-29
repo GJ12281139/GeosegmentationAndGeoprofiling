@@ -164,7 +164,7 @@ public class GoogleDataMiner {
                 if (tmp.getLongitude() > finishLng.getLongitude()) {
                     tmp = finishLng;
                 }
-                markers.add(new Marker(tmp.getLatitude(), tmp.getLongitude(), Properties.getDefaultSearcherRadius(), Properties.getIconSearch()));
+                markers.add(new Marker(tmp.getLatitude(), tmp.getLongitude(), Properties.getDefaultSearcherRadius(), 0, Properties.getIconSearch()));
             }
         }
     }
@@ -183,7 +183,7 @@ public class GoogleDataMiner {
         double finishLng = boundingBox.getNortheast().getLng();
         for (double lat = startLat; lat <= finishLat; lat += 0.02) {
             for (double lng = startLng; lng <= finishLng; lng += 0.03) {
-                markers.add(new Marker(lat, lng, Properties.getDefaultSearcherRadius(), Properties.getIconSearch()));
+                markers.add(new Marker(lat, lng, Properties.getDefaultSearcherRadius(), 0, Properties.getIconSearch()));
             }
         }
     }

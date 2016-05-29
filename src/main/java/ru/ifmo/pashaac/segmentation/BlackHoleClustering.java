@@ -30,16 +30,21 @@ public class BlackHoleClustering {
                 break;
             }
             tmp.remove(marker);
-            List<Marker> cluster = new ArrayList<>(Collections.singletonList(marker));
+            List<Marker> cluster = new ArrayList<>(Arrays.asList(marker));
+            Marker nearestMarker = null;
             while (!tmp.isEmpty() && Cluster.getClusterRadius(cluster) < Properties.getClusterMaxRadius()) {
-                Marker nearestMarker = getNearestMarker(Cluster.getCenterOfMass(cluster), tmp);
+                nearestMarker = getNearMarker(Cluster.getCenterOfMass(cluster), tmp); // getNearestMarker(Cluster.getCenterOfMass(cluster), tmp);
                 cluster.add(nearestMarker);
                 tmp.remove(nearestMarker);
+            }
+            if (nearestMarker != null) {
+                cluster.remove(nearestMarker);
             }
             if (cluster.size() > Properties.getClusterMinPlaces() && Cluster.getClusterRadius(cluster) > Properties.getClusterMinRadius()) {
                 LatLng center = Cluster.getCenterOfMass(cluster);
                 double radius = Cluster.getClusterRadius(cluster);
-                answer.add(new Cluster(center.lat, center.lng, radius, Properties.getIconKernel(), cluster));
+                answer.add(new Cluster(center.lat, center.lng, radius, Properties.getIconKernel(), cluster)
+                        .setMessage("Segment rating " + -1 + " radius " + radius));
             }
             if (answer.size() > Properties.getClusterMaxInCity()) {
                 break;
@@ -50,18 +55,34 @@ public class BlackHoleClustering {
 
     private Marker getLongDistanceFromClustersMarker(final List<Marker> tmp, final List<Cluster> clusters) {
         for (Marker marker : tmp) {
-            if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 1.6) {
+            if (minClusterDistance(marker.getLatLng(), clusters) > Properties.getClusterMaxRadius() * 1.4) {
                 return marker;
             }
         }
         return null;
     }
 
-    private Marker getNearestMarker(LatLng center, final Collection<Marker> markers) {
+    private Marker getNearestMarker(LatLng center, Collection<Marker> markers) {
         double minDistance = Properties.getMaxBoundingBoxDiagonal();
         Marker answer = null;
         for (Marker marker : markers) {
             double distance = GeoMath.distance(center.lat, center.lng, marker.getLat(), marker.getLng());
+            if (distance < minDistance) {
+                minDistance = distance;
+                answer = marker;
+            }
+        }
+        return answer;
+    }
+
+    private Marker getNearMarker(LatLng center, Collection<Marker> markers) {
+        double minDistance = Properties.getMaxBoundingBoxDiagonal();
+        Marker answer = null;
+        for (Marker marker : markers) {
+            double distance = GeoMath.distance(center.lat, center.lng, marker.getLat(), marker.getLng());
+            if (distance < Properties.getClusterMinRadius()) {
+                return marker;
+            }
             if (distance < minDistance) {
                 minDistance = distance;
                 answer = marker;

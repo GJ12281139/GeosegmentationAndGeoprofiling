@@ -28,7 +28,7 @@ public class GooglePlace extends Marker {
     private final String placeType;
     private final String address;   // formatted_address
     private final String phone;     // international_phone_number
-    private final double rating;
+    private final double googleRating;
 
     private final String city;
     private final String country;
@@ -38,20 +38,20 @@ public class GooglePlace extends Marker {
                        String placeType,
                        String address,
                        String phone,
-                       double rating,
+                       double googleRating,
                        String city,
                        String country,
                        double lat,
                        double lng,
                        double rad,
                        String icon) {
-        super(lat, lng, rad, icon);
+        super(lat, lng, rad, googleRating, icon);
         this.id = id;
         this.name = name;
         this.placeType = placeType;
         this.address = address;
         this.phone = phone;
-        this.rating = rating;
+        this.googleRating = googleRating;
         this.city = city;
         this.country = country;
     }
@@ -133,8 +133,8 @@ public class GooglePlace extends Marker {
         return phone;
     }
 
-    public double getRating() {
-        return rating;
+    public double getGoogleRating() {
+        return googleRating;
     }
 
     public String getCity() {
@@ -153,7 +153,7 @@ public class GooglePlace extends Marker {
                 ", placeType='" + placeType + '\'' +
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
-                ", rating=" + rating +
+                ", googleRating=" + googleRating +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 '}';
@@ -173,7 +173,7 @@ public class GooglePlace extends Marker {
                         place.getPlaceType(),
                         place.getAddress(),
                         place.getPhone(),
-                        place.getRating(),
+                        place.getGoogleRating(),
                         place.getCity(),
                         place.getCountry(),
                         place.getLat(),
@@ -192,7 +192,7 @@ public class GooglePlace extends Marker {
         }
         return places.stream()
                 .filter(GooglePlace::filter)
-                .sorted((p1, p2) -> Double.compare(p2.getRating(), p1.getRating())) // descend
+                .sorted((p1, p2) -> Double.compare(p2.getGoogleRating(), p1.getGoogleRating())) // descend
                 .limit((int) Math.ceil(places.size() * percents * 1.0 / 100))
                 .collect(Collectors.toSet());
     }

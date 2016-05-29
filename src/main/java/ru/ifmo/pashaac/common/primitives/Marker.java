@@ -15,21 +15,23 @@ public class Marker implements Clusterable {
     private final double lat;
     private final double lng;
     private final double rad;
+    private final double rating;
     private final String icon;
 
-    public Marker(double lat, double lng, double rad, String icon) {
+    public Marker(double lat, double lng, double rad, double rating, String icon) {
         this.lat = lat;
         this.lng = lng;
         this.rad = rad;
+        this.rating = rating;
         this.icon = icon;
     }
 
     public Marker(LatLng latLng, double rad, String icon) {
-        this(latLng.lat, latLng.lng, rad, icon);
+        this(latLng.lat, latLng.lng, rad, 0, icon);
     }
 
     public Marker(double lat, double lng) {
-        this(lat, lng, 0, null);
+        this(lat, lng, 0, 0, null);
     }
 
     public Marker() {
@@ -54,6 +56,10 @@ public class Marker implements Clusterable {
 
     public String getIcon() {
         return icon;
+    }
+
+    public double getGoogleRating() {
+        return rating;
     }
 
     @Override

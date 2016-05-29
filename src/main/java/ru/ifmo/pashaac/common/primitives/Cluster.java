@@ -16,14 +16,25 @@ import java.util.List;
 public class Cluster extends Marker implements Comparable<Cluster> {
 
     private final List<Marker> markers;
+    private String message;
 
     public Cluster(double lat, double lng, double rad, final String icon, final List<Marker> markers) {
-        super(lat, lng, rad, icon);
+        super(lat, lng, rad, 0, icon);
         this.markers = markers;
+        message = "";
     }
 
     public List<Marker> getMarkers() {
         return markers;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Cluster setMessage(String message) {
+        this.message = message;
+        return this;
     }
 
     @Override

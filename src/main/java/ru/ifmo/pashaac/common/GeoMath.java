@@ -76,6 +76,10 @@ public class GeoMath implements DistanceMeasure {
                 distance(box.southwest.lat, box.southwest.lng, box.southwest.lat, box.northeast.lng);
     }
 
+    public static boolean insideCircle(LatLng center, double rad, LatLng point) {
+        return distance(center.lat, center.lng, point.lat, point.lng) < rad;
+    }
+
     @Override
     public double compute(double[] a, double[] b) throws DimensionMismatchException {
         if (a.length != b.length || a.length != 2) {

@@ -93,7 +93,7 @@ function submit() {
         "percents": getPressedPercents(),
         "segmentMinRadius": $('#segmentMinRadius').val(),
         "segmentMaxRadius": $('#segmentMaxRadius').val(),
-        "algorithm": "KMEANSPP_FILTER_SPLIT"
+        "algorithm": "BLACK_HOLE_RANDOM"
     };
     fakeSegmentation(json);
 }
@@ -108,15 +108,18 @@ function fakeSegmentation(json) { // in real e get places
         dataType: 'json',
 
         beforeSend: function (xhr) {
+            $("#wait").css("display", "block");
             xhr.setRequestHeader("Accept", "application/json");
             xhr.setRequestHeader("Content-Type", "application/json");
         },
         success: function (result) {
+            $("#wait").css("display", "none");
             clearPlaces();
             fillPlaces(result);
             segmentation(json)
         },
         error: function (data) {
+            $("#wait").css("display", "none");
             alert(data.responseText);
             console.log(data);
         }
@@ -181,7 +184,7 @@ function clearPlaces() {
 function fillPlaces(result) {
     for (var i = 0; i < result.length; i++) {
         var place = result[i];
-        places.push(addMarker({lat: place.lat, lng: place.lng}, place.icon, place.name, place.id, place.address, map));
+        places.push(addMarker({lat: place.lat, lng: place.lng}, place.icon, place.name, place.id, place.address, place.rating, map));
     }
 }
     // clusters
@@ -199,7 +202,7 @@ function clearClusters() {
 function fillClusters(result) {
     for (var i = 0; i < result.length; i++) {
         var cluster = result[i];
-        clusters.push(addMarker({lat: cluster.lat, lng: cluster.lng}, cluster.icon, "Cluster rad " + cluster.rad, "", "", map));
+        clusters.push(addMarker({lat: cluster.lat, lng: cluster.lng}, cluster.icon, cluster.message, "", "", "", map));
         clustersCircle.push(addCircle({lat: cluster.lat, lng: cluster.lng}, cluster.rad));
     }
 }

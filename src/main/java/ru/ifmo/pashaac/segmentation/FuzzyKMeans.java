@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * So long, will not be use it.
+ *
  * Created by Pavel Asadchiy
  * on 22.05.16 1:39.
  */

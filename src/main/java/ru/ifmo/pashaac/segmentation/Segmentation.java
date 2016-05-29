@@ -19,6 +19,9 @@ public class Segmentation {
 
     public static List<Cluster> clustering(Algorithm algorithm, Collection<Marker> places) {
         switch (algorithm) {
+            case OPTIMAL_CLUSTERS:
+                LOG.info("Clustering K-measns++ optimal algorithm");
+                return new KMeansPlusPlusClustering(places).getOptimalClusters();
             case BLACK_HOLE_RANDOM:
                 LOG.info("Clustering MY BlackHole random algorithm");
                 return new BlackHoleClustering(places).getDarkHoleRandom();

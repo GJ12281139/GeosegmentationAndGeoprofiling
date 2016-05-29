@@ -53,7 +53,7 @@ public class FoursquarePlace extends Marker {
                            @Nullable String url,
                            int checkinsCount,
                            int userCount) {
-        super(lat, lng, rad, icon);
+        super(lat, lng, rad, checkinsCount, icon);
         this.id = id;
         this.name = name;
         this.placeType = placeType;

@@ -16,7 +16,7 @@ function addUserMarker(position, icon, name, map) {
 }
 
 
-function addMarker(position, icon, name, placeId, address, map) {
+function addMarker(position, icon, name, placeId, address, rating, map) {
     var marker = new google.maps.Marker({
         position: position,
         title: name,
@@ -24,6 +24,7 @@ function addMarker(position, icon, name, placeId, address, map) {
         map: map
     });
     var content = '<h1>' + name + '</h1>' +
+        '<p> rating: ' + rating + '</p>' +
         '<p> placeId: ' + placeId + '</p>' +
         '<p> address: ' + address + '</p>';
     var infowindow = new google.maps.InfoWindow({

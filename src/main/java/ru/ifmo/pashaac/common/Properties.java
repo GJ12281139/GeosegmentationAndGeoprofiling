@@ -23,6 +23,9 @@ public class Properties implements Runnable {
 
     private static Map<String, String> properties = new HashMap<>();
 
+    public static int clusterMinRadius = 0;
+    public static int clusterMaxRadius = 0;
+
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
@@ -142,11 +145,11 @@ public class Properties implements Runnable {
     }
 
     public static int getClusterMaxRadius() {
-        return Integer.parseInt(properties.get("cluster.max.radius"));
+        return clusterMaxRadius == 0 ? Integer.parseInt(properties.get("cluster.max.radius")) : clusterMaxRadius;
     }
 
     public static int getClusterMinRadius() {
-        return Integer.parseInt(properties.get("cluster.min.radius"));
+        return clusterMinRadius == 0 ? Integer.parseInt(properties.get("cluster.min.radius")) : clusterMinRadius;
     }
 
     public static int getClusterMaxInCity() {
