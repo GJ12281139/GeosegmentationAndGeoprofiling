@@ -6,7 +6,6 @@ import com.google.maps.model.LatLng;
 import com.google.maps.model.PlacesSearchResult;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
-import com.sun.istack.internal.Nullable;
 import fi.foyt.foursquare.api.FoursquareApiException;
 import fi.foyt.foursquare.api.Result;
 import fi.foyt.foursquare.api.entities.CompactVenue;
@@ -21,6 +20,7 @@ import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.data.source.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
