@@ -1,7 +1,8 @@
 var foodPressed = false;
 
 function food() {
-    if (culturePressed) {
+    
+    if (foodPressed) {
         primitivePlacesOff();
         return;
     }
