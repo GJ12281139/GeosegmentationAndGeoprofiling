@@ -1,12 +1,10 @@
 package ru.ifmo.pashaac.category;
 
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
-import ru.ifmo.pashaac.foursquare.FoursquareDataDAO;
-import ru.ifmo.pashaac.foursquare.FoursquarePlace;
-import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
-import ru.ifmo.pashaac.google.maps.GoogleDataDAO;
-import ru.ifmo.pashaac.google.maps.GooglePlace;
-import ru.ifmo.pashaac.google.maps.GooglePlaceType;
+import ru.ifmo.pashaac.data.source.DataDAO;
+import ru.ifmo.pashaac.data.source.Place;
+import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
+import ru.ifmo.pashaac.data.source.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.ArrayList;
@@ -26,84 +24,87 @@ public abstract class Category {
     protected final List<FoursquarePlaceType> foursquarePlaceTypes;
     protected final MapService mapService;
     protected final BoundingBox boundingBox;
+    protected final String source;
 
     protected Category(List<GooglePlaceType> googlePlaceTypes,
                        List<FoursquarePlaceType> foursquarePlaceTypes,
                        MapService mapService,
-                       BoundingBox boundingBox) {
+                       BoundingBox boundingBox,
+                       String source) {
         this.googlePlaceTypes = googlePlaceTypes;
         this.foursquarePlaceTypes = foursquarePlaceTypes;
         this.mapService = mapService;
         this.boundingBox = boundingBox;
+        this.source = source;
     }
 
-    public Collection<GooglePlace> getGooglePlaces(List<Integer> percents) {
-        if (percents.size() != googlePlaceTypes.size()) {
-            throw new IllegalStateException("Percents size " + percents.size() + " not equals google type size " + googlePlaceTypes.size());
+    public Collection<Place> getPlaces(List<Integer> percents) {
+        if (Place.FOURSQUARE_SOURCE.equals(source)) {
+            if (percents.size() != foursquarePlaceTypes.size()) {
+                throw new IllegalStateException("Percents size " + percents.size() + " not equals foursquare type size " + foursquarePlaceTypes.size());
+            }
+            List<Place> places = new ArrayList<>();
+            for (int i = 0; i < foursquarePlaceTypes.size(); i++) {
+                places.addAll(placeTypePlaces(foursquarePlaceTypes.get(i).name(), percents.get(i)));
+            }
+            return places;
         }
-        for (GooglePlaceType placeType : googlePlaceTypes) {
-            mapService.getHandlingMineOperations().put(GoogleDataDAO.getCollection(boundingBox, placeType), true);
+
+        if (Place.GOOGLE_MAPS_SOURCE.equals(source)) {
+            if (percents.size() != googlePlaceTypes.size()) {
+                throw new IllegalStateException("Percents size " + percents.size() + " not equals google type size " + googlePlaceTypes.size());
+            }
+            List<Place> places = new ArrayList<>();
+            for (int i = 0; i < googlePlaceTypes.size(); i++) {
+                places.addAll(placeTypePlaces(googlePlaceTypes.get(i).name(), percents.get(i)));
+            }
+            return places;
         }
-        List<GooglePlace> googlePlaces = new ArrayList<>();
-        for (int i = 0; i < googlePlaceTypes.size(); i++) {
-            GoogleDataDAO dao = new GoogleDataDAO(googlePlaceTypes.get(i), boundingBox);
-            dao.minePlacesIfNeed(mapService, boundingBox);
-            googlePlaces.addAll(dao.getTopRatingPlaces(percents.get(i)));
-        }
-        for (GooglePlaceType placeType : googlePlaceTypes) {
-            mapService.getHandlingMineOperations().remove(GoogleDataDAO.getCollection(boundingBox, placeType));
-        }
-        return googlePlaces;
+        return new ArrayList<>();
     }
 
-    public Collection<FoursquarePlace> getFoursquarePlaces(List<Integer> percents) {
-        if (percents.size() != foursquarePlaceTypes.size()) {
-            throw new IllegalStateException("Percents size " + percents.size() + " not equals foursquare type size " + foursquarePlaceTypes.size());
+    private Collection<Place> placeTypePlaces(String placeType, int percents) {
+        if (!mapService.getHandlingMineOperations().containsKey(DataDAO.getCollectionName(boundingBox, placeType, source))) {
+            mapService.getHandlingMineOperations().put(DataDAO.getCollectionName(boundingBox, placeType, source), true);
+            DataDAO dao = new DataDAO(boundingBox, placeType, source);
+            dao.minePlacesIfNeed(mapService);
+            mapService.getHandlingMineOperations().remove(DataDAO.getCollectionName(boundingBox, placeType, source));
+            return dao.getTopRatingPlaces(percents);
         }
-        for (FoursquarePlaceType placeType : foursquarePlaceTypes) {
-            mapService.getHandlingMineOperations().put(FoursquareDataDAO.getCollection(boundingBox, placeType), true);
-        }
-        List<FoursquarePlace> foursquarePlaces = new ArrayList<>();
-        for (int i = 0; i < foursquarePlaceTypes.size(); i++) {
-            FoursquareDataDAO dao = new FoursquareDataDAO(foursquarePlaceTypes.get(i), boundingBox);
-            dao.minePlacesIfNeed(mapService, boundingBox);
-            foursquarePlaces.addAll(dao.getTopRatingPlaces(percents.get(i)));
-        }
-        for (FoursquarePlaceType placeType : foursquarePlaceTypes) {
-            mapService.getHandlingMineOperations().remove(FoursquareDataDAO.getCollection(boundingBox, placeType));
-        }
-        return foursquarePlaces;
+        return new ArrayList<>();
     }
 
-    public Collection<BoundingBox> getGoogleBoundingBoxes() {
-        return googlePlaceTypes.stream()
-                .map(placeType -> new GoogleDataDAO(placeType, boundingBox).getBoundingBoxes())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+    public Collection<BoundingBox> getBoundingBoxes() {
+        if (Place.GOOGLE_MAPS_SOURCE.equals(source)) {
+            return googlePlaceTypes.stream()
+                    .map(placeType -> new DataDAO(boundingBox, placeType.name(), source).getBoundingBoxes())
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+        }
+        if (Place.FOURSQUARE_SOURCE.equals(source)) {
+            return foursquarePlaceTypes.stream()
+                    .map(placeType -> new DataDAO(boundingBox, placeType.name(), source).getBoundingBoxes())
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
-    public Collection<BoundingBox> getFoursquareBoundingBoxes() {
-        return foursquarePlaceTypes.stream()
-                .map(placeType -> new FoursquareDataDAO(placeType, boundingBox).getBoundingBoxes())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-    }
-
-    public static Category getCategory(String category, MapService mapService, BoundingBox boundingBox) {
+    public static Category getCategory(MapService mapService, BoundingBox boundingBox, String category, String source) {
         if (category == null) {
             throw new IllegalArgumentException("Incorrect category null");
         }
         switch (category.trim().toLowerCase()) {
             case "auto":
-                return new Auto(mapService, boundingBox);
+                return new Auto(mapService, boundingBox, source);
             case "culture":
-                return new Culture(mapService, boundingBox);
+                return new Culture(mapService, boundingBox, source);
             case "food":
-                return new Food(mapService, boundingBox);
+                return new Food(mapService, boundingBox, source);
             case "nightlife":
-                return new NightLife(mapService, boundingBox);
+                return new NightLife(mapService, boundingBox, source);
             case "sport":
-                return new Sport(mapService, boundingBox);
+                return new Sport(mapService, boundingBox, source);
             default:
                 throw new IllegalArgumentException("Incorrect category " + category);
         }

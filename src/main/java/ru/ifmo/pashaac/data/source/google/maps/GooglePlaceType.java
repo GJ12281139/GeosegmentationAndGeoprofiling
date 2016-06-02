@@ -1,4 +1,4 @@
-package ru.ifmo.pashaac.google.maps;
+package ru.ifmo.pashaac.data.source.google.maps;
 
 import com.google.maps.model.PlaceType;
 import ru.ifmo.pashaac.common.primitives.Icon;
@@ -32,10 +32,10 @@ public enum GooglePlaceType {
     // Sport
     GYM("gym", Icon.VISTA_BALL_SILVER_32.getPath());
 
-    String placeType;
-    String icon;
+    private String placeType;
+    private String icon;
 
-    GooglePlaceType(final String placeType, final String icon) {
+    GooglePlaceType(String placeType, String icon) {
         this.placeType = placeType;
         this.icon = icon;
     }
@@ -47,5 +47,9 @@ public enum GooglePlaceType {
 
     public PlaceType getPlaceType() {
         return PlaceType.valueOf(name());
+    }
+
+    public String getIcon() {
+        return icon;
     }
 }

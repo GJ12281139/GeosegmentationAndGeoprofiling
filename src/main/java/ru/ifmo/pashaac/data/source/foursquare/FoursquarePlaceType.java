@@ -1,4 +1,4 @@
-package ru.ifmo.pashaac.foursquare;
+package ru.ifmo.pashaac.data.source.foursquare;
 
 import ru.ifmo.pashaac.common.primitives.Icon;
 
@@ -47,8 +47,8 @@ public enum FoursquarePlaceType {
     // Sport
     ATHLETICS_SPORTS("4f4528bc4b90abdf24c9de85", Icon.VISTA_BALL_POISON_GREEN_32.getPath());
 
-    String categoryId;
-    String icon;
+    private String categoryId;
+    private String icon;
 
     FoursquarePlaceType(final String categoryId, final String icon) {
         this.categoryId = categoryId;
@@ -58,5 +58,13 @@ public enum FoursquarePlaceType {
     @Override
     public String toString() {
         return name();
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
     }
 }

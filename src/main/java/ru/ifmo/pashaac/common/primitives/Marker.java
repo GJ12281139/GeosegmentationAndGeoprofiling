@@ -3,6 +3,8 @@ package ru.ifmo.pashaac.common.primitives;
 import com.google.maps.model.LatLng;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 
+import javax.annotation.Nullable;
+
 /**
  * Point on map, if contains radius > 0 then it's searcher marker.
  * Otherwise it's place
@@ -15,27 +17,22 @@ public class Marker implements Clusterable {
     private final double lat;
     private final double lng;
     private final double rad;
-    private final double rating;
+    @Nullable
     private final String icon;
 
-    public Marker(double lat, double lng, double rad, double rating, String icon) {
+    public Marker(double lat, double lng, double rad, @Nullable String icon) {
         this.lat = lat;
         this.lng = lng;
         this.rad = rad;
-        this.rating = rating;
         this.icon = icon;
     }
 
     public Marker(LatLng latLng, double rad, String icon) {
-        this(latLng.lat, latLng.lng, rad, 0, icon);
-    }
-
-    public Marker(double lat, double lng) {
-        this(lat, lng, 0, 0, null);
+        this(latLng.lat, latLng.lng, rad, icon);
     }
 
     public Marker() {
-        this(0, 0);
+        this(0, 0, 0, null);
     }
 
     public double getLat() {
@@ -54,12 +51,14 @@ public class Marker implements Clusterable {
         return rad;
     }
 
+    @Nullable
     public String getIcon() {
         return icon;
     }
 
-    public double getRating() {
-        return rating;
+    @Override
+    public double[] getPoint() {
+        return new double[]{lat, lng};
     }
 
     @Override
@@ -70,10 +69,5 @@ public class Marker implements Clusterable {
                 ", rad=" + rad +
                 ", icon='" + icon + '\'' +
                 '}';
-    }
-
-    @Override
-    public double[] getPoint() {
-        return new double[]{lat, lng};
     }
 }

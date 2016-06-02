@@ -1,5 +1,6 @@
 #latitude, #longitude, #city, #country, #findme, #culture, #food, #nightLife, #sport,
-#auto, #submit, #foursquareSource, #googleSource, #segmentMinRadius, #segmentMaxRadius {
+#auto, #submit, #foursquareSource, #googleSource, #segmentMinRadius, #segmentMaxRadius,
+#segmentRadiusText, #segmentsCountText {
     position: absolute;
     z-index: 1;
     padding: 5px 5px 5px 10px;
@@ -29,18 +30,30 @@
     margin-left: 215px;
 }
 
-#segmentText {
+#segmentRadiusText, #segmentsCountText {
     top: 165px;
-    width: 200px;
     position: absolute;
-    margin-left: 14px;
+    margin-left: 12px;
     z-index: 1;
-    background-color: transparent;
-    font-size: 90%;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #bab1ba), color-stop(1, #bab1ba));
+    background: -moz-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -webkit-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -o-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -ms-linear-gradient(top, #BBBBBB 5%, #BBBBBB 100%);
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bab1ba', endColorstr='#ededed', GradientType=0);
+    width: 150px;
+}
+
+#segmentsCount {
+    position: absolute;
+    z-index: 1;
+    margin-left: 230px;
+    top: 200px;
 }
 
 #segmentMinRadius, #segmentMaxRadius {
-    top: 163px;
+    top: 165px;
     width: 50px;
     position: absolute;
     z-index: 1;
@@ -53,6 +66,10 @@
 
 #segmentMaxRadius {
     margin-left: 315px;
+}
+
+#segmentsCountText {
+    top: 200px;
 }
 
 #findme, #submit {
@@ -91,7 +108,7 @@
 }
 
 #submit {
-    top: 400px;
+    top: 440px;
 }
 
 #culture:hover, #food:hover, #nightLife:hover, #sport:hover, #auto:hover, #findme:hover, #submit:hover,
@@ -108,26 +125,26 @@
 /* Categories */
 
 #auto {
-    top: 360px;
+    top: 400px;
     width: 166px;
 }
 
 #culture {
-    top: 200px;
-    width: 166px;
-}
-
-#food {
     top: 240px;
     width: 166px;
 }
 
-#nightLife {
+#food {
     top: 280px;
     width: 166px;
 }
 
-#sport {
+#nightLife {
     top: 320px;
+    width: 166px;
+}
+
+#sport {
+    top: 360px;
     width: 166px;
 }

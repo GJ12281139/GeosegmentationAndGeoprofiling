@@ -2,12 +2,12 @@ package ru.ifmo.pashaac.common;
 
 import com.google.maps.model.Bounds;
 import com.google.maps.model.LatLng;
-import com.grum.geocalc.Coordinate;
 import com.grum.geocalc.DegreeCoordinate;
 import com.grum.geocalc.EarthCalc;
 import com.grum.geocalc.Point;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
+import ru.ifmo.pashaac.common.primitives.Cluster;
 
 /**
  * Created by Pavel Asadchiy
@@ -15,26 +15,26 @@ import org.apache.commons.math3.ml.distance.DistanceMeasure;
  */
 public class GeoMath implements DistanceMeasure {
 
+    public static Point point(double lat, double lng) {
+        return new Point(new DegreeCoordinate(lat), new DegreeCoordinate(lng));
+    }
+
     public static double distance(double lat1, double lng1, double lat2, double lng2) {
-        Coordinate p1Lat = new DegreeCoordinate(lat1);
-        Coordinate p1Lng = new DegreeCoordinate(lng1);
-        Coordinate p2Lat = new DegreeCoordinate(lat2);
-        Coordinate p2Lng = new DegreeCoordinate(lng2);
-        return EarthCalc.getVincentyDistance(new Point(p1Lat, p1Lng), new Point(p2Lat, p2Lng));
+        return EarthCalc.getVincentyDistance(point(lat1, lng1), point(lat2, lng2));
+    }
+
+    public static double distance(LatLng ll1, LatLng ll2) {
+        return distance(ll1.lat, ll1.lng, ll2.lat, ll2.lng);
+    }
+
+    public static double distance(Cluster c1, Cluster c2) {
+        return distance(c1.getLatLng(), c2.getLatLng());
     }
 
     public static double neighborDistance(Point start, Point finish) {
         double distanceLat = EarthCalc.getVincentyDistance(start, finish);
         int countLat = (int) Math.ceil(distanceLat / Properties.getNeighborSearchersDistance());
         return distanceLat / countLat;
-    }
-
-    public static Point point(double lat, double lng) {
-        return new Point(new DegreeCoordinate(lat), new DegreeCoordinate(lng));
-    }
-
-    public static Point point(Point lat, double lng) {
-        return new Point(new DegreeCoordinate(lat.getLatitude()), new DegreeCoordinate(lng));
     }
 
     public static double halfDiagonal(Bounds box) {
@@ -71,11 +71,6 @@ public class GeoMath implements DistanceMeasure {
         return bounds;
     }
 
-    public static double getSquareInMeters(Bounds box) {
-        return distance(box.southwest.lat, box.southwest.lng, box.northeast.lat, box.southwest.lng) *
-                distance(box.southwest.lat, box.southwest.lng, box.southwest.lat, box.northeast.lng);
-    }
-
     public static boolean insideCircle(LatLng center, double rad, LatLng point) {
         return distance(center.lat, center.lng, point.lat, point.lng) < rad;
     }
@@ -83,7 +78,7 @@ public class GeoMath implements DistanceMeasure {
     @Override
     public double compute(double[] a, double[] b) throws DimensionMismatchException {
         if (a.length != b.length || a.length != 2) {
-            throw new IllegalStateException("Can't compute dimension between different lengths arrays and not equal two");
+            throw new IllegalStateException("Can't compute distance between different lengths arrays and not equal two");
         }
         return distance(a[0], a[1], b[0], b[1]);
     }

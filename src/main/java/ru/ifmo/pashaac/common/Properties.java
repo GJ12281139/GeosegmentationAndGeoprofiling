@@ -63,39 +63,17 @@ public class Properties implements Runnable {
     }
 
 
-    // Google Maps
-    public static int getGoogleMapsMinPlacesSearch() {
-        return Integer.parseInt(properties.get("google.maps.min.places.search"));
+    // Place
+    public static int getMinPlacesSearch() {
+        return Integer.parseInt(properties.get("min.places.search"));
     }
 
-    public static int getGoogleMapsMaxPlacesSearch() {
-        return Integer.parseInt(properties.get("google.maps.max.places.search"));
+    public static int getMaxPlacesSearch() {
+        return Integer.parseInt(properties.get("max.places.search"));
     }
 
-    public static int getGoogleMapsPlacesSearchRadEps() {
-        return Integer.parseInt(properties.get("google.maps.places.search.rad.eps"));
-    }
-
-
-    // Foursquare
-    public static int getFoursquareMaxVenuesSearch() {
-        return Integer.parseInt(properties.get("foursquare.max.venues.search"));
-    }
-
-    public static int getFoursquareMinVenuesSearch() {
-        return Integer.parseInt(properties.get("foursquare.min.venues.search"));
-    }
-
-    public static int getFoursquareVenuesSearchRadEps() {
-        return Integer.parseInt(properties.get("foursquare.venues.search.rad.eps"));
-    }
-
-    public static int getFoursquareMinCheckinsCount() {
-        return Integer.parseInt(properties.get("foursquare.min.checkins.count"));
-    }
-
-    public static int getFoursquareMinUserCount() {
-        return Integer.parseInt(properties.get("foursquare.min.user.count"));
+    public static int getPlacesSearchRadEps() {
+        return Integer.parseInt(properties.get("places.search.rad.eps"));
     }
 
 
@@ -130,9 +108,9 @@ public class Properties implements Runnable {
         return Integer.parseInt(properties.get("kernel.default.count"));
     }
 
-    public static int getKernelDefaultRadius() {
-        return Integer.parseInt(properties.get("kernel.default.radius"));
-    }
+//    public static int getKernelDefaultRadius() {
+//        return Integer.parseInt(properties.get("kernel.default.radius"));
+//    }
 
     public static int getKernelKmeansRunCount() {
         return Integer.parseInt(properties.get("kernel.kmeans.run.count"));

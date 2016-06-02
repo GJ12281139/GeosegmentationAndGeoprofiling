@@ -10,23 +10,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import ru.ifmo.pashaac.category.Category;
-import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.Response;
 import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Cluster;
-import ru.ifmo.pashaac.foursquare.FoursquarePlace;
-import ru.ifmo.pashaac.google.maps.GooglePlace;
+import ru.ifmo.pashaac.data.source.Place;
 import ru.ifmo.pashaac.segmentation.Algorithm;
 import ru.ifmo.pashaac.segmentation.Segmentation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Main controller!!!
- *
+ * <p>
  * Created by Pavel Asadchiy
  * 18.04.16 22:17.
  */
@@ -68,8 +66,8 @@ public class MapController {
     public BoundingBox geolocation(@RequestBody Map<String, String> coordinates) throws Exception {
         LOG.info("Geolocation with arguments " + coordinates);
         if (coordinates.get("lat") != null && coordinates.get("lng") != null) {
-            final double lat = Double.parseDouble(coordinates.get("lat"));
-            final double lng = Double.parseDouble(coordinates.get("lng"));
+            double lat = Double.parseDouble(coordinates.get("lat"));
+            double lng = Double.parseDouble(coordinates.get("lng"));
             UserDAO.insert(lat, lng);
             return mapService.getCityBoundingBox(lat, lng);
         }
@@ -84,26 +82,24 @@ public class MapController {
     @RequestMapping(value = "/segmentation", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Collection<Cluster> segmentation(@RequestBody Map<String, String> data) throws Exception {
-        LOG.info("Getting segments/clusters for category --- " + data.get("category") +
-                " with algorithm " + data.get("algorithm") + " with source " + data.get("source"));
+    public Response segmentation(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting segments/clusters for category " + data.get("category") + " with algorithm " + data.get("algorithm") + " with source " + data.get("source"));
         double lat = Double.parseDouble(data.get("lat"));
         double lng = Double.parseDouble(data.get("lng"));
         String city = data.get("city");
         String country = data.get("country");
         String source = data.get("source");
-        Properties.clusterMinRadius = Integer.parseInt(data.get("segmentMinRadius"));
-        Properties.clusterMaxRadius = Integer.parseInt(data.get("segmentMaxRadius"));
+        int segmentMinRadius = Integer.parseInt(data.get("segmentMinRadius"));
+        int segmentMaxRadius = Integer.parseInt(data.get("segmentMaxRadius"));
+        int segmentsCountPercent = Integer.parseInt(data.get("segmentsCountPercent"));
         List<Integer> percents = mapService.percentsHandler(data.get("percents"));
         String categoryStr = data.get("category");
-        UserDAO.insert(lat, lng, city, country, source, categoryStr, percents);
-        if ("google".equals(data.get("source"))) {
-            return Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), GooglePlace.toMarkers(placesGoogle(data)));
-        }
-        if ("foursquare".equals(data.get("source"))) {
-            return Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), FoursquarePlace.toMarkers(placesFoursquare(data)));
-        }
-        return new ArrayList<>();
+        UserDAO.insert(lat, lng, city, country, source, categoryStr, percents, segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+
+        Collection<Place> places = places(data);
+        Collection<BoundingBox> boundingboxes = boundingboxes(data);
+        List<Cluster> clusters = Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        return new Response(clusters, boundingboxes).withTopPlaces(places);
     }
 
     @RequestMapping(value = "/boundingboxes", method = RequestMethod.POST,
@@ -111,30 +107,15 @@ public class MapController {
     @ResponseBody
     public Collection<BoundingBox> boundingboxes(@RequestBody Map<String, String> data) throws Exception {
         LOG.info("Getting boundingboxes for category --- " + data.get("category") + " with source " + data.get("source"));
-        Category category = makeCategory(data);
-        if ("google".equals(data.get("source"))) {
-            return category.getGoogleBoundingBoxes();
-        }
-        if ("foursquare".equals(data.get("source"))) {
-            return category.getFoursquareBoundingBoxes();
-        }
-        return new ArrayList<>();
+        return makeCategory(data).getBoundingBoxes();
     }
 
-    @RequestMapping(value = "/places/foursquare", method = RequestMethod.POST,
+    @RequestMapping(value = "/places", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Collection<FoursquarePlace> placesFoursquare(@RequestBody Map<String, String> data) throws Exception {
-        LOG.info("Getting foursquare places for category --- " + data.get("category"));
-        return makeCategory(data).getFoursquarePlaces(mapService.percentsHandler(data.get("percents")));
-    }
-
-    @RequestMapping(value = "/places/google", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Collection<GooglePlace> placesGoogle(@RequestBody Map<String, String> data) throws Exception {
-        LOG.info("Getting foursquare places for category --- " + data.get("category"));
-        return makeCategory(data).getGooglePlaces(mapService.percentsHandler(data.get("percents")));
+    public Collection<Place> places(@RequestBody Map<String, String> data) throws Exception {
+        LOG.info("Getting places for category --- " + data.get("category") + " with source " + data.get("source"));
+        return makeCategory(data).getPlaces(mapService.percentsHandler(data.get("percents")));
     }
 
     private Category makeCategory(Map<String, String> data) throws Exception {
@@ -143,9 +124,11 @@ public class MapController {
         String city = mapServiceCityBoundingBox.getCity();
         String country = mapServiceCityBoundingBox.getCountry();
         String categoryStr = data.get("category");
-        LOG.info("Segmentation in city = " + city + ", country = " + country + ", category = " + categoryStr + ", percents = " + percents);
+        String source = data.get("source");
+        LOG.info("Segmentation in city = " + city + ", country = " + country + ", category = " + categoryStr +
+                ", percents = " + percents + ", source = " + source);
         BoundingBox boundingBox = mapService.getCityBoundingBox(city, country);
-        return Category.getCategory(categoryStr, mapService, boundingBox);
+        return Category.getCategory(mapService, boundingBox, categoryStr, source);
     }
 
 //    @RequestMapping(value = "/debug", method = RequestMethod.GET)

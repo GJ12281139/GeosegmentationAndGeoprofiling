@@ -1,8 +1,8 @@
 package ru.ifmo.pashaac.category;
 
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
-import ru.ifmo.pashaac.foursquare.FoursquarePlaceType;
-import ru.ifmo.pashaac.google.maps.GooglePlaceType;
+import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
+import ru.ifmo.pashaac.data.source.google.maps.GooglePlaceType;
 import ru.ifmo.pashaac.map.MapService;
 
 import java.util.Arrays;
@@ -27,8 +27,8 @@ public class Auto extends Category {
             FoursquarePlaceType.AUTO_WORKSHOP,
             FoursquarePlaceType.CAR_WASH};
 
-    public Auto(MapService mapService, BoundingBox boundingBox) {
-        super(Arrays.asList(GOOGLE_PLACE_TYPES), Arrays.asList(FOURSQUARE_PLACE_TYPES), mapService, boundingBox);
+    public Auto(MapService mapService, BoundingBox boundingBox, String source) {
+        super(Arrays.asList(GOOGLE_PLACE_TYPES), Arrays.asList(FOURSQUARE_PLACE_TYPES), mapService, boundingBox, source);
     }
 
 }

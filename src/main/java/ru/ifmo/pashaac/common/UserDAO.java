@@ -16,39 +16,6 @@ import java.util.List;
  */
 public class UserDAO {
 
-    public static void insert(Double lat,                     // user latitude geolocation
-                              Double lng,                     // user longitude geolocation
-                              String city,                    // user city geolocation
-                              String country,                 // user country geolocation
-                              boolean isGoogleData,           // use data from Google Maps
-                              boolean isFoursquareData,       // use data from Foursquare
-                              String placeType,               // placeType depends from source
-                              String category,                // places category
-                              String clusterAlgorithm,        // machine learning algorithm
-                              boolean isBox,                  // show boundingboxes around searchers
-                              boolean isSearchers,            // show searchers
-                              boolean isSourceIcons,          // use only sources icons (not places icons)
-                              List<Integer> isAllPlaces) {          // show all places or filtered)
-        String collection = "UserRequests";
-        MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
-        BasicDBObject dbObject = new BasicDBObject();
-        dbObject.append("lat", lat);
-        dbObject.append("lng", lng);
-        dbObject.append("city", city);
-        dbObject.append("country", country);
-        dbObject.append("isGoogleData", isGoogleData);
-        dbObject.append("isFoursquareData", isFoursquareData);
-        dbObject.append("placeType", placeType);
-        dbObject.append("category", category);
-        dbObject.append("clusterAlgorithm", clusterAlgorithm);
-        dbObject.append("isBox", isBox);
-        dbObject.append("isSearchers", isSearchers);
-        dbObject.append("isSourceIcons", isSourceIcons);
-        dbObject.append("isAllPlaces", isAllPlaces);
-        dbObject.append("requestTime", getTime());
-        mongoOperations.insert(dbObject, collection);
-    }
-
     public static void insert(double lat, double lng) {
         String collection = "UserGeolocation";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
@@ -59,7 +26,8 @@ public class UserDAO {
         mongoOperations.insert(dbObject, collection);
     }
 
-    public static void insert(double lat, double lng, String city, String country, String source, String category, List<Integer> percents) {
+    public static void insert(double lat, double lng, String city, String country, String source, String category,
+                              List<Integer> percents, int segmentMinRadius, int segmentMaxRadius, int segmentsCountPercent) {
         String collection = "UserRequest";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         BasicDBObject dbObject = new BasicDBObject();
@@ -71,11 +39,27 @@ public class UserDAO {
         dbObject.append("category", category);
         dbObject.append("percents", percents);
         dbObject.append("requestTime", getTime());
+        dbObject.append("segmentMinRadius", segmentMinRadius);
+        dbObject.append("segmentMaxRadius", segmentMaxRadius);
+        dbObject.append("segmentsCountPercent", segmentsCountPercent);
+        mongoOperations.insert(dbObject, collection);
+    }
+
+    public static void insert(String source, String placeType, int placesSize, int apiCall, String startTime, String endTime) {
+        String collection = "UserDataCollection";
+        MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
+        BasicDBObject dbObject = new BasicDBObject();
+        dbObject.append("source", source);
+        dbObject.append("placeType", placeType);
+        dbObject.append("placesSize", placesSize);
+        dbObject.append("apiCall", apiCall);
+        dbObject.append("startTime", startTime);
+        dbObject.append("endTime", endTime);
         mongoOperations.insert(dbObject, collection);
     }
 
     public static String getTime() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ").format(new Date());
     }
 
 }

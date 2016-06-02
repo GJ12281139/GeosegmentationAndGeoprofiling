@@ -23,8 +23,8 @@ public class BoundingBox {
     private final String country;
 
     public BoundingBox(LatLng southwest, LatLng northeast, String city, String country) {
-        this.southwest = new Marker(southwest.lat, southwest.lng);
-        this.northeast = new Marker(northeast.lat, northeast.lng);
+        this.southwest = new Marker(southwest.lat, southwest.lng, 0, null);
+        this.northeast = new Marker(northeast.lat, northeast.lng, 0, null);
         this.city = city;
         this.country = country;
     }

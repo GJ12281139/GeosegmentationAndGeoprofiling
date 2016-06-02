@@ -44,7 +44,7 @@
 </head>
 <body>
 
-<div id="wait" style="display:none;width:400px;height:100%;position:absolute;z-index:1;top:15%;left:50%;padding:2px;">
+<div id="wait" style="display:none;width:30%;heights:100%;position:absolute;z-index:1;top:15%;left:35%;padding:2px;">
     <img src='wait.gif' width="200" height="200" />
     <h2>Возможно вы первый пользователь задавший данную категорию и город, идёт закгрузка данных, пожалуйста подождите или вернитесь к нам через 5 минут...</h2>
     <h2>Maybe you are our first user with such city and category, run process data downloading... Please wait or return in 5 minutes </h2>
@@ -61,7 +61,9 @@
 <input id="foursquareSource" class="button" value="Foursquare data source" type="button"
        onclick="foursquareSourceHandler()">
 <input id="googleSource" class="button" value="Google data source" type="button" onclick="googleSourceHandler()">
-<input id="segmentText" class="text" value="Segment radius range [from,to]:" style="border: none">
+<input id="segmentRadiusText" class="text" type="text" value="Segment radius range:">
+<input id="segmentsCountText" class="text" type="text" value="Segments count 70%">
+<input id="segmentsCount" type="range" value="70" oninput="segmentsCountRangeChange()">
 <input id="segmentMinRadius" class="textbox" value="275" onchange="segmentMinRadiusHandler()">
 <input id="segmentMaxRadius" class="textbox" value="800" onchange="segmentMaxRadiusHandler()">
 

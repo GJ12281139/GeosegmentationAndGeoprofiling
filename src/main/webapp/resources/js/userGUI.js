@@ -16,7 +16,7 @@ function geolocationIcon(icon) {
     if ($('#city').val().length > 0) {
         json = {
             "city": $('#city').val(),
-            "country" : $('#country').val()
+            "country": $('#country').val()
         };
         doGeolocation(json, icon);
         return;
@@ -56,7 +56,7 @@ function doGeolocation(json, icon) {
                 $('#latitude').val((result.southwest.lat + result.northeast.lat) / 2);
                 $('#longitude').val((result.southwest.lng + result.northeast.lng) / 2);
             }
-            map.setZoom(11);
+            map.setZoom(12);
             map.setCenter({lat: parseFloat($('#latitude').val()), lng: parseFloat($('#longitude').val())});
             user = addUserMarker(map.center, icon, "Вы здесь\nYou are here", map);
             $('#city').val(result.city);
@@ -88,20 +88,20 @@ function submit() {
         "lng": $('#longitude').val(),
         "city": $('#city').val(),
         "country": $('#country').val(),
-        "source": googleSourcePressed ? "google" : (foursquareSourcePressed ? "foursquare" : null),
+        "source": googleSourcePressed ? "GoogleMaps" : (foursquareSourcePressed ? "Foursquare" : null),
         "category": getPressedCategory(),
         "percents": getPressedPercents(),
         "segmentMinRadius": $('#segmentMinRadius').val(),
         "segmentMaxRadius": $('#segmentMaxRadius').val(),
+        "segmentsCountPercent": $('#segmentsCount').val(),
         "algorithm": "BLACK_HOLE_RANDOM"
     };
-    fakeSegmentation(json);
+    segmentation(json);
 }
 
-function fakeSegmentation(json) { // in real e get places
-    var url = "/places/" + (googleSourcePressed ? "google" : (foursquareSourcePressed ? "foursquare" : null));
+function segmentation(json) {
     $.ajax({
-        url: url,
+        url: "/segmentation",
         data: JSON.stringify(json),
         type: "POST",
         contentType: 'application/json; charset=utf-8',
@@ -116,7 +116,9 @@ function fakeSegmentation(json) { // in real e get places
             $("#wait").css("display", "none");
             clearPlaces();
             fillPlaces(result);
-            segmentation(json)
+            clearClusters();
+            fillClusters(result);
+            map.setZoom(12);
         },
         error: function (data) {
             $("#wait").css("display", "none");
@@ -126,53 +128,8 @@ function fakeSegmentation(json) { // in real e get places
     });
 }
 
-function segmentation(json) {
-    $.ajax({
-        url: "/boundingboxes",
-        data: JSON.stringify(json),
-        type: "POST",
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Accept", "application/json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-        },
-        success: function (result) {
-            clearBoundingboxes();
-            fillBoundingboxes(result);
-            map.setZoom(11);
-        },
-        error: function (data) {
-            alert(data.responseText);
-            console.log(data);
-        }
-    });
-
-    $.ajax({
-        url: "/segmentation",
-        data: JSON.stringify(json),
-        type: "POST",
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Accept", "application/json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-        },
-        success: function (result) {
-            clearClusters();
-            fillClusters(result);
-        },
-        error: function (data) {
-            alert(data.responseText);
-            console.log(data);
-        }
-    });
-}
-
 // category help functions
-    // places
+// places
 var places = [];
 function clearPlaces() {
     for (var i = 0; i < places.length; i++) {
@@ -182,12 +139,25 @@ function clearPlaces() {
 }
 
 function fillPlaces(result) {
-    for (var i = 0; i < result.length; i++) {
-        var place = result[i];
-        places.push(addMarker({lat: place.lat, lng: place.lng}, place.icon, place.name, place.id, place.address, place.rating, map));
+    for (var i = 0; i < result.places.length; i++) {
+        var place = result.places[i];
+        places.push(addMarker({
+            lat: place.lat,
+            lng: place.lng
+        }, place.icon, place.name, place.id, place.address, place.rating, map));
+    }
+    for (i = 0; i < result.clusters.length; i++) {
+        var cluster = result.clusters[i];
+        for (var j = 0; j < cluster.places.length; j++) {
+            place = cluster.places[j];
+            places.push(addMarker({
+                lat: place.lat,
+                lng: place.lng
+            }, place.icon, place.name, place.id, place.address, place.rating, map));
+        }
     }
 }
-    // clusters
+// clusters
 var clusters = [];
 var clustersCircle = [];
 function clearClusters() {
@@ -200,13 +170,13 @@ function clearClusters() {
 }
 
 function fillClusters(result) {
-    for (var i = 0; i < result.length; i++) {
-        var cluster = result[i];
+    for (var i = 0; i < result.clusters.length; i++) {
+        var cluster = result.clusters[i];
         clusters.push(addMarker({lat: cluster.lat, lng: cluster.lng}, cluster.icon, cluster.message, "", "", "", map));
         clustersCircle.push(addCircle({lat: cluster.lat, lng: cluster.lng}, cluster.rad));
     }
 }
-    // boundingboxes
+// boundingboxes
 var boundingboxes = [];
 function clearBoundingboxes() {
     for (var i = 0; i < boundingboxes.length; i++) {
@@ -304,13 +274,17 @@ function foursquareSourceHandler() {
     }
 }
 
+function segmentsCountRangeChange() {
+    document.getElementById("segmentsCountText").value = "Segments count " + document.getElementById("segmentsCount").value + "%";
+}
+
 // Segment radius checker
 function segmentMinRadiusHandler() {
     var minRad = parseInt(document.getElementById("segmentMinRadius").value);
     var maxRad = parseInt(document.getElementById("segmentMaxRadius").value);
     if (minRad == null || minRad < 100 || minRad >= maxRad || minRad > 1500) {
         alert("Минимальный радиус сегмента должент быть в диапазоне от 100 до 1500 метров и быть меньше максимального.\n\n" +
-        "Minimal segment radius should be between 100 and 1500 meters and less maximal segment radius.")
+            "Minimal segment radius should be between 100 and 1500 meters and less maximal segment radius.")
         document.getElementById("segmentMinRadius").value = 250;
     }
 }
