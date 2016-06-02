@@ -2,8 +2,10 @@ package ru.ifmo.pashaac.segmentation;
 
 import com.google.maps.model.LatLng;
 import javafx.util.Pair;
+import org.apache.log4j.Logger;
 import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
+import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.Cluster;
 import ru.ifmo.pashaac.data.source.Place;
 
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
  * on 19.05.16 9:07.
  */
 public class BlackHoleClustering {
+
+    private static final Logger LOG = Logger.getLogger(BlackHoleClustering.class);
 
     private static final int algorithmStartCount = 26;
 
@@ -31,6 +35,8 @@ public class BlackHoleClustering {
     }
 
     public List<Cluster> getDarkHoleRandom() {
+        long currentTimeMillis = System.currentTimeMillis();
+        LOG.info("Start time: " + UserDAO.getTime());
         List<Cluster> clusters = new ArrayList<>();
         for (int i = 0; i < algorithmStartCount; i++) {
             clusters.addAll(getDarkHoleRandomAlgorithm());
@@ -38,10 +44,12 @@ public class BlackHoleClustering {
 
 //        return clusters;
         List<Cluster> result = filterClusters(clusters);
-        return result.stream()
+        List<Cluster> finalResult = result.stream()
                 .sorted((c1, c2) -> Double.compare(c2.getRating(), c1.getRating())) // descend
                 .limit((long) Math.ceil(segmentsCountPercent * result.size() * 1.0 / 100))
                 .collect(Collectors.toList());
+        LOG.info("End time: " + UserDAO.getTime() + ", operation time=" + (System.currentTimeMillis() - currentTimeMillis));
+        return finalResult;
     }
 
     private List<Cluster> filterClusters(List<Cluster> clusters) {
