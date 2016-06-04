@@ -44,10 +44,10 @@
 </head>
 <body>
 
-<div id="wait" style="display:none;width:30%;heights:100%;position:absolute;z-index:1;top:15%;left:35%;padding:2px;">
-    <img src='wait.gif' width="200" height="200" />
-    <h2>Возможно вы первый пользователь задавший данную категорию и город, идёт закгрузка данных, пожалуйста подождите или вернитесь к нам через 5 минут...</h2>
-    <h2>Maybe you are our first user with such city and category, run process data downloading... Please wait or return in 5 minutes </h2>
+<div id="wait" style="display:none;position:absolute;z-index:1;top:15%;left:30%;padding:2px;">
+    <img src='wait.gif' width="150" height="150" />
+    <h2>Идёт загрузка данных или обработка запроса...<br>Пожалуйста подождите или вернитесь через 5 минут...</h2>
+    <h2>Data downloading or your request handling...<br>Please wait or return in 5 minutes...</h2>
 </div>
 
 
