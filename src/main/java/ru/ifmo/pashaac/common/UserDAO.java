@@ -45,12 +45,13 @@ public class UserDAO {
         mongoOperations.insert(dbObject, collection);
     }
 
-    public static void insert(String source, String placeType, int placesSize, int apiCall, String startTime, String endTime) {
+    public static void insert(String source, String placeType, int placesSize, String city, int apiCall, String startTime, String endTime) {
         String collection = "UserDataCollection";
         MongoOperations mongoOperations = SpringMongoConfig.getMongoOperations();
         BasicDBObject dbObject = new BasicDBObject();
         dbObject.append("source", source);
         dbObject.append("placeType", placeType);
+        dbObject.append("city", city);
         dbObject.append("placesSize", placesSize);
         dbObject.append("apiCall", apiCall);
         dbObject.append("startTime", startTime);

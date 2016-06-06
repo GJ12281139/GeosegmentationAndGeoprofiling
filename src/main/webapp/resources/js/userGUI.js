@@ -94,7 +94,7 @@ function submit() {
         "segmentMinRadius": $('#segmentMinRadius').val(),
         "segmentMaxRadius": $('#segmentMaxRadius').val(),
         "segmentsCountPercent": $('#segmentsCount').val(),
-        "algorithm": "BLACK_HOLE_RANDOM"
+        "algorithm": "BLACK_HOLE_TOP_RATING"
     };
     segmentation(json);
 }
@@ -114,8 +114,8 @@ function segmentation(json) {
         },
         success: function (result) {
             $("#wait").css("display", "none");
-            clearBoundingboxes();
-            fillBoundingboxes(result); // TODO: delete before release 
+            // clearBoundingboxes();
+            // fillBoundingboxes(result); // TODO: delete before release
             clearPlaces();
             fillPlaces(result);
             clearClusters();

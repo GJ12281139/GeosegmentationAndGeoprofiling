@@ -106,7 +106,7 @@ public class DataMiner {
             }
         }
         LOG.info(source + " API called for getting places " + apiCallCounter + " times");
-        UserDAO.insert(source, placeType, places.size(), apiCallCounter, startTime, UserDAO.getTime());
+        UserDAO.insert(source, placeType, places.size(), boundingBox.getCity(), apiCallCounter, startTime, UserDAO.getTime());
         LOG.info("BoundingBoxes search cycle called " + boundingBoxes.size() + " times");
     }
 

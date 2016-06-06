@@ -23,8 +23,11 @@ public class Segmentation {
                 LOG.info("Clustering K-measns++ optimal algorithm");
 //                return new KMeansPlusPlusClustering(places).getOptimalClusters();
             case BLACK_HOLE_RANDOM:
-                LOG.info("Clustering MY BlackHole random algorithm");
-                return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleRandom();
+                LOG.info("Clustering My BlackHole random algorithm");
+                return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleRandomAlgorithm();
+            case BLACK_HOLE_TOP_RATING:
+                LOG.info("Clustering My BlackHole top rating algorithm");
+                return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleTopRatingAlgorithm();
             case DBSCAN:
                 LOG.info("Clustering DBSCAN algorithm");
 //                return new DBSCANClustering(places).getDBScanClusters();

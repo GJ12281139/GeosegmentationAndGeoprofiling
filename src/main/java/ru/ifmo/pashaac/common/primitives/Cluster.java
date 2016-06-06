@@ -1,7 +1,7 @@
 package ru.ifmo.pashaac.common.primitives;
 
 import com.google.maps.model.LatLng;
-import ru.ifmo.pashaac.common.*;
+import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.data.source.Place;
 
 import javax.annotation.Nonnull;
@@ -40,9 +40,13 @@ public class Cluster extends Marker implements Comparable<Cluster> {
     }
 
     public double getRating() {
-        return places.stream()
+        return getRating(places, getRad(), places.size());
+    }
+
+    public static double getRating(List<Place> places, double rad, int count) {
+        return places.parallelStream()
                 .mapToDouble(Place::getRating)
-                .sum() / (Math.PI * getRad());
+                .sum() / (Math.PI * rad * rad) * rad * count;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class Cluster extends Marker implements Comparable<Cluster> {
     }
 
     public static double getClusterRadius(LatLng center, Collection<Place> places) {
-        OptionalDouble max = places.stream()
+        OptionalDouble max = places.parallelStream()
                 .mapToDouble(place -> GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()))
                 .max();
         return max.isPresent() ? max.getAsDouble() : 0;

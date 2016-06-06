@@ -20,7 +20,7 @@ public class BlackHoleClustering {
 
     private static final Logger LOG = Logger.getLogger(BlackHoleClustering.class);
 
-    private static final int algorithmStartCount = 26;
+    private static final int algorithmStartCount = 16;
 
     private final List<Place> places;
     private final int minSegmentRad;
@@ -34,22 +34,38 @@ public class BlackHoleClustering {
         this.segmentsCountPercent = segmentsCountPercent;
     }
 
-    public List<Cluster> getDarkHoleRandom() {
+    public List<Cluster> getDarkHoleRandomAlgorithm() {
         long currentTimeMillis = System.currentTimeMillis();
         LOG.info("Start time: " + UserDAO.getTime());
         List<Cluster> clusters = new ArrayList<>();
         for (int i = 0; i < algorithmStartCount; i++) {
-            clusters.addAll(getDarkHoleRandomAlgorithm());
+            Set<Place> places = new LinkedHashSet<>(this.places);
+            List<Cluster> localClusters = new ArrayList<>();
+            int wasteCycles = 0;
+            while (!places.isEmpty() && wasteCycles < algorithmStartCount) {
+                ++wasteCycles;
+                Place place = getRemoteFromClustersPlace(localClusters, places);
+                if (place == null) {
+                    break; // no remote places
+                }
+                Cluster cluster = calculateCluster(place, places);
+                if (cluster == null) {
+                    ArrayList<Place> tmp = new ArrayList<>(places);
+                    Collections.shuffle(tmp);
+                    places = new LinkedHashSet<>(tmp);
+                    continue;
+                }
+                wasteCycles = 0;
+                localClusters.add(cluster);
+            }
+            clusters.addAll(localClusters);
         }
-
-//        return clusters;
+        LOG.info("End time: " + UserDAO.getTime() + ", operation time=" + (System.currentTimeMillis() - currentTimeMillis));
         List<Cluster> result = filterClusters(clusters);
-        List<Cluster> finalResult = result.stream()
+        return result.stream()
                 .sorted((c1, c2) -> Double.compare(c2.getRating(), c1.getRating())) // descend
                 .limit((long) Math.ceil(segmentsCountPercent * result.size() * 1.0 / 100))
                 .collect(Collectors.toList());
-        LOG.info("End time: " + UserDAO.getTime() + ", operation time=" + (System.currentTimeMillis() - currentTimeMillis));
-        return finalResult;
     }
 
     private List<Cluster> filterClusters(List<Cluster> clusters) {
@@ -65,7 +81,7 @@ public class BlackHoleClustering {
         }
 
         List<Cluster> sortedClusters = clustersCross.stream()
-                .filter(p -> p.getValue() > (int) Math.floor(algorithmStartCount * 0.4))
+                .filter(p -> p.getValue() > (int) Math.floor(algorithmStartCount * 0.5))
                 .sorted((p1, p2) -> Objects.equals(p2.getValue(), p1.getValue())
                         ? Double.compare(p2.getKey().getRating(), p1.getKey().getRating())
                         : Integer.compare(p2.getValue(), p1.getValue()))
@@ -89,47 +105,110 @@ public class BlackHoleClustering {
         return result;
     }
 
-    private List<Cluster> getDarkHoleRandomAlgorithm() {
+    /**
+     * Start dark hole top rating algorithm block
+     */
+    public List<Cluster> getDarkHoleTopRatingAlgorithm() {
+        long currentTimeMillis = System.currentTimeMillis();
+        LOG.info("Start time: " + UserDAO.getTime());
         List<Cluster> clusters = new ArrayList<>();
-        List<Place> tmp = new ArrayList<>(places);
-        int wasteCycles = 0;
-        while (!tmp.isEmpty() && wasteCycles < 15) {
-            ++wasteCycles;
-            Place place = getRemoteFromClustersPlace(clusters, tmp);
+        Set<Place> places = new LinkedHashSet<>(this.places.stream()
+                .sorted((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()))
+                .collect(Collectors.toList()));
+        while (!places.isEmpty()) {
+            Place place = getRemoteFromClustersPlace(clusters, places);
             if (place == null) {
-                break; // no remote markers
+                break; // no remote places
             }
-            tmp.remove(place);
-            List<Place> cluster = new ArrayList<>();
-            cluster.add(place);
-            Place near = null;
-            while (!tmp.isEmpty() && Cluster.getClusterRadius(cluster) < maxSegmentRad) {
-//                near = getNearBestPlace(Cluster.getCenterOfMass(cluster), tmp);
-                near = getNearPlace(Cluster.getCenterOfMass(cluster), tmp);
-                if (near == null) {
-                    break;
-                }
-                cluster.add(near);
-                tmp.remove(near);
+            Cluster cluster = calculateCluster(place, places);
+            if (cluster == null) {
+                places.remove(place);
+                continue;
             }
-            if (near != null) {
-                cluster.remove(near);
-                tmp.add(near);
-            }
-            double clusterRadius = Cluster.getClusterRadius(cluster);
-            if (clusterRadius > minSegmentRad && cluster.size() > Properties.getClusterMinPlaces()) {
-                wasteCycles = 0;
-                LatLng center = Cluster.getCenterOfMass(cluster);
-                Cluster addCluster = new Cluster(center.lat, center.lng, clusterRadius, Properties.getIconSearch(), cluster);
-                clusters.add(addCluster.withMessage("Cluster rating=" + addCluster.getRating() + ", radius=" + clusterRadius));
-            } else {
-                cluster.stream().forEach(tmp::add); // bad cluster, return points
-                Collections.shuffle(tmp);           // shuffle, need that get other result
-            }
+            clusters.add(cluster);
         }
-        return clusters;
+        LOG.info("End time: " + UserDAO.getTime() + ", operation time=" + (System.currentTimeMillis() - currentTimeMillis));
+        return topRatingAlgorithmFiltrationNormalization(clusters); // very fast
     }
 
+    private List<Cluster> topRatingAlgorithmFiltrationNormalization(List<Cluster> clusters) {
+        List<Cluster> result = new ArrayList<>();
+        for (Cluster cluster : clusters) {
+            if (cluster.getPlaces().size() < Properties.getClusterMinPlaces()) {
+                continue;
+            }
+            if (cluster.getRad() < minSegmentRad) {
+                result.add(new Cluster(cluster.getLat(), cluster.getLng(), minSegmentRad, cluster.getIcon(),
+                        cluster.getPlaces()).withMessage(cluster.getMessage()));
+                continue;
+            }
+            result.add(cluster);
+        }
+        return result.stream()
+                .sorted((c1, c2) -> Double.compare(c2.getRating(), c1.getRating())) // descend
+                .limit((long) Math.ceil(segmentsCountPercent * result.size() * 1.0 / 100))
+                .collect(Collectors.toList());
+    }
+    /** End dark hole algorithm top rating block */
+
+    /**
+     * Common block
+     */
+    private Cluster calculateCluster(Place place, Set<Place> places) {
+        List<Place> cluster = new ArrayList<>();
+        places.remove(place);
+        cluster.add(place);
+
+        while (!places.isEmpty()) {
+            Place near = getNearestPlace(Cluster.getCenterOfMass(cluster), places); // exist 3 methods to get
+            if (near == null) {
+                break;
+            }
+            cluster.add(near);
+            places.remove(near);
+            if (Cluster.getClusterRadius(cluster) >= maxSegmentRad) {
+                places.add(near);
+                cluster.remove(near);
+                break;
+            }
+        }
+
+        if (Cluster.getClusterRadius(cluster) < minSegmentRad || cluster.size() < Properties.getClusterMinPlaces()) {
+            cluster.stream().forEach(places::add);  // bad cluster, return points
+            return null;
+        }
+
+        return clusterNormalization(cluster);
+    }
+
+    private Cluster clusterNormalization(List<Place> cluster) {
+        List<Place> tmp = new ArrayList<>();
+        for (int i = 0; i < Properties.getClusterMinPlaces(); i++) {
+            tmp.add(cluster.get(i));
+        }
+        double topRating = 0;
+        int topIndex = 0;
+        for (int i = Properties.getClusterMinPlaces(); i < cluster.size(); i++) {
+            tmp.add(cluster.get(i));
+            double rating = Cluster.getRating(tmp, Cluster.getClusterRadius(tmp), i + 1);
+            if (rating > topRating) {
+                topRating = rating;
+                topIndex = i;
+            }
+        }
+        for (int i = topIndex + 1; i < cluster.size(); i++) {
+            places.add(cluster.get(i)); // return useless places
+        }
+        cluster = cluster.subList(0, topIndex + 1);
+        LatLng center = Cluster.getCenterOfMass(cluster);
+        Cluster clusterToAdd =
+                new Cluster(center.lat, center.lng, Cluster.getClusterRadius(cluster), Properties.getIconSearch(), cluster);
+        return clusterToAdd.withMessage("Cluster rating=" + clusterToAdd.getRating() + ", radius=" + clusterToAdd.getRad());
+    }
+
+    /**
+     * Remote point from all clusters method
+     */
 
     private Place getRemoteFromClustersPlace(List<Cluster> clusters, Collection<Place> places) {
         return places.stream()
@@ -140,6 +219,10 @@ public class BlackHoleClustering {
                 .orElse(null);
     }
 
+    /**
+     * Getters next point for cluster different methods
+     */
+
     private Place getNearPlace(LatLng center, Collection<Place> places) {
         return places.stream()
                 .filter(place -> GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()) < maxSegmentRad)
@@ -147,8 +230,20 @@ public class BlackHoleClustering {
                 .orElse(null);
     }
 
+    private Place getNearestPlace(LatLng center, Collection<Place> places) {
+        return places.parallelStream()
+                .filter(place -> GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()) < maxSegmentRad)
+                .reduce(null, (p1, p2) -> {
+                    if (p1 == null)
+                        return p2;
+                    if (p2 == null)
+                        return p1;
+                    return GeoMath.distance(center, p1.getLatLng()) < GeoMath.distance(center, p2.getLatLng()) ? p1 : p2;
+                });
+    }
+
     private Place getNearBestPlace(LatLng center, Collection<Place> places) {
-        return places.stream()
+        return places.parallelStream()
                 .filter(place -> GeoMath.distance(center.lat, center.lng, place.getLat(), place.getLng()) < maxSegmentRad)
                 .max((p1, p2) -> Double.compare(p1.getRating(), p2.getRating()))
                 .orElse(null);
