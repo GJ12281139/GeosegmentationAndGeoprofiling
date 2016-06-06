@@ -114,6 +114,8 @@ function segmentation(json) {
         },
         success: function (result) {
             $("#wait").css("display", "none");
+            clearBoundingboxes();
+            fillBoundingboxes(result); // TODO: delete before release 
             clearPlaces();
             fillPlaces(result);
             clearClusters();
@@ -186,8 +188,8 @@ function clearBoundingboxes() {
 }
 
 function fillBoundingboxes(result) {
-    for (var i = 0; i < result.length; i++) {
-        var box = result[i];
+    for (var i = 0; i < result.boundingBoxes.length; i++) {
+        var box = result.boundingBoxes[i];
         boundingboxes.push(addRectangle(box.northeast.lat, box.southwest.lat, box.northeast.lng, box.southwest.lng, map))
     }
 }
