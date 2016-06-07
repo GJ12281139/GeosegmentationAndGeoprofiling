@@ -138,8 +138,9 @@ public class BlackHoleClustering {
                 continue;
             }
             if (cluster.getRad() < minSegmentRad) {
-                result.add(new Cluster(cluster.getLat(), cluster.getLng(), minSegmentRad, cluster.getIcon(),
-                        cluster.getPlaces()).withMessage(cluster.getMessage()));
+                Cluster toAdd = new Cluster(cluster.getLat(), cluster.getLng(), minSegmentRad, cluster.getIcon(),
+                        cluster.getPlaces()).withMessage(cluster.getMessage());
+                result.add(toAdd.withMessage("Cluster rating=" + toAdd.getRating() + ", radius=" + toAdd.getRad()));
                 continue;
             }
             result.add(cluster);
