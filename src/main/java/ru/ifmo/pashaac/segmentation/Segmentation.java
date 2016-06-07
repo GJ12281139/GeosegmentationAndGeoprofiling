@@ -33,10 +33,10 @@ public class Segmentation {
 //                return new DBSCANClustering(places).getDBScanClusters();
             case KMEANSPP_MAXRAD:
                 LOG.info("Clustering K-means++ algorithm with max radius");
-//                return new KMeansPlusPlusClustering(places).getClustersMaxRadius();
+                return new KMeansPlusPlusClustering(places).getClustersMaxRadius();
             case KMEANSPP_FILTER_SPLIT:
                 LOG.info("Clustering K-means++ algorithm with cluster filter and splitting if need");
-//                return new KMeansPlusPlusClustering(places).getFiltersClustersWithConditions();
+                return new KMeansPlusPlusClustering(places).getFiltersClustersWithConditions();
             case FUZZY_KMEANS_MAXRAD:
                 LOG.info("Clustering Fuzzy K-means++ algorithm with max radius");
 //                return new FuzzyKMeans(places).getClustersMaxRadius();
