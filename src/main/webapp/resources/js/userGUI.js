@@ -114,8 +114,8 @@ function segmentation(json) {
         },
         success: function (result) {
             $("#wait").css("display", "none");
-            // clearBoundingboxes();
-            // fillBoundingboxes(result); // TODO: delete before release
+            clearBoundingboxes();
+            fillBoundingboxes(result); // TODO: delete before release
             clearPlaces();
             fillPlaces(result);
             clearClusters();

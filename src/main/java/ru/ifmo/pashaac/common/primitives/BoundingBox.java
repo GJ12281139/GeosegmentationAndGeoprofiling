@@ -5,7 +5,6 @@ import com.google.maps.model.LatLng;
 import ru.ifmo.pashaac.common.GeoMath;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -63,7 +62,7 @@ public class BoundingBox {
         return country;
     }
 
-    public static Collection<BoundingBox> getQuarters(BoundingBox bBox) {
+    public static List<BoundingBox> getQuarters(BoundingBox bBox) {
         LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
 
         Bounds leftDownBounds = GeoMath.leftDownBoundingBox(boxCenter, bBox.getBounds());
@@ -71,7 +70,7 @@ public class BoundingBox {
         Bounds rightDownBounds = GeoMath.rightDownBoundingBox(boxCenter, bBox.getBounds());
         Bounds rightUpBounds = GeoMath.rightUpBoundingBox(boxCenter, bBox.getBounds());
 
-        List<BoundingBox> quarters = new ArrayList<>();
+        List<BoundingBox> quarters = new ArrayList<>(4);
         quarters.add(new BoundingBox(leftDownBounds, bBox.getCity(), bBox.getCountry()));
         quarters.add(new BoundingBox(leftUpBounds, bBox.getCity(), bBox.getCountry()));
         quarters.add(new BoundingBox(rightDownBounds, bBox.getCity(), bBox.getCountry()));

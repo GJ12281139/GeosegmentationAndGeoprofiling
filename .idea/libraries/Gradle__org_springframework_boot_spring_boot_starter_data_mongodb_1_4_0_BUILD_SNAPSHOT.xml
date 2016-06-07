@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: org.springframework.boot:spring-boot-starter-data-mongodb:1.4.0.BUILD-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-mongodb/1.4.0.BUILD-SNAPSHOT/7f7426d66eaa0faaa127bc81e738063b14cf3a8/spring-boot-starter-data-mongodb-1.4.0.BUILD-SNAPSHOT.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-mongodb/1.4.0.BUILD-SNAPSHOT/48b79e5c054c996dfd6bc1ae993e7229d9aab801/spring-boot-starter-data-mongodb-1.4.0.BUILD-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-mongodb/1.4.0.BUILD-SNAPSHOT/851d436effb04a7983c77b75bc1c6a35383abb5d/spring-boot-starter-data-mongodb-1.4.0.BUILD-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-mongodb/1.4.0.BUILD-SNAPSHOT/6976ee8b424b64fdc3b7fafee6b6e4360a2ea081/spring-boot-starter-data-mongodb-1.4.0.BUILD-SNAPSHOT-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

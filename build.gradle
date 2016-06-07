@@ -35,7 +35,7 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
 	compile('org.springframework.boot:spring-boot-starter-web')
-    compile('com.google.maps:google-maps-services:0.1.12')
+    compile('com.google.maps:google-maps-services:0.1.15')
     compile('javax.servlet:jstl:1.2')
     compile('org.apache.tomcat.embed:tomcat-embed-jasper')
     compile files('lib/geocalc/geocalc-0.5.1.jar') // https://github.com/grumlimited/geocalc.git

@@ -43,9 +43,9 @@ public class DataMiner {
                      String source,
                      String placeType) {
         this.mapService = mapService;
-        this.boundingBoxes = new ArrayList<>();
-        this.searchers = new ArrayList<>();
-        this.places = new HashSet<>();
+        this.boundingBoxes = new ArrayList<>(500);
+        this.searchers = new ArrayList<>(500);
+        this.places = new HashSet<>(1000);
         this.source = source;
         this.placeType = placeType;
     }
@@ -58,54 +58,38 @@ public class DataMiner {
         boundingBoxes.add(boundingBox);
         int apiCallCounter = 0;
         String startTime = UserDAO.getTime();
+
         for (int i = 0; i < boundingBoxes.size(); i++) {
             BoundingBox bBox = boundingBoxes.get(i);
-            LOG.info("Trying to get " + source + " data (" + placeType + ") for boundingbox #" + i + "...");
-            LatLng boxCenter = GeoMath.boundsCenter(bBox.getBounds());
-            int rRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
-            int lRad = Properties.getPlacesSearchRadEps();
-            while (lRad < rRad) {
-                int mRad = rRad - lRad < Properties.getPlacesSearchRadEps() ? rRad : (lRad + rRad) / 2;
-
-                PlacesSearchResult[] googlePlaces = Place.GOOGLE_MAPS_SOURCE.equals(source) // max 20
-                        ? nearbySearch(boxCenter, mRad, GooglePlaceType.valueOf(placeType)) : null;
-                CompactVenue[] foursquarePlaces = Place.FOURSQUARE_SOURCE.equals(source)    // max 30
-                        ? venuesSearch(boxCenter, FoursquarePlaceType.valueOf(placeType), mRad) : null;
-
-                ++apiCallCounter;
-                if (googlePlaces == null && foursquarePlaces == null) {
-                    searchers.add(new Marker(boxCenter, mRad, Properties.getIconSearchError()));
-                    break;
-                }
-                int responseLength = googlePlaces == null ? foursquarePlaces.length : googlePlaces.length;
-                if (mRad < rRad && responseLength > Properties.getMaxPlacesSearch()) {
-                    rRad = mRad - 1;
-                    continue;
-                }
-                if (mRad < rRad && responseLength < Properties.getMinPlacesSearch()) {
-                    lRad = mRad + 1;
-                    continue;
-                }
-
-                searchers.add(new Marker(boxCenter, mRad, Properties.getIconSearch()));
-                if (googlePlaces != null) {
-                    places.addAll(Arrays.stream(googlePlaces)
-                            .map(placesSearchResult -> new Place(placesSearchResult, boundingBox, GooglePlaceType.valueOf(placeType)))
-                            .collect(Collectors.toSet()));
-                }
-                if (foursquarePlaces != null) {
-                    places.addAll(Arrays.stream(foursquarePlaces)
-                            .map(venue -> new Place(venue, boundingBox, FoursquarePlaceType.valueOf(placeType)))
-                            .collect(Collectors.toSet()));
-                }
-                LOG.info("Places size " + places.size() + " (was searched " + responseLength + ")");
-                if (mRad < rRad) {
-                    boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
-                }
-                break;
+            LatLng bBoxCenter = GeoMath.boundsCenter(bBox.getBounds());
+            LOG.info("Trying to get " + source + " data (" + placeType + ") for boundingbox #" + (i + 1) + "...");
+            int bBoxRad = (int) Math.ceil(GeoMath.halfDiagonal(bBox.getBounds()));
+            PlacesSearchResult[] googlePlaces = Place.GOOGLE_MAPS_SOURCE.equals(source) // max 20
+                    ? nearbySearch(bBoxCenter, bBoxRad , GooglePlaceType.valueOf(placeType)) : null;
+            CompactVenue[] foursquarePlaces = Place.FOURSQUARE_SOURCE.equals(source)    // max 30
+                    ? venuesSearch(bBoxCenter, bBoxRad, FoursquarePlaceType.valueOf(placeType)) : null;
+            ++apiCallCounter;
+            if (foursquarePlaces != null && foursquarePlaces.length == 30 || googlePlaces != null && googlePlaces.length == 20) {
+                boundingBoxes.addAll(BoundingBox.getQuarters(bBox));
+                continue;
+            }
+            searchers.add(new Marker(bBoxCenter, bBoxRad, Properties.getIconSearch()));
+            if (googlePlaces != null) {
+                places.addAll(Arrays.stream(googlePlaces)
+                        .parallel()
+                        .map(placesSearchResult -> new Place(placesSearchResult, boundingBox, GooglePlaceType.valueOf(placeType)))
+                        .collect(Collectors.toSet()));
+                LOG.info("(" + Place.GOOGLE_MAPS_SOURCE + ") places " + places.size() + ", was searched " + googlePlaces.length);
+            }
+            if (foursquarePlaces != null) {
+                places.addAll(Arrays.stream(foursquarePlaces)
+                        .parallel()
+                        .map(venue -> new Place(venue, boundingBox, FoursquarePlaceType.valueOf(placeType)))
+                        .collect(Collectors.toSet()));
+                LOG.info("(" + Place.FOURSQUARE_SOURCE + ") places " + places.size() + ", was searched " + foursquarePlaces.length);
             }
         }
-        LOG.info(source + " API called for getting places " + apiCallCounter + " times");
+        LOG.info(source + " API called " + apiCallCounter + " times");
         UserDAO.insert(source, placeType, places.size(), boundingBox.getCity(), apiCallCounter, startTime, UserDAO.getTime());
         LOG.info("BoundingBoxes search cycle called " + boundingBoxes.size() + " times");
     }
@@ -130,11 +114,10 @@ public class DataMiner {
      *
      * @param location            - current location/search center
      * @param foursquarePlaceType - wrapper for categoryId
-     * @param rad                 - search radius
      * @return - compact search result array
      */
     @Nullable
-    private CompactVenue[] venuesSearch(LatLng location, FoursquarePlaceType foursquarePlaceType, int rad) {
+    private CompactVenue[] venuesSearch(LatLng location, int rad, FoursquarePlaceType foursquarePlaceType) {
         try {
             Map<String, String> params = new HashMap<>();
             params.put("ll", location.lat + "," + location.lng);
@@ -197,7 +180,27 @@ public class DataMiner {
                 searchers.add(new Marker(tmp.getLatitude(), tmp.getLongitude(), Properties.getDefaultSearcherRadius(), Properties.getIconSearch()));
             }
         }
+
+        int diff = 10;
+        for (int i = 0; i < searchers.size() - diff; i++) {
+            if (searchers.get(i).getLng() < searchers.get(i + diff).getLng()) {
+                boundingBoxes.add(new BoundingBox(searchers.get(i).getLatLng(),
+                        searchers.get(i + diff).getLatLng(), boundingBox.getCity(), boundingBox.getCountry()));
+            }
+        }
     }
+
+//    public void miner(List<Cluster> clusters) {
+//        places.clear();
+//        int iteration = 0;
+//        for (Cluster cluster : clusters) {
+//            CompactVenue[] foursquarePlaces = venuesSearch(cluster.getLatLng(), FoursquarePlaceType.valueOf(placeType), (int) cluster.getRad());
+//            places.addAll(Arrays.stream(foursquarePlaces)
+//                    .map(venue -> new Place(venue, boundingBoxes.get(0), FoursquarePlaceType.valueOf(placeType)))
+//                    .collect(Collectors.toSet()));
+//            LOG.info("Places size " + places.size() + " (was searched " + foursquarePlaces.length + ") iterations " + ++iteration);
+//        }
+//    }
 
     @Deprecated
     @SuppressWarnings("unused")

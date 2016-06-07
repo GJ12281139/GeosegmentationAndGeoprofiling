@@ -14,13 +14,11 @@ import ru.ifmo.pashaac.common.Response;
 import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Cluster;
+import ru.ifmo.pashaac.data.source.DataMiner;
 import ru.ifmo.pashaac.data.source.Place;
-import ru.ifmo.pashaac.segmentation.Algorithm;
-import ru.ifmo.pashaac.segmentation.Segmentation;
+import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Main controller!!!
@@ -95,10 +93,34 @@ public class MapController {
         List<Integer> percents = mapService.percentsHandler(data.get("percents"));
         String categoryStr = data.get("category");
         UserDAO.insert(lat, lng, city, country, source, categoryStr, percents, segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        /////////////////////////////////
 
-        Collection<Place> places = places(data);
-        Collection<BoundingBox> boundingboxes = boundingboxes(data);
-        List<Cluster> clusters = Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        List<Cluster> clusters = new ArrayList<>(); // Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
+        DataMiner miner = new DataMiner(mapService, data.get("source"), FoursquarePlaceType.MUSEUM.name());
+        miner.quadtreePlaceSearcher(mapServiceCityBoundingBox);
+        Collection<BoundingBox> boundingboxes = miner.getBoundingBoxes();
+        Set<Place> places = miner.getPlaces();
+        //////////////////////////////////////////////////////
+//        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
+//        DataMiner miner = new DataMiner(mapService, data.get("source"), FoursquarePlaceType.MUSEUM.name());
+//        miner.searchersUniformGeodesicDistribution(mapServiceCityBoundingBox);
+//        Collection<BoundingBox> boundingboxes = miner.getBoundingBoxes();
+//
+//        List<Cluster> clusters = new ArrayList<>(); // Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+//        for (BoundingBox boundingbox : boundingboxes) {
+//            LatLng center = GeoMath.boundsCenter(boundingbox.getBounds());
+//            int rad = (int) Math.ceil(GeoMath.halfDiagonal(boundingbox.getBounds()));
+//            if (rad > Properties.getNeighborSearchersDistance() * 2 ) {
+//                continue;
+//            }
+//            clusters.add(new Cluster(center.lat, center.lng, rad, Properties.getIconSearch(), new ArrayList<>()));
+//        }
+//
+//        miner.miner(clusters);
+//        Collection<Place> places = miner.getPlaces();
+////        Collection<Place> places = new ArrayList<>();
+
         return new Response(clusters, boundingboxes).withTopPlaces(places);
     }
 

@@ -43,9 +43,7 @@ public class GeoMath implements DistanceMeasure {
     }
 
     public static LatLng boundsCenter(Bounds box) {
-        double latCenter = (box.northeast.lat + box.southwest.lat) / 2;
-        double lngCenter = (box.northeast.lng + box.southwest.lng) / 2;
-        return new LatLng(latCenter, lngCenter);
+        return new LatLng((box.northeast.lat + box.southwest.lat) / 2, (box.northeast.lng + box.southwest.lng) / 2);
     }
 
     public static Bounds leftUpBoundingBox(LatLng center, Bounds box) {
