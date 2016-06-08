@@ -14,11 +14,13 @@ import ru.ifmo.pashaac.common.Response;
 import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
 import ru.ifmo.pashaac.common.primitives.Cluster;
-import ru.ifmo.pashaac.data.source.DataMiner;
 import ru.ifmo.pashaac.data.source.Place;
-import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
+import ru.ifmo.pashaac.segmentation.Algorithm;
+import ru.ifmo.pashaac.segmentation.Segmentation;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Main controller!!!
@@ -93,14 +95,18 @@ public class MapController {
         List<Integer> percents = mapService.percentsHandler(data.get("percents"));
         String categoryStr = data.get("category");
         UserDAO.insert(lat, lng, city, country, source, categoryStr, percents, segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        Category category = makeCategory(data);
+        List<Cluster> clusters = Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+        Collection<BoundingBox> boundingBoxes = category.getBoundingBoxes();
+        Collection<Place> places = category.getPlaces(percents);
         /////////////////////////////////
 
-        List<Cluster> clusters = new ArrayList<>(); // Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
-        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
-        DataMiner miner = new DataMiner(mapService, data.get("source"), FoursquarePlaceType.MUSEUM.name());
-        miner.quadtreePlaceSearcher(mapServiceCityBoundingBox);
-        Collection<BoundingBox> boundingboxes = miner.getBoundingBoxes();
-        Set<Place> places = miner.getPlaces();
+//        List<Cluster> clusters = new ArrayList<>(); // Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
+//        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
+//        DataMiner miner = new DataMiner(mapService, data.get("source"), FoursquarePlaceType.MUSEUM.name());
+//        miner.quadtreePlaceSearcher(mapServiceCityBoundingBox);
+//        Collection<BoundingBox> boundingboxes = miner.getBoundingBoxes();
+//        Set<Place> places = miner.getPlaces();
         //////////////////////////////////////////////////////
 //        BoundingBox mapServiceCityBoundingBox = mapService.getCityBoundingBox(data.get("city"), data.get("country"));
 //        DataMiner miner = new DataMiner(mapService, data.get("source"), FoursquarePlaceType.MUSEUM.name());
@@ -121,7 +127,7 @@ public class MapController {
 //        Collection<Place> places = miner.getPlaces();
 ////        Collection<Place> places = new ArrayList<>();
 
-        return new Response(clusters, boundingboxes).withTopPlaces(places);
+        return new Response(clusters, boundingBoxes).withTopPlaces(places);
     }
 
     @RequestMapping(value = "/boundingboxes", method = RequestMethod.POST,

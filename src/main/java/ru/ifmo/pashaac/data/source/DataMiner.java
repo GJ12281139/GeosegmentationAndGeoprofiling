@@ -15,6 +15,7 @@ import ru.ifmo.pashaac.common.GeoMath;
 import ru.ifmo.pashaac.common.Properties;
 import ru.ifmo.pashaac.common.UserDAO;
 import ru.ifmo.pashaac.common.primitives.BoundingBox;
+import ru.ifmo.pashaac.common.primitives.Cluster;
 import ru.ifmo.pashaac.common.primitives.Marker;
 import ru.ifmo.pashaac.data.source.foursquare.FoursquarePlaceType;
 import ru.ifmo.pashaac.data.source.google.maps.GooglePlaceType;
@@ -190,17 +191,17 @@ public class DataMiner {
         }
     }
 
-//    public void miner(List<Cluster> clusters) {
-//        places.clear();
-//        int iteration = 0;
-//        for (Cluster cluster : clusters) {
-//            CompactVenue[] foursquarePlaces = venuesSearch(cluster.getLatLng(), FoursquarePlaceType.valueOf(placeType), (int) cluster.getRad());
-//            places.addAll(Arrays.stream(foursquarePlaces)
-//                    .map(venue -> new Place(venue, boundingBoxes.get(0), FoursquarePlaceType.valueOf(placeType)))
-//                    .collect(Collectors.toSet()));
-//            LOG.info("Places size " + places.size() + " (was searched " + foursquarePlaces.length + ") iterations " + ++iteration);
-//        }
-//    }
+    public void miner(List<Cluster> clusters) {
+        places.clear();
+        int iteration = 0;
+        for (Cluster cluster : clusters) {
+            CompactVenue[] foursquarePlaces = venuesSearch(cluster.getLatLng(), (int) cluster.getRad(), FoursquarePlaceType.valueOf(placeType));
+            places.addAll(Arrays.stream(foursquarePlaces)
+                    .map(venue -> new Place(venue, boundingBoxes.get(0), FoursquarePlaceType.valueOf(placeType)))
+                    .collect(Collectors.toSet()));
+            LOG.info("Places size " + places.size() + " (was searched " + foursquarePlaces.length + ") iterations " + ++iteration);
+        }
+    }
 
     @Deprecated
     @SuppressWarnings("unused")
