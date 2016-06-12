@@ -8,9 +8,9 @@ package ru.ifmo.pashaac.segmentation;
  */
 public enum Algorithm {
 
-    OPTIMAL_CLUSTERS,
     BLACK_HOLE_TOP_RATING,
     BLACK_HOLE_RANDOM,
+    BLACK_HOLE_HIERARCHICAL,
     DBSCAN,
     KMEANSPP_MAXRAD,
     KMEANSPP_FILTER_SPLIT,

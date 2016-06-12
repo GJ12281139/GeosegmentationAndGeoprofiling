@@ -73,32 +73,32 @@ function gNightLifeOff() {
 
 // Foursuqare range change handlers
 function fNightLifeSpotRangeChange() {
-    document.getElementById("fNightLifeSpotText").value = "Bars/clubs/disco/...: " + document.getElementById("fNightLifeSpot").value + "%";
+    document.getElementById("fNightLifeSpotText").value = "Бары-клубы: " + document.getElementById("fNightLifeSpot").value + "%";
 }
 
 function fBowlingAlleyRangeChange() {
-    document.getElementById("fBowlingAlleyText").value = "Bowling alleys: " + document.getElementById("fBowlingAlley").value + "%";
+    document.getElementById("fBowlingAlleyText").value = "Боулинг: " + document.getElementById("fBowlingAlley").value + "%";
 }
 
 function fMovieTheaterRangeChange() {
-    document.getElementById("fMovieTheaterText").value = "Movie theaters: " + document.getElementById("fMovieTheater").value + "%";
+    document.getElementById("fMovieTheaterText").value = "Кинотеатры: " + document.getElementById("fMovieTheater").value + "%";
 }
 
 function fPoolHallRangeChange() {
-    document.getElementById("fPoolHallText").value = "Pool halls: " + document.getElementById("fPoolHall").value + "%";
+    document.getElementById("fPoolHallText").value = "Бильярд: " + document.getElementById("fPoolHall").value + "%";
 }
 
 // Google range change handlers
 function gBowlingAlleyRangeChange() {
-    document.getElementById("gBowlingAlleyText").value = "Bowling alleys: " + document.getElementById("gBowlingAlley").value + "%";
+    document.getElementById("gBowlingAlleyText").value = "Боулинг: " + document.getElementById("gBowlingAlley").value + "%";
 }
 
 function gMovieTheaterRangeChange() {
-    document.getElementById("gMovieTheaterText").value = "Movie theaters: " + document.getElementById("gMovieTheater").value + "%";
+    document.getElementById("gMovieTheaterText").value = "Кинотеатры: " + document.getElementById("gMovieTheater").value + "%";
 }
 
 function gNightClubRangeChange() {
-    document.getElementById("gNightClubText").value = "Night clubs: " + document.getElementById("gNightClub").value + "%";
+    document.getElementById("gNightClubText").value = "Ночные клубы: " + document.getElementById("gNightClub").value + "%";
 }
 
 

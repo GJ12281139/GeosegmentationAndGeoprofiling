@@ -19,21 +19,22 @@ public class Segmentation {
 
     public static List<Cluster> clustering(Algorithm algorithm, Collection<Place> places, int minSegmentRad, int maxSegmentRad, int segmentsCountPercent) {
         switch (algorithm) {
-            case OPTIMAL_CLUSTERS:
-                LOG.info("Clustering K-measns++ optimal algorithm");
-//                return new KMeansPlusPlusClustering(places).getOptimalClusters();
             case BLACK_HOLE_RANDOM:
                 LOG.info("Clustering My BlackHole random algorithm");
                 return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleRandomAlgorithm();
             case BLACK_HOLE_TOP_RATING:
                 LOG.info("Clustering My BlackHole top rating algorithm");
                 return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleTopRatingAlgorithm();
+            case BLACK_HOLE_HIERARCHICAL:
+                LOG.info("Clustering My BlackHole hierarchical algorithm");
+//                return new BlackHoleClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDarkHoleHierarchicalAlgorithm();
             case DBSCAN:
                 LOG.info("Clustering DBSCAN algorithm");
-//                return new DBSCANClustering(places).getDBScanClusters();
+                return new DBSCANClustering(places, minSegmentRad, maxSegmentRad, segmentsCountPercent).getDBScanClusters();
             case KMEANSPP_MAXRAD:
                 LOG.info("Clustering K-means++ algorithm with max radius");
                 return new KMeansPlusPlusClustering(places).getClustersMaxRadius();
+
             case KMEANSPP_FILTER_SPLIT:
                 LOG.info("Clustering K-means++ algorithm with cluster filter and splitting if need");
                 return new KMeansPlusPlusClustering(places).getFiltersClustersWithConditions();

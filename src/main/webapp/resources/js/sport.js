@@ -50,11 +50,11 @@ function gSportOff() {
 
 
 function fAthleticsSportsRangeChange() {
-    document.getElementById("fAthleticsSportsText").value = "Athletics and sports: " + document.getElementById("fAthleticsSports").value + "%";
+    document.getElementById("fAthleticsSportsText").value = "Спорт: " + document.getElementById("fAthleticsSports").value + "%";
 }
 
 function gGymRangeChange() {
-    document.getElementById("gGymText").value = "Gyms: " + document.getElementById("gGym").value + "%";
+    document.getElementById("gGymText").value = "Спортивные залы: " + document.getElementById("gGym").value + "%";
 }
 
 function sportPercents() {

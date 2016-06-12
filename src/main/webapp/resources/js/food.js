@@ -83,44 +83,44 @@ function gFoodOff() {
 
 // Foursuqare range change handlers
 function fAsianRestaurantRangeChange() {
-    document.getElementById("fAsianRestaurantText").value = "Asian restaurants: " + document.getElementById("fAsianRestaurant").value + "%";
+    document.getElementById("fAsianRestaurantText").value = "Рестораны азии: " + document.getElementById("fAsianRestaurant").value + "%";
 }
 
 function fJapaneseRestaurantRangeChange() {
-    document.getElementById("fJapaneseRestaurantText").value = "Japan restaurants: " + document.getElementById("fJapaneseRestaurant").value + "%";
+    document.getElementById("fJapaneseRestaurantText").value = "Японские рестораны: " + document.getElementById("fJapaneseRestaurant").value + "%";
 }
 
 function fFrenchRestaurantRangeChange() {
-    document.getElementById("fFrenchRestaurantText").value = "French restaurants: " + document.getElementById("fFrenchRestaurant").value + "%";
+    document.getElementById("fFrenchRestaurantText").value = "Французские рестораны: " + document.getElementById("fFrenchRestaurant").value + "%";
 }
 
 function fItalianRestaurantRangeChange() {
-    document.getElementById("fItalianRestaurantText").value = "Italian restaurants: " + document.getElementById("fItalianRestaurant").value + "%";
+    document.getElementById("fItalianRestaurantText").value = "Итальянские рестораны: " + document.getElementById("fItalianRestaurant").value + "%";
 }
 
 function fBakeryRangeChange() {
-    document.getElementById("fBakeryText").value = "Bakery: " + document.getElementById("fBakery").value + "%";
+    document.getElementById("fBakeryText").value = "Пекарни: " + document.getElementById("fBakery").value + "%";
 }
 
 function fBistroRangeChange() {
-    document.getElementById("fBistroText").value = "Bistro: " + document.getElementById("fBistro").value + "%";
+    document.getElementById("fBistroText").value = "Бистро: " + document.getElementById("fBistro").value + "%";
 }
 
 function fFastFoodRestaurantRangeChange() {
-    document.getElementById("fFastFoodRestaurantText").value = "Fast Food: " + document.getElementById("fFastFoodRestaurant").value + "%";
+    document.getElementById("fFastFoodRestaurantText").value = "Фаст-фуд: " + document.getElementById("fFastFoodRestaurant").value + "%";
 }
 
 function fCafeRangeChange() {
-    document.getElementById("fCafeText").value = "Cafe: " + document.getElementById("fCafe").value + "%";
+    document.getElementById("fCafeText").value = "Кафе: " + document.getElementById("fCafe").value + "%";
 }
 
 // Google range change handlers
 function gCafeRangeChange() {
-    document.getElementById("gCafeText").value = "Cafe: " + document.getElementById("gCafe").value + "%";
+    document.getElementById("gCafeText").value = "Кафе: " + document.getElementById("gCafe").value + "%";
 }
 
 function gRestaurantRangeChange() {
-    document.getElementById("gRestaurantText").value = "Restaurants: " + document.getElementById("gRestaurant").value + "%";
+    document.getElementById("gRestaurantText").value = "Рестораны: " + document.getElementById("gRestaurant").value + "%";
 }
 
 function foodPercents() {

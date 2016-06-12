@@ -33,7 +33,7 @@ public class KMeansPlusPlusClustering {
 
     public List<Cluster> getClustersMaxRadius() {
         List<Cluster> clusters = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+//        for (int i = 0; i < 10; i++) {
             clusters.addAll(clusterer.cluster(places).stream()
                     .map(cluster -> {
                         LatLng center = new LatLng(cluster.getCenter().getPoint()[0], cluster.getCenter().getPoint()[1]);
@@ -41,7 +41,7 @@ public class KMeansPlusPlusClustering {
                         return new Cluster(center.lat, center.lng, maxRad, Properties.getIconKernel(), cluster.getPoints());
                     })
                     .collect(Collectors.toList()));
-        }
+//        }
         return clusters;
     }
 

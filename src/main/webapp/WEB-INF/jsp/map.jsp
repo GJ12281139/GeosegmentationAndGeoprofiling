@@ -44,7 +44,7 @@
 </head>
 <body>
 
-<div id="wait" style="display:none;position:absolute;z-index:1;top:15%;left:30%;padding:2px;">
+<div id="wait" style="display:none;position:absolute;z-index:1;top:15%;left:15%;padding:2px;">
     <img src='wait.gif' width="150" height="150" />
     <h2>Идёт загрузка данных или обработка запроса...<br>Пожалуйста подождите или вернитесь через 5 минут...</h2>
     <h2>Data downloading or your request handling...<br>Please wait or return in 5 minutes...</h2>
@@ -52,128 +52,128 @@
 
 
 <%-- user buttons --%>
-<input id="latitude" class="textbox" placeholder="latitude (ex. 59.957)">
-<input id="longitude" class="textbox" placeholder="longitude (ex. 30.307)">
-<input id="city" class="textbox" placeholder="city (ex. Saint-Petersburg)">
-<input id="country" class="textbox" placeholder="country (ex. Russia)">
-<input id="findme" class="button" value="Find me" type="button" onclick="geolocation()">
-<input id="submit" class="button" value="Submit" type="button" onclick="submit()">
-<input id="foursquareSource" class="button" value="Foursquare data source" type="button"
+<input id="latitude" class="textbox" placeholder="широта (например, 59.957)">
+<input id="longitude" class="textbox" placeholder="долгота (например, 30.307)">
+<input id="city" class="textbox" placeholder="город (например, Санкт-Петербург)">
+<input id="country" class="textbox" placeholder="страна (например, Россия)">
+<input id="findme" class="button" value="Найти меня" type="button" onclick="geolocation()">
+<input id="submit" class="button" value="Отправить" type="button" onclick="submit()">
+<input id="foursquareSource" class="button" value="Данные Foursquare" type="button"
        onclick="foursquareSourceHandler()">
-<input id="googleSource" class="button" value="Google data source" type="button" onclick="googleSourceHandler()">
-<input id="segmentRadiusText" class="text" type="text" value="Segment radius range:">
-<input id="segmentsCountText" class="text" type="text" value="Segments count 70%">
-<input id="segmentsCount" type="range" value="70" oninput="segmentsCountRangeChange()">
+<input id="googleSource" class="button" value="Данные Google.Maps" type="button" onclick="googleSourceHandler()">
+<input id="segmentRadiusText" class="text" type="text" value="Радиус сегмента (от-до):">
+<input id="segmentsCountText" class="text" type="text" value="Кол-во сегментов 60%">
+<input id="segmentsCount" type="range" value="60" oninput="segmentsCountRangeChange()">
 <input id="segmentMinRadius" class="textbox" value="275" onchange="segmentMinRadiusHandler()">
 <input id="segmentMaxRadius" class="textbox" value="800" onchange="segmentMaxRadiusHandler()">
 
 
 <%-- Categories --%>
-<input id="culture" class="button" value="Cultural and leisure time" type="button" onclick="culture()">
-<input id="food" class="button" value="Snack / lunch / dinner ..." type="button" onclick="food()">
-<input id="nightLife" class="button" value="Parties / clubs / bars..." type="button" onclick="nightLife()">
-<input id="sport" class="button" value="Sport places!" type="button" onclick="sport()">
-<input id="auto" class="button" value="Auto-auto-auto" type="button" onclick="auto()">
+<input id="culture" class="button" value="Культурно-досуговые" type="button" onclick="culture()">
+<input id="food" class="button" value="Зоны кафе-ресторанов" type="button" onclick="food()">
+<input id="nightLife" class="button" value="Ночная жизнь" type="button" onclick="nightLife()">
+<input id="sport" class="button" value="Места спорта" type="button" onclick="sport()">
+<input id="auto" class="button" value="Вокруг автомобилей" type="button" onclick="auto()">
 
 
 <%-- Foursquare Culture --%>
-<input id="fMuseumText" class="text" value="Museums: 15%" type="text">
+<input id="fMuseumText" class="text" value="Музеи: 15%" type="text">
 <input id="fMuseum" type="range" value="15" oninput="fMuseumRangeChange()">
-<input id="fParkText" class="text" value="Parks: 15%" type="text">
+<input id="fParkText" class="text" value="Парки: 15%" type="text">
 <input id="fPark" type="range" value="15" oninput="fParkRangeChange()">
-<input id="fPlazaText" class="text" value="Plazas: 30%" type="text">
-<input id="fPlaza" type="range" value="30" oninput="fPlazaRangeChange()">
-<input id="fSculptureGardenText" class="text" value="Sculpture gardens: 30%" type="text">
+<input id="fPlazaText" class="text" value="Площади: 15%" type="text">
+<input id="fPlaza" type="range" value="15" oninput="fPlazaRangeChange()">
+<input id="fSculptureGardenText" class="text" value="Скульптуры: 15%" type="text">
 <input id="fSculptureGarden" type="range" value="15" oninput="fSculptureGardenRangeChange()">
-<input id="fSpirtualCenterText" class="text" value="Spirtual centers: 10%" type="text">
-<input id="fSpirtualCenter" type="range" value="10" oninput="fSpirtualCenterRangeChange()">
-<input id="fTheaterText" class="text" value="Theaters: 15%" type="text">
+<input id="fSpirtualCenterText" class="text" value="Религиозные центры: 15%" type="text">
+<input id="fSpirtualCenter" type="range" value="15" oninput="fSpirtualCenterRangeChange()">
+<input id="fTheaterText" class="text" value="Театры: 15%" type="text">
 <input id="fTheater" type="range" value="15" oninput="fTheaterRangeChange()">
-<input id="fFountainText" class="text" value="Fountains: 30%" type="text">
-<input id="fFountain" type="range" value="30" oninput="fFountainRangeChange()">
-<input id="fGardenText" class="text" value="Gardens: 30%" type="text">
-<input id="fGarden" type="range" value="30" oninput="fGardenRangeChange()">
-<input id="fPalaceText" class="text" value="Palaces: 30%" type="text">
-<input id="fPalace" type="range" value="30" oninput="fPalaceRangeChange()">
-<input id="fCastleText" class="text" value="Castles: 30%" type="text">
-<input id="fCastle" type="range" value="30" oninput="fCastleRangeChange()">
+<input id="fFountainText" class="text" value="Фонтаны: 15%" type="text">
+<input id="fFountain" type="range" value="15" oninput="fFountainRangeChange()">
+<input id="fGardenText" class="text" value="Сады: 15%" type="text">
+<input id="fGarden" type="range" value="15" oninput="fGardenRangeChange()">
+<input id="fPalaceText" class="text" value="Дворцы: 15%" type="text">
+<input id="fPalace" type="range" value="15" oninput="fPalaceRangeChange()">
+<input id="fCastleText" class="text" value="Замки: 15%" type="text">
+<input id="fCastle" type="range" value="15" oninput="fCastleRangeChange()">
 <%-- Google culture --%>
-<input id="gMuseumText" class="text" value="Museums: 30%" type="text">
-<input id="gMuseum" type="range" value="30" oninput="gMuseumRangeChange()">
-<input id="gParkText" class="text" value="Parks: 30%" type="text">
-<input id="gPark" type="range" value="30" oninput="gParkRangeChange()">
-<input id="gChurchText" class="text" value="Churches: 30%" type="text">
-<input id="gChurch" type="range" value="30" oninput="gChurchRangeChange()">
+<input id="gMuseumText" class="text" value="Музеи: 15%" type="text">
+<input id="gMuseum" type="range" value="15" oninput="gMuseumRangeChange()">
+<input id="gParkText" class="text" value="Парки: 15%" type="text">
+<input id="gPark" type="range" value="15" oninput="gParkRangeChange()">
+<input id="gChurchText" class="text" value="Религиозные центры: 15%" type="text">
+<input id="gChurch" type="range" value="15" oninput="gChurchRangeChange()">
 
 
 <%-- Foursuqare Food --%>
-<input id="fAsianRestaurantText" class="text" value="Asian restaurants: 30%" type="text">
-<input id="fAsianRestaurant" type="range" value="30" oninput="fAsianRestaurantRangeChange()">
-<input id="fJapaneseRestaurantText" class="text" value="Japan restaurants: 30%" type="text">
-<input id="fJapaneseRestaurant" type="range" value="30" oninput="fJapaneseRestaurantRangeChange()">
-<input id="fFrenchRestaurantText" class="text" value="French restaurants: 30%" type="text">
-<input id="fFrenchRestaurant" type="range" value="30" oninput="fFrenchRestaurantRangeChange()">
-<input id="fItalianRestaurantText" class="text" value="Italian restaurants: 30%" type="text">
-<input id="fItalianRestaurant" type="range" value="30" oninput="fItalianRestaurantRangeChange()">
-<input id="fBakeryText" class="text" value="Bakery: 30%" type="text">
-<input id="fBakery" type="range" value="30" oninput="fBakeryRangeChange()">
-<input id="fBistroText" class="text" value="Bistro: 30%" type="text">
-<input id="fBistro" type="range" value="30" oninput="fBistroRangeChange()">
-<input id="fFastFoodRestaurantText" class="text" value="Fast Food: 30%" type="text">
-<input id="fFastFoodRestaurant" type="range" value="30" oninput="fFastFoodRestaurantRangeChange()">
-<input id="fCafeText" class="text" value="Cafe: 30%" type="text">
-<input id="fCafe" type="range" value="30" oninput="fCafeRangeChange()">
+<input id="fAsianRestaurantText" class="text" value="Рестораны азии: 15%" type="text">
+<input id="fAsianRestaurant" type="range" value="15" oninput="fAsianRestaurantRangeChange()">
+<input id="fJapaneseRestaurantText" class="text" value="Японские рестораны: 15%" type="text">
+<input id="fJapaneseRestaurant" type="range" value="15" oninput="fJapaneseRestaurantRangeChange()">
+<input id="fFrenchRestaurantText" class="text" value="Французские рестораны: 15%" type="text">
+<input id="fFrenchRestaurant" type="range" value="15" oninput="fFrenchRestaurantRangeChange()">
+<input id="fItalianRestaurantText" class="text" value="Итальянские рестораны: 15%" type="text">
+<input id="fItalianRestaurant" type="range" value="15" oninput="fItalianRestaurantRangeChange()">
+<input id="fBakeryText" class="text" value="Пекарни: 15%" type="text">
+<input id="fBakery" type="range" value="15" oninput="fBakeryRangeChange()">
+<input id="fBistroText" class="text" value="Бистро: 15%" type="text">
+<input id="fBistro" type="range" value="15" oninput="fBistroRangeChange()">
+<input id="fFastFoodRestaurantText" class="text" value="Фаст-фуд: 15%" type="text">
+<input id="fFastFoodRestaurant" type="range" value="15" oninput="fFastFoodRestaurantRangeChange()">
+<input id="fCafeText" class="text" value="Кафе: 15%" type="text">
+<input id="fCafe" type="range" value="15" oninput="fCafeRangeChange()">
 <%-- Google food --%>
-<input id="gCafeText" class="text" value="Cafe: 30%" type="text">
-<input id="gCafe" type="range" value="30" oninput="gCafeRangeChange()">
-<input id="gRestaurantText" class="text" value="Restaurant: 30%" type="text">
-<input id="gRestaurant" type="range" value="30" oninput="gRestaurantRangeChange()">
+<input id="gCafeText" class="text" value="Кафе: 15%" type="text">
+<input id="gCafe" type="range" value="15" oninput="gCafeRangeChange()">
+<input id="gRestaurantText" class="text" value="Рестораны: 15%" type="text">
+<input id="gRestaurant" type="range" value="15" oninput="gRestaurantRangeChange()">
 
 
 <%-- Foursquare Night Life --%>
-<input id="fNightLifeSpotText" class="text" value="Bars/clubs/disco/...: 30%" type="text">
-<input id="fNightLifeSpot" type="range" value="30" oninput="fNightLifeSpotRangeChange()">
-<input id="fBowlingAlleyText" class="text" value="Bowling alleys: 30%" type="text">
-<input id="fBowlingAlley" type="range" value="30" oninput="fBowlingAlleyRangeChange()">
-<input id="fMovieTheaterText" class="text" value="Movie theaters: 30%" type="text">
-<input id="fMovieTheater" type="range" value="30" oninput="fMovieTheaterRangeChange()">
-<input id="fPoolHallText" class="text" value="Pool halls: 30%" type="text">
-<input id="fPoolHall" type="range" value="30" oninput="fPoolHallRangeChange()">
+<input id="fNightLifeSpotText" class="text" value="Бары-клубы: 15%" type="text">
+<input id="fNightLifeSpot" type="range" value="15" oninput="fNightLifeSpotRangeChange()">
+<input id="fBowlingAlleyText" class="text" value="Боулинг: 15%" type="text">
+<input id="fBowlingAlley" type="range" value="15" oninput="fBowlingAlleyRangeChange()">
+<input id="fMovieTheaterText" class="text" value="Кинотеатры: 15%" type="text">
+<input id="fMovieTheater" type="range" value="15" oninput="fMovieTheaterRangeChange()">
+<input id="fPoolHallText" class="text" value="Бильярд: 15%" type="text">
+<input id="fPoolHall" type="range" value="15" oninput="fPoolHallRangeChange()">
 <%-- Google Night Life --%>
-<input id="gBowlingAlleyText" class="text" value="Bowling alleys: 30%" type="text">
-<input id="gBowlingAlley" type="range" value="30" oninput="gBowlingAlleyRangeChange()">
-<input id="gMovieTheaterText" class="text" value="Movie theaters: 30%" type="text">
-<input id="gMovieTheater" type="range" value="30" oninput="gMovieTheaterRangeChange()">
-<input id="gNightClubText" class="text" value="Night clubs: 30%" type="text">
-<input id="gNightClub" type="range" value="30" oninput="gNightClubRangeChange()">
+<input id="gBowlingAlleyText" class="text" value="Боулинг: 15%" type="text">
+<input id="gBowlingAlley" type="range" value="15" oninput="gBowlingAlleyRangeChange()">
+<input id="gMovieTheaterText" class="text" value="Кинотеатры: 15%" type="text">
+<input id="gMovieTheater" type="range" value="15" oninput="gMovieTheaterRangeChange()">
+<input id="gNightClubText" class="text" value="Ночные клубы: 15%" type="text">
+<input id="gNightClub" type="range" value="15" oninput="gNightClubRangeChange()">
 
 
 <%-- Foursquare Sport --%>
-<input id="fAthleticsSportsText" class="text" value="Athletics and sports: 30%" type="text">
-<input id="fAthleticsSports" type="range" value="30" oninput="fAthleticsSportsRangeChange()">
+<input id="fAthleticsSportsText" class="text" value="Спорт: 15%" type="text">
+<input id="fAthleticsSports" type="range" value="15" oninput="fAthleticsSportsRangeChange()">
 <%-- Google Sport --%>
-<input id="gGymText" class="text" value="Gyms: 30%" type="text">
-<input id="gGym" type="range" value="30" oninput="gGymRangeChange()">
+<input id="gGymText" class="text" value="Спортивные залы: 15%" type="text">
+<input id="gGym" type="range" value="15" oninput="gGymRangeChange()">
 
 
 <%-- Foursquare Auto --%>
-<input id="fAutoDealershipText" class="text" value="Auto dealerships: 30%" type="text">
-<input id="fAutoDealership" type="range" value="30" oninput="fAutoDealershipRangeChange()">
-<input id="fAutoGarageText" class="text" value="Auto garages: 30%" type="text">
-<input id="fAutoGarage" type="range" value="30" oninput="fAutoGarageRangeChange()">
-<input id="fAutoWorkshopText" class="text" value="Auto workshops: 30%" type="text">
-<input id="fAutoWorkshop" type="range" value="30" oninput="fAutoWorkshopRangeChange()">
-<input id="fCarWashText" class="text" value="Car washes: 30%" type="text">
-<input id="fCarWash" type="range" value="30" oninput="fCarWashRangeChange()">
+<input id="fAutoDealershipText" class="text" value="Автомобильный дилер: 15%" type="text">
+<input id="fAutoDealership" type="range" value="15" oninput="fAutoDealershipRangeChange()">
+<input id="fAutoGarageText" class="text" value="Автомобилные мастерские: 15%" type="text">
+<input id="fAutoGarage" type="range" value="15" oninput="fAutoGarageRangeChange()">
+<input id="fAutoWorkshopText" class="text" value="Автомобильные сервисы: 15%" type="text">
+<input id="fAutoWorkshop" type="range" value="15" oninput="fAutoWorkshopRangeChange()">
+<input id="fCarWashText" class="text" value="Мойки машин: 15%" type="text">
+<input id="fCarWash" type="range" value="15" oninput="fCarWashRangeChange()">
 <%-- Google Auto --%>
-<input id="gCarDealerText" class="text" value="Car dealers: 30%" type="text">
-<input id="gCarDealer" type="range" value="30" oninput="gCarDealerRangeChange()">
-<input id="gCarRentalText" class="text" value="Car rental: 30%" type="text">
-<input id="gCarRental" type="range" value="30" oninput="gCarRentalRangeChange()">
-<input id="gCarRepairText" class="text" value="Car repairs: 30%" type="text">
-<input id="gCarRepair" type="range" value="30" oninput="gCarRepairRangeChange()">
-<input id="gCarWashText" class="text" value="Car washes: 30%" type="text">
-<input id="gCarWash" type="range" value="30" oninput="gCarWashRangeChange()">
+<input id="gCarDealerText" class="text" value="Автомобильный дилер: 15%" type="text">
+<input id="gCarDealer" type="range" value="15" oninput="gCarDealerRangeChange()">
+<input id="gCarRentalText" class="text" value="Аренда автомобилей: 15%" type="text">
+<input id="gCarRental" type="range" value="15" oninput="gCarRentalRangeChange()">
+<input id="gCarRepairText" class="text" value="Автомобильные мастерскии: 15%" type="text">
+<input id="gCarRepair" type="range" value="15" oninput="gCarRepairRangeChange()">
+<input id="gCarWashText" class="text" value="Мойки машин: 15%" type="text">
+<input id="gCarWash" type="range" value="15" oninput="gCarWashRangeChange()">
 
 <div id="map"></div>
 <c:choose>

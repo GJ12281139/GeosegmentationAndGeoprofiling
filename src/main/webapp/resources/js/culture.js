@@ -96,56 +96,56 @@ function gCultureOff() {
 
 // Foursuqare range change handlers
 function fMuseumRangeChange() {
-    document.getElementById("fMuseumText").value = "Museums: " + document.getElementById("fMuseum").value + "%";
+    document.getElementById("fMuseumText").value = "Музеи: " + document.getElementById("fMuseum").value + "%";
 }
 
 function fParkRangeChange() {
-    document.getElementById("fParkText").value = "Parks: " + document.getElementById("fPark").value + "%";
+    document.getElementById("fParkText").value = "Парки: " + document.getElementById("fPark").value + "%";
 }
 
 function fPlazaRangeChange() {
-    document.getElementById("fPlazaText").value = "Plazas: " + document.getElementById("fPlaza").value + "%";
+    document.getElementById("fPlazaText").value = "Площади: " + document.getElementById("fPlaza").value + "%";
 }
 
 function fSculptureGardenRangeChange() {
-    document.getElementById("fSculptureGardenText").value = "Sculpture gardens: " + document.getElementById("fSculptureGarden").value + "%";
+    document.getElementById("fSculptureGardenText").value = "Скульптуры: " + document.getElementById("fSculptureGarden").value + "%";
 }
 
 function fSpirtualCenterRangeChange() {
-    document.getElementById("fSpirtualCenterText").value = "Spirtual centers: " + document.getElementById("fSpirtualCenter").value + "%";
+    document.getElementById("fSpirtualCenterText").value = "Религиозные центры: " + document.getElementById("fSpirtualCenter").value + "%";
 }
 
 function fTheaterRangeChange() {
-    document.getElementById("fTheaterText").value = "Theaters: " + document.getElementById("fTheater").value + "%";
+    document.getElementById("fTheaterText").value = "Театры: " + document.getElementById("fTheater").value + "%";
 }
 
 function fFountainRangeChange() {
-    document.getElementById("fFountainText").value = "Fountains: " + document.getElementById("fFountain").value + "%";
+    document.getElementById("fFountainText").value = "Фонтаны: " + document.getElementById("fFountain").value + "%";
 }
 
 function fGardenRangeChange() {
-    document.getElementById("fGardenText").value = "Gardens: " + document.getElementById("fGarden").value + "%";
+    document.getElementById("fGardenText").value = "Сады: " + document.getElementById("fGarden").value + "%";
 }
 
 function fPalaceRangeChange() {
-    document.getElementById("fPalaceText").value = "Palaces: " + document.getElementById("fPalace").value + "%";
+    document.getElementById("fPalaceText").value = "Дворцы: " + document.getElementById("fPalace").value + "%";
 }
 
 function fCastleRangeChange() {
-    document.getElementById("fCastleText").value = "Castles: " + document.getElementById("fCastle").value + "%";
+    document.getElementById("fCastleText").value = "Замки: " + document.getElementById("fCastle").value + "%";
 }
 
 // Foursuqare range change handlers
 function gMuseumRangeChange() {
-    document.getElementById("gMuseumText").value = "Museums: " + document.getElementById("gMuseum").value + "%";
+    document.getElementById("gMuseumText").value = "Музеи: " + document.getElementById("gMuseum").value + "%";
 }
 
 function gParkRangeChange() {
-    document.getElementById("gParkText").value = "Parks: " + document.getElementById("gPark").value + "%";
+    document.getElementById("gParkText").value = "Парки: " + document.getElementById("gPark").value + "%";
 }
 
 function gChurchRangeChange() {
-    document.getElementById("gChurchText").value = "Churches: " + document.getElementById("gChurch").value + "%";
+    document.getElementById("gChurchText").value = "Религиозные центры: " + document.getElementById("gChurch").value + "%";
 }
 
 

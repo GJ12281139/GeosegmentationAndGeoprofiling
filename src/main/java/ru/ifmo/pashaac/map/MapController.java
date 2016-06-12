@@ -99,7 +99,24 @@ public class MapController {
         Category category = makeCategory(data);
         List<Cluster> clusters = Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);
         Collection<BoundingBox> boundingBoxes = category.getBoundingBoxes();
-        Collection<Place> places = category.getPlaces(percents);
+        Collection<Place> places =  category.getPlaces(percents);
+//
+//        for (FoursquarePlaceType foursquarePlaceType : Culture.FOURSQUARE_PLACE_TYPES) {
+//            String placeType = foursquarePlaceType.name();
+//            BoundingBox boundingBox = boundingBoxes.iterator().next();
+//            if (!mapService.getHandlingMineOperations().containsKey(DataDAO.getCollectionName(boundingBox, placeType, source))) {
+//                mapService.getHandlingMineOperations().put(DataDAO.getCollectionName(boundingBox, placeType, source), true);
+//                DataDAO dao = new DataDAO(boundingBox, placeType, source);
+//                dao.minePlacesIfNeed(mapService);
+//                mapService.getHandlingMineOperations().remove(DataDAO.getCollectionName(boundingBox, placeType, source));
+//                places.addAll(dao.getTopRatingPlaces(100));
+//            }
+//        }
+//        places = places.stream()
+//                .sorted((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()))
+//                .limit(50)
+//                .collect(Collectors.toList());
+
         /////////////////////////////////
 
 //        List<Cluster> clusters = new ArrayList<>(); // Segmentation.clustering(Algorithm.valueOf(data.get("algorithm")), places(data), segmentMinRadius, segmentMaxRadius, segmentsCountPercent);

@@ -20,7 +20,7 @@ public class Culture extends Category {
             GooglePlaceType.PARK,
             GooglePlaceType.CHURCH};
 
-    private static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {
+    public static final FoursquarePlaceType[] FOURSQUARE_PLACE_TYPES = {
             FoursquarePlaceType.MUSEUM,
             FoursquarePlaceType.PARK,
             FoursquarePlaceType.PLAZA,
