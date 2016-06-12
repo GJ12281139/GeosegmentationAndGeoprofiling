@@ -72,8 +72,8 @@
 <input id="culture" class="button" value="Культурно-досуговые" type="button" onclick="culture()">
 <input id="food" class="button" value="Зоны кафе-ресторанов" type="button" onclick="food()">
 <input id="nightLife" class="button" value="Ночная жизнь" type="button" onclick="nightLife()">
-<input id="sport" class="button" value="Места спорта" type="button" onclick="sport()">
-<input id="auto" class="button" value="Вокруг автомобилей" type="button" onclick="auto()">
+<input id="sport" class="button" value="Места спорта" type="button" onclick="sport()" hidden="hidden">
+<input id="auto" class="button" value="Вокруг автомобилей" type="button" onclick="auto()" hidden="hidden">
 
 
 <%-- Foursquare Culture --%>
