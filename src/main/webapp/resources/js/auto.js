@@ -73,35 +73,35 @@ function gAutoOff() {
 }
 
 function fAutoDealershipRangeChange() {
-    document.getElementById("fAutoDealershipText").value = "Автомобильный дилер: " + document.getElementById("fAutoDealership").value + "%";
+    document.getElementById("fAutoDealershipText").value = "Дилеры: " + document.getElementById("fAutoDealership").value + "%";
 }
 
 function fAutoGarageRangeChange() {
-    document.getElementById("fAutoGarageText").value = "Автомобилные мастерские: " + document.getElementById("fAutoGarage").value + "%";
+    document.getElementById("fAutoGarageText").value = "Мастерские: " + document.getElementById("fAutoGarage").value + "%";
 }
 
 function fAutoWorkshopRangeChange() {
-    document.getElementById("fAutoWorkshopText").value = "Автомобильные сервисы: " + document.getElementById("fAutoWorkshop").value + "%";
+    document.getElementById("fAutoWorkshopText").value = "Сервисы: " + document.getElementById("fAutoWorkshop").value + "%";
 }
 
 function fCarWashRangeChange() {
-    document.getElementById("fCarWashText").value = "Мойки машин: " + document.getElementById("fCarWash").value + "%";
+    document.getElementById("fCarWashText").value = "Мойки: " + document.getElementById("fCarWash").value + "%";
 }
 
 function gCarDealerRangeChange() {
-    document.getElementById("gCarDealerText").value = "Автомобильный дилер: " + document.getElementById("gCarDealer").value + "%";
+    document.getElementById("gCarDealerText").value = "Дилеры: " + document.getElementById("gCarDealer").value + "%";
 }
 
 function gCarRentalRangeChange() {
-    document.getElementById("gCarRentalText").value = "Аренда автомобилей: " + document.getElementById("gCarRental").value + "%";
+    document.getElementById("gCarRentalText").value = "Аренда: " + document.getElementById("gCarRental").value + "%";
 }
 
 function gCarRepairRangeChange() {
-    document.getElementById("gCarRepairText").value = "Автомобильные мастерскии: " + document.getElementById("gCarRepair").value + "%";
+    document.getElementById("gCarRepairText").value = "Мастерскии: " + document.getElementById("gCarRepair").value + "%";
 }
 
 function gCarWashRangeChange() {
-    document.getElementById("gCarWashText").value = "Мойки машин: " + document.getElementById("gCarWash").value + "%";
+    document.getElementById("gCarWashText").value = "Мойки: " + document.getElementById("gCarWash").value + "%";
 }
 
 function autoPercents() {

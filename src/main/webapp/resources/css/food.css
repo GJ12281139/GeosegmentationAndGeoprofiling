@@ -12,6 +12,9 @@
     text-align: center;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    font-size: 90%;
+    color: rgba(0, 0, 0, 0.94);
+
     box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #5f5f5f inset;
     -moz-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;
     -webkit-box-shadow: 1px 1px 0 0 #FFF, 5px 5px 40px 2px #BBB inset;

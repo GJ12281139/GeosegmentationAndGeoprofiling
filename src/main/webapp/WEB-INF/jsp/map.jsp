@@ -85,7 +85,7 @@
 <input id="fPlaza" type="range" value="15" oninput="fPlazaRangeChange()">
 <input id="fSculptureGardenText" class="text" value="Скульптуры: 15%" type="text">
 <input id="fSculptureGarden" type="range" value="15" oninput="fSculptureGardenRangeChange()">
-<input id="fSpirtualCenterText" class="text" value="Религиозные центры: 15%" type="text">
+<input id="fSpirtualCenterText" class="text" value="Религия: 15%" type="text">
 <input id="fSpirtualCenter" type="range" value="15" oninput="fSpirtualCenterRangeChange()">
 <input id="fTheaterText" class="text" value="Театры: 15%" type="text">
 <input id="fTheater" type="range" value="15" oninput="fTheaterRangeChange()">
@@ -102,18 +102,18 @@
 <input id="gMuseum" type="range" value="15" oninput="gMuseumRangeChange()">
 <input id="gParkText" class="text" value="Парки: 15%" type="text">
 <input id="gPark" type="range" value="15" oninput="gParkRangeChange()">
-<input id="gChurchText" class="text" value="Религиозные центры: 15%" type="text">
+<input id="gChurchText" class="text" value="Религия: 15%" type="text">
 <input id="gChurch" type="range" value="15" oninput="gChurchRangeChange()">
 
 
 <%-- Foursuqare Food --%>
-<input id="fAsianRestaurantText" class="text" value="Рестораны азии: 15%" type="text">
+<input id="fAsianRestaurantText" class="text" value="Азиатские: 15%" type="text">
 <input id="fAsianRestaurant" type="range" value="15" oninput="fAsianRestaurantRangeChange()">
-<input id="fJapaneseRestaurantText" class="text" value="Японские рестораны: 15%" type="text">
+<input id="fJapaneseRestaurantText" class="text" value="Японские: 15%" type="text">
 <input id="fJapaneseRestaurant" type="range" value="15" oninput="fJapaneseRestaurantRangeChange()">
-<input id="fFrenchRestaurantText" class="text" value="Французские рестораны: 15%" type="text">
+<input id="fFrenchRestaurantText" class="text" value="Французские: 15%" type="text">
 <input id="fFrenchRestaurant" type="range" value="15" oninput="fFrenchRestaurantRangeChange()">
-<input id="fItalianRestaurantText" class="text" value="Итальянские рестораны: 15%" type="text">
+<input id="fItalianRestaurantText" class="text" value="Итальянские: 15%" type="text">
 <input id="fItalianRestaurant" type="range" value="15" oninput="fItalianRestaurantRangeChange()">
 <input id="fBakeryText" class="text" value="Пекарни: 15%" type="text">
 <input id="fBakery" type="range" value="15" oninput="fBakeryRangeChange()">
@@ -157,22 +157,22 @@
 
 
 <%-- Foursquare Auto --%>
-<input id="fAutoDealershipText" class="text" value="Автомобильный дилер: 15%" type="text">
+<input id="fAutoDealershipText" class="text" value="Дилеры: 15%" type="text">
 <input id="fAutoDealership" type="range" value="15" oninput="fAutoDealershipRangeChange()">
-<input id="fAutoGarageText" class="text" value="Автомобилные мастерские: 15%" type="text">
+<input id="fAutoGarageText" class="text" value="Мастерские: 15%" type="text">
 <input id="fAutoGarage" type="range" value="15" oninput="fAutoGarageRangeChange()">
-<input id="fAutoWorkshopText" class="text" value="Автомобильные сервисы: 15%" type="text">
+<input id="fAutoWorkshopText" class="text" value="Сервисы: 15%" type="text">
 <input id="fAutoWorkshop" type="range" value="15" oninput="fAutoWorkshopRangeChange()">
-<input id="fCarWashText" class="text" value="Мойки машин: 15%" type="text">
+<input id="fCarWashText" class="text" value="Мойки: 15%" type="text">
 <input id="fCarWash" type="range" value="15" oninput="fCarWashRangeChange()">
 <%-- Google Auto --%>
-<input id="gCarDealerText" class="text" value="Автомобильный дилер: 15%" type="text">
+<input id="gCarDealerText" class="text" value="Дилеры: 15%" type="text">
 <input id="gCarDealer" type="range" value="15" oninput="gCarDealerRangeChange()">
-<input id="gCarRentalText" class="text" value="Аренда автомобилей: 15%" type="text">
+<input id="gCarRentalText" class="text" value="Аренда: 15%" type="text">
 <input id="gCarRental" type="range" value="15" oninput="gCarRentalRangeChange()">
-<input id="gCarRepairText" class="text" value="Автомобильные мастерскии: 15%" type="text">
+<input id="gCarRepairText" class="text" value="Мастерскии: 15%" type="text">
 <input id="gCarRepair" type="range" value="15" oninput="gCarRepairRangeChange()">
-<input id="gCarWashText" class="text" value="Мойки машин: 15%" type="text">
+<input id="gCarWashText" class="text" value="Мойки: 15%" type="text">
 <input id="gCarWash" type="range" value="15" oninput="gCarWashRangeChange()">
 
 <div id="map"></div>

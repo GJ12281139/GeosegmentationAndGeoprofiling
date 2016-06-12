@@ -112,7 +112,7 @@ function fSculptureGardenRangeChange() {
 }
 
 function fSpirtualCenterRangeChange() {
-    document.getElementById("fSpirtualCenterText").value = "Религиозные центры: " + document.getElementById("fSpirtualCenter").value + "%";
+    document.getElementById("fSpirtualCenterText").value = "Религия: " + document.getElementById("fSpirtualCenter").value + "%";
 }
 
 function fTheaterRangeChange() {
@@ -145,7 +145,7 @@ function gParkRangeChange() {
 }
 
 function gChurchRangeChange() {
-    document.getElementById("gChurchText").value = "Религиозные центры: " + document.getElementById("gChurch").value + "%";
+    document.getElementById("gChurchText").value = "Религия: " + document.getElementById("gChurch").value + "%";
 }
 
 
