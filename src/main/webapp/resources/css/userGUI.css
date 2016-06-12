@@ -90,6 +90,10 @@
     background: -webkit-linear-gradient(top, #606060 0%, #606060 100%);
 }
 
+#foursquareSource {
+    background: -webkit-linear-gradient(top, #00bf00 0%, #00bf00 100%)
+}
+
 #longitude {
     margin-left: 215px;
 }

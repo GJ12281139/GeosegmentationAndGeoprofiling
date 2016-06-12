@@ -249,7 +249,7 @@ function primitivePlacesOff() {
 
 // Source handlers
 var googleSourcePressed = false;
-var foursquareSourcePressed = false;
+var foursquareSourcePressed = true;
 function googleSourceHandler() {
     primitivePlacesOff();
     if (googleSourcePressed) {
