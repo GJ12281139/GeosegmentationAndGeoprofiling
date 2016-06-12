@@ -277,7 +277,7 @@ function foursquareSourceHandler() {
 }
 
 function segmentsCountRangeChange() {
-    document.getElementById("segmentsCountText").value = "Количество сегментов " + document.getElementById("segmentsCount").value + "%";
+    document.getElementById("segmentsCountText").value = "Кол-во сегментов " + document.getElementById("segmentsCount").value + "%";
 }
 
 // Segment radius checker
